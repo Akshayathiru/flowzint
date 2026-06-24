@@ -1,24 +1,17 @@
 from fastapi import FastAPI
+from database import engine
+from models import Base
+from routes import farmer
+from routes import buyers
 
-# Create FastAPI application
-app = FastAPI(
-    title="Mandi Mitra Backend",
-    description="Backend APIs for pooling farmers and buyer auctions",
-    version="1.0"
-)
+Base.metadata.create_all(bind=engine)
+
+app = FastAPI()
+app.include_router(buyers.router)
+
+app.include_router(farmer.router)
 
 
-# Home API
 @app.get("/")
 def home():
-    return {
-        "message": "Welcome to Mandi Mitra Backend"
-    }
-
-
-# Health Check API
-@app.get("/health")
-def health():
-    return {
-        "status": "Backend is running"
-    }
+    return {"message": "Welcome"}
