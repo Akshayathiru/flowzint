@@ -48,3 +48,10 @@ class Offer(Base):
     buyer_id = Column(Integer)
     pool_id = Column(Integer)
     price = Column(Float)
+
+class TrustScore(Base):
+    __tablename__ = "trust_scores"
+
+    id = Column(Integer, primary_key=True, index=True)
+    phone = Column(String, unique=True)
+    score = Column(Float, default=100)

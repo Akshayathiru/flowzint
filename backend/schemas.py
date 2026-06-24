@@ -36,3 +36,6 @@ class OfferCreate(BaseModel):
     buyer_id: int
     pool_id: int
     price: float
+class TrustUpdate(BaseModel):
+    phone: str
+    delivered: bool

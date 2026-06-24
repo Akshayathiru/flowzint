@@ -3,6 +3,8 @@ from database import engine
 from models import Base
 from routes import farmer
 from routes import buyers
+from routes import trust
+app.include_router(trust.router)
 
 Base.metadata.create_all(bind=engine)
 
