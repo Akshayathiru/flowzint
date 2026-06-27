@@ -29,7 +29,7 @@ export default function MandiMap() {
         </span>
       </div>
 
-      <div className="flex-1 min-h-0 relative rounded-lg overflow-hidden border border-gray-150">
+      <div className="h-[230px] w-full relative rounded-lg overflow-hidden border border-gray-150 shrink-0">
         <MandiMapInner />
       </div>
     </div>
