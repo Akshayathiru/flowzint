@@ -14,6 +14,7 @@ import { useTranslations } from "next-intl";
 import StatCardSkeleton from "@/components/shared/StatCardSkeleton";
 import PoolCardSkeleton from "@/components/shared/PoolCardSkeleton";
 import { useQuery } from "@tanstack/react-query";
+import { usePools } from "@/hooks/usePools";
 
 const MandiMap = dynamic(() => import("@/components/map/MandiMap"), {
   ssr: false,
@@ -31,6 +32,8 @@ export default function Dashboard() {
     },
     refetchInterval: 10000
   });
+
+  const { data: activePools, isLoading: isLoadingPools } = usePools();
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -103,33 +106,32 @@ export default function Dashboard() {
               <h2 className="font-sans text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-3">
                 {t("active_pools")}
               </h2>
-              {isLoading ? (
+              {isLoading || isLoadingPools ? (
                 <div className="flex flex-col gap-4">
                   <PoolCardSkeleton />
                   <PoolCardSkeleton />
                 </div>
               ) : (
                 <div className="flex flex-col gap-4">
-                  <PoolCard
-                    poolId="KAN-TOM-001"
-                    crop="Tomatoes"
-                    location="Kanchipuram"
-                    currentQtyKg={820}
-                    targetQtyKg={1000}
-                    farmersCount={6}
-                    minutesRemaining={47}
-                    status="filling"
-                  />
-                  <PoolCard
-                    poolId="VEL-ONI-002"
-                    crop="Onions"
-                    location="Vellore"
-                    currentQtyKg={312}
-                    targetQtyKg={500}
-                    farmersCount={4}
-                    minutesRemaining={61}
-                    status="auctioning"
-                  />
+                  {activePools && activePools.length > 0 ? (
+                    activePools.map((pool) => (
+                      <PoolCard
+                        key={pool.poolId}
+                        poolId={pool.poolId}
+                        crop={pool.crop}
+                        location={pool.location}
+                        currentQtyKg={pool.currentQtyKg}
+                        targetQtyKg={pool.targetQtyKg}
+                        farmersCount={pool.farmersCount}
+                        minutesRemaining={pool.minutesRemaining}
+                        status={pool.status}
+                      />
+                    ))
+                  ) : (
+                    <div className="bg-white rounded-xl border border-gray-200 p-6 text-center text-gray-500 font-sans text-xs">
+                      No active pools at the moment.
+                    </div>
+                  )}
                 </div>
               )}
             </div>

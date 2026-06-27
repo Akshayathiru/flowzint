@@ -24,23 +24,21 @@ class PoolResponse(BaseModel):
     total_quantity: float
     status: str
 
-    class BuyerCreate(BaseModel):
-        name: str
-        phone: str
-        crop: str
-        location: str
-        min_quantity: float
 
-class OfferCreate(BaseModel):
+class BuyerCreate(BaseModel):
+    name: str
+    phone: str
+    crop: str
+    location: str
+    min_quantity: float
 
-    buyer_id: int
-    pool_id: int
-    price: float
+
 class TrustUpdate(BaseModel):
     phone: str
     delivered: bool
 
+
 class FarmerConfirm(BaseModel):
     pool_id: int
     phone: str
-    accepted: bool
+    accepted: bool

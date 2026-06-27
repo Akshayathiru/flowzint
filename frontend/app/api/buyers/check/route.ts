@@ -1,14 +1,22 @@
 import { NextResponse } from 'next/server'
 
-export const dynamic = 'force-dynamic';
+const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8001'
 
-// TODO: proxy to FastAPI GET /api/buyers/check?phone=
+export const dynamic = 'force-dynamic'
+
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
-  const phone = searchParams.get('phone')
-  // Simulate: +91 8012345678 is already taken
-  // Normalize by stripping whitespaces
-  const normalizedPhone = phone ? phone.replace(/\s+/g, '') : ''
-  const exists = normalizedPhone === '+918012345678'
-  return NextResponse.json({ phone, exists })
+  const phone = searchParams.get('phone') ?? ''
+  try {
+    const res = await fetch(
+      `${BACKEND_URL}/buyers/check?phone=${encodeURIComponent(phone)}`,
+      { cache: 'no-store' }
+    )
+    if (!res.ok) throw new Error(`Backend error: ${res.status}`)
+    const data = await res.json()
+    return NextResponse.json(data)
+  } catch (error) {
+    console.error('Failed to check buyer phone:', error)
+    return NextResponse.json({ phone, exists: false })
+  }
 }

@@ -9,6 +9,7 @@ from routes import pools
 from routes import confirmation
 from routes import receipt
 from routes import mandi
+from routes import stats
 
 
 def ensure_pool_schema():
@@ -40,8 +41,14 @@ app.include_router(trust.router)
 app.include_router(confirmation.router)
 app.include_router(receipt.router)
 app.include_router(mandi.router)
-
+app.include_router(stats.router)
 
 @app.get("/")
 def home():
     return {"message": "Welcome"}
+
+from socket_manager import sio
+import socketio
+
+# Wrap the FastAPI app with the socketio ASGIApp
+app = socketio.ASGIApp(sio, other_asgi_app=app)

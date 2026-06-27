@@ -1,13 +1,21 @@
 import { NextResponse } from "next/server";
 
-// TODO: proxy to FastAPI GET /api/farmers/:phone
+const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:8001";
+
+export const dynamic = "force-dynamic";
+
 export async function GET(
   _req: Request,
-  { params }: { params: { phone: string } }
+  { params }: { params: Promise<{ phone: string }> }
 ) {
-  return NextResponse.json({
-    phone: params.phone,
-    trustScore: 4.2,
-    totalCalls: 12,
-  });
+  const { phone } = await params;
+  try {
+    const res = await fetch(`${BACKEND_URL}/farmers/${encodeURIComponent(phone)}`, { cache: "no-store" });
+    if (!res.ok) throw new Error(`Backend error: ${res.status}`);
+    const data = await res.json();
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error(`Failed to fetch farmer ${phone}:`, error);
+    return NextResponse.json({ phone, trustScore: 100, totalCalls: 0, pools: [] });
+  }
 }

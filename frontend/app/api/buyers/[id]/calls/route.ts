@@ -1,47 +1,21 @@
 import { NextResponse } from "next/server";
 
-// TODO: proxy to FastAPI GET /api/buyers/:id/calls
+const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:8001";
+
+export const dynamic = "force-dynamic";
+
 export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
+  _req: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  console.log(`Fetching calls for buyer ${params.id} via ${request.url}`);
-  return NextResponse.json([
-    {
-      poolId: "KAN-TOM-001",
-      date: "Today 09:46",
-      crop: "Tomatoes",
-      district: "Kanchipuram",
-      bid: 15,
-      result: "won",
-      lotQtyKg: 1020,
-    },
-    {
-      poolId: "VEL-ONI-002",
-      date: "Yesterday",
-      crop: "Onions",
-      district: "Vellore",
-      bid: 17,
-      result: "lost",
-      lotQtyKg: 640,
-    },
-    {
-      poolId: "KAN-TOM-008",
-      date: "3 days ago",
-      crop: "Tomatoes",
-      district: "Kanchipuram",
-      bid: 13,
-      result: "won",
-      lotQtyKg: 750,
-    },
-    {
-      poolId: "CHE-POT-003",
-      date: "5 days ago",
-      crop: "Potatoes",
-      district: "Chengalpattu",
-      bid: null,
-      result: "no_answer",
-      lotQtyKg: 880,
-    },
-  ]);
+  const { id } = await params;
+  try {
+    const res = await fetch(`${BACKEND_URL}/buyers/${id}/calls`, { cache: "no-store" });
+    if (!res.ok) throw new Error(`Backend error: ${res.status}`);
+    const data = await res.json();
+    return NextResponse.json(Array.isArray(data) ? data : []);
+  } catch (error) {
+    console.error(`Failed to fetch calls for buyer ${id}:`, error);
+    return NextResponse.json([]);
+  }
 }

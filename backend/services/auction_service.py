@@ -11,6 +11,12 @@ def save_offer(db, offer_data):
     db.add(offer)
     db.commit()
 
+    buyer = db.query(Buyer).filter(Buyer.id == offer_data.buyer_id).first()
+    buyer_name = buyer.name if buyer else "Unknown"
+
+    from socket_manager import emit_pool_bid
+    emit_pool_bid(str(offer_data.pool_id), buyer_name, offer_data.price)
+
     return {
         "message": "Offer saved"
     }

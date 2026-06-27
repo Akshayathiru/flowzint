@@ -1,10 +1,24 @@
 import { NextResponse } from 'next/server'
 
-// TODO: proxy to FastAPI GET /api/farmers/:phone/settlements
-export async function GET(_req: Request, { params }: { params: { phone: string } }) {
-  const { phone } = params;
-  return NextResponse.json([
-    { poolId: "KAN-TOM-001", date: "2024-01-15", crop: "Tomatoes", district: "Kanchipuram", qtyKg: 200, pricePerKg: 15, totalEarnings: 3000, premiumPct: 25, phone },
-    { poolId: "CHE-POT-003", date: "2024-01-14", crop: "Potatoes", district: "Chengalpattu", qtyKg: 180, pricePerKg: 21, totalEarnings: 3780, premiumPct: 17, phone }
-  ])
+const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8001'
+
+export const dynamic = 'force-dynamic'
+
+export async function GET(
+  _req: Request,
+  { params }: { params: Promise<{ phone: string }> }
+) {
+  const { phone } = await params
+  try {
+    const res = await fetch(
+      `${BACKEND_URL}/farmers/${encodeURIComponent(phone)}/settlements`,
+      { cache: 'no-store' }
+    )
+    if (!res.ok) throw new Error(`Backend error: ${res.status}`)
+    const data = await res.json()
+    return NextResponse.json(Array.isArray(data) ? data : [])
+  } catch (error) {
+    console.error(`Failed to fetch settlements for farmer ${phone}:`, error)
+    return NextResponse.json([])
+  }
 }

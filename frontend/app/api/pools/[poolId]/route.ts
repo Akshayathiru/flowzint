@@ -1,9 +1,21 @@
 import { NextResponse } from "next/server";
 
-// TODO: proxy to FastAPI
+const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:8001";
+
+export const dynamic = "force-dynamic";
+
 export async function GET(
   _req: Request,
-  { params }: { params: { poolId: string } }
+  { params }: { params: Promise<{ poolId: string }> }
 ) {
-  return NextResponse.json({ poolId: params.poolId, status: "auctioning" });
+  const { poolId } = await params;
+  try {
+    const res = await fetch(`${BACKEND_URL}/pools/${poolId}`, { cache: "no-store" });
+    if (!res.ok) throw new Error(`Backend error: ${res.status}`);
+    const data = await res.json();
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error(`Failed to fetch pool ${poolId} from backend:`, error);
+    return NextResponse.json({ error: "Pool not found" }, { status: 404 });
+  }
 }

@@ -1,0 +1,8 @@
+# Pyrefly configuration for the backend
+# Points to the project venv so fastapi, sqlalchemy, etc. resolve correctly
+
+# Use the project venv interpreter (has fastapi, sqlalchemy, uvicorn installed)
+python_interpreter = "venv/Scripts/python.exe"
+
+# The backend/ directory is the project root for imports (models, database, etc.)
+project_includes = ["."]

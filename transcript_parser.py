@@ -11,7 +11,7 @@ COMMODITIES = {
 }
 
 # Add some sample locations
-LOCATIONS = ["krishnagiri", "chittoor", "nashik", "pune", "bangalore"]
+LOCATIONS = ["krishnagiri", "chittoor", "nashik", "pune", "bangalore", "kanchipuram", "vellore", "salem", "chengalpattu", "tiruvannamalai"]
 
 def parse_transcript(transcript: str) -> dict:
     """

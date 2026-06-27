@@ -1,7 +1,9 @@
+# pyrefly: ignore [missing-import]
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+# pyrefly: ignore [missing-import]
 from fastapi.responses import JSONResponse
 import logging
-import requests
+import requests  # type: ignore
 import os
 
 from models import (
@@ -20,12 +22,16 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Voice & Language Layer API")
 
-MEMBER2_ENDPOINT = os.getenv("MEMBER2_ENDPOINT", "http://localhost:8001/pool/add")
+MEMBER2_ENDPOINT = os.getenv("MEMBER2_ENDPOINT", "http://localhost:8001/add_farmer")
 
 @app.post("/inbound-call", response_model=InboundCallResponse)
 async def handle_inbound_call(
     phone_number: str = Form(...),
-    audio: UploadFile = File(...)
+    audio: UploadFile = File(...),
+    crop: str = Form(None),
+    quantity: float = Form(None),
+    location: str = Form(None),
+    language: str = Form(None)
 ):
     """
     Accepts raw audio and phone number, transcribes via Saaras, extracts fields, 
@@ -46,6 +52,20 @@ async def handle_inbound_call(
     # 2. Parse transcript
     parsed_data = parse_transcript(transcript)
 
+    # Override parsed values if optional explicit Form fields are provided
+    if crop:
+        parsed_data["commodity"] = crop.lower()
+    if quantity:
+        parsed_data["quantity_kg"] = quantity
+    if location:
+        parsed_data["location"] = location.lower()
+    if language:
+        language_code = language
+
+    # Recalculate confidence if we forced the data
+    if crop or quantity or location:
+        parsed_data["confidence_flag"] = bool(parsed_data["commodity"] and parsed_data["quantity_kg"] and parsed_data["location"])
+
     response_data = InboundCallResponse(
         commodity=parsed_data["commodity"],
         quantity_kg=parsed_data["quantity_kg"],
@@ -56,15 +76,17 @@ async def handle_inbound_call(
         confidence_flag=parsed_data["confidence_flag"]
     )
 
-    # Note: Could also pass data to Member 2's pooling engine here if required immediately,
-    # or rely on the caller of this API to forward it. Requirements say:
-    # "Store nothing permanently — use in-memory dicts or pass data to Member 2's pooling engine via HTTP POST to http://localhost:8001/pool/add"
-    # We will attempt to pass it to Member 2:
+    # Map fields for Member 2's backend (which expects crop, quantity, location, phone)
+    backend_payload = {
+        "crop": response_data.commodity,
+        "quantity": response_data.quantity_kg,
+        "location": response_data.location,
+        "phone": response_data.phone_number
+    }
+
     try:
-        if MOCK_MODE:
-            logger.info(f"[MOCK] Passing data to Member 2 at {MEMBER2_ENDPOINT}")
-        else:
-            requests.post(MEMBER2_ENDPOINT, json=response_data.dict(), timeout=5)
+        logger.info(f"Forwarding farmer info to Member 2 at {MEMBER2_ENDPOINT} with payload {backend_payload}")
+        requests.post(MEMBER2_ENDPOINT, json=backend_payload, timeout=5)
     except Exception as e:
         logger.warning(f"Failed to post to Member 2: {e}")
 

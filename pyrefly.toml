@@ -1,0 +1,5 @@
+# Pyrefly configuration for the project root (voice layer)
+# Points to the backend venv so fastapi, requests, etc. resolve correctly
+
+python_interpreter = "backend/venv/Scripts/python.exe"
+project_includes = ["."]

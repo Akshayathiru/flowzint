@@ -4,6 +4,8 @@ from datetime import datetime
 THRESHOLD = 250
 
 
+from socket_manager import emit_pool_new, emit_pool_update, emit_pool_settled
+
 def add_farmer_to_pool(db, farmer):
 
     pool = db.query(Pool).filter(
@@ -12,6 +14,7 @@ def add_farmer_to_pool(db, farmer):
         Pool.status == "OPEN"
     ).first()
 
+    is_new = False
     if pool is None:
 
         pool = Pool(
@@ -24,6 +27,7 @@ def add_farmer_to_pool(db, farmer):
         db.add(pool)
         db.commit()
         db.refresh(pool)
+        is_new = True
 
     member = PoolMember(
         pool_id=pool.id,
@@ -39,6 +43,21 @@ def add_farmer_to_pool(db, farmer):
         pool.status = "CLOSED"
 
     db.commit()
+
+    pool_data = {
+        "poolId": str(pool.id),
+        "crop": pool.crop.capitalize() if pool.crop else "",
+        "location": pool.location,
+        "currentQtyKg": pool.total_quantity,
+        "targetQtyKg": float(THRESHOLD),
+        "farmersCount": db.query(PoolMember).filter(PoolMember.pool_id == pool.id).count(),
+        "status": "filling" if pool.status == "OPEN" else "auctioning"
+    }
+
+    if is_new:
+        emit_pool_new(pool_data)
+    else:
+        emit_pool_update(pool_id=str(pool.id), pool_data=pool_data)
 
     return {
         "pool_id": pool.id,
@@ -78,6 +97,12 @@ def close_pool(db, pool_id):
     pool.closed_at = datetime.now()
 
     db.commit()
+
+    emit_pool_settled(
+        pool_id=str(pool.id),
+        winning_price_per_kg=best_offer.price,
+        settlement_ids=[]
+    )
 
     return {
         "pool_id": pool.id,
