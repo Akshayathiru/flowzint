@@ -103,7 +103,7 @@ export default function Dashboard() {
           </div>
 
           {/* RIGHT PANEL */}
-          <div className="flex flex-col gap-5 lg:overflow-y-auto lg:h-full pb-6">
+          <div className="hidden lg:flex flex-col gap-5 lg:overflow-y-auto lg:h-full pb-6">
             <MandiMap />
 
             {/* Quick Actions */}

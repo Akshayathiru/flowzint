@@ -14,7 +14,7 @@ export default function PageHeader({
   actions,
 }: PageHeaderProps) {
   return (
-    <header className="px-6 pt-6 pb-4 border-b border-gray-200 bg-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shrink-0 font-sans">
+    <header className="px-4 lg:px-6 pt-5 pb-4 border-b border-gray-200 bg-white flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 shrink-0 font-sans">
       {/* Left branding/description */}
       <div className="flex flex-col">
         <h1 className="font-display font-bold text-xl text-charcoal">
@@ -29,7 +29,7 @@ export default function PageHeader({
 
       {/* Right actions slot */}
       {actions && (
-        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto sm:justify-end">
+        <div className="flex items-center gap-2 flex-wrap">
           {actions}
         </div>
       )}

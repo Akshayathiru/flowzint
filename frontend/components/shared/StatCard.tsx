@@ -17,17 +17,17 @@ export default function StatCard({
   icon: Icon,
 }: StatCardProps) {
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-4 relative shadow-sm hover:border-gray-300 transition-colors flex flex-col justify-between">
+    <div className="bg-white rounded-xl border border-gray-200 p-3 lg:p-4 relative shadow-sm hover:border-gray-300 transition-colors flex flex-col justify-between">
       <div>
         <div className="flex justify-between items-start">
           <span className="font-sans text-[10px] font-bold uppercase tracking-wider text-gray-400">
             {label}
           </span>
           <div className="text-soil-brown">
-            <Icon className="w-[18px] h-[18px]" />
+            <Icon className="w-4 h-4 lg:w-[18px] lg:h-[18px]" />
           </div>
         </div>
-        <div className="font-display font-bold text-3xl text-charcoal mt-1">
+        <div className="font-display font-bold text-2xl lg:text-3xl text-charcoal mt-1">
           {value}
         </div>
       </div>

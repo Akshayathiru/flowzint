@@ -20,7 +20,7 @@ export default function LayoutWrapper({
       {/* Main viewport area offset on desktop if sidebar is active */}
       <div
         className={`flex-1 min-h-screen overflow-y-auto ${
-          isLanding ? "" : "lg:ml-56 ml-0"
+          isLanding ? "" : "lg:ml-56 ml-0 pb-16 lg:pb-0"
         }`}
       >
         {children}

@@ -53,7 +53,7 @@ export default function PoolCard({
 
   return (
     <div
-      className={`bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:border-gray-300 transition-all ${getBorderColorClass()}`}
+      className={`bg-white rounded-xl border border-gray-200 p-3 lg:p-4 shadow-sm hover:border-gray-300 transition-all ${getBorderColorClass()}`}
     >
       {/* Top Row */}
       <div className="flex justify-between items-start">
@@ -81,7 +81,7 @@ export default function PoolCard({
       </div>
 
       {/* Bottom Row */}
-      <div className="mt-4 flex justify-between items-center text-xs text-gray-500 font-sans">
+      <div className="mt-4 flex flex-wrap gap-y-2 gap-x-4 items-center text-xs text-gray-500 font-sans">
         <div className="flex items-center gap-1.5">
           <Users className="w-3.5 h-3.5 text-gray-400" />
           <span>{farmersCount} farmers pooled</span>
@@ -91,7 +91,7 @@ export default function PoolCard({
         </div>
         <Link
           href={`/dashboard/pool/${poolId}`}
-          className="font-medium text-sky-blue hover:underline text-xs"
+          className="text-sky-blue font-sans text-xs font-medium hover:underline w-full lg:w-auto mt-1 lg:mt-0"
         >
           View Details &rarr;
         </Link>

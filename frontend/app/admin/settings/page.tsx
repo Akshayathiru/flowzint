@@ -3,6 +3,7 @@
 // TODO: PATCH /api/admin/settings
 
 import React, { useState } from "react";
+import Link from "next/link";
 import {
   AlertTriangle,
   Eye,
@@ -145,6 +146,15 @@ export default function AdminSettingsPage() {
 
       {/* Main Content Area */}
       <main className="max-w-6xl w-full mx-auto px-6 py-6 flex flex-col gap-6">
+        <div className="lg:hidden bg-charcoal rounded-xl p-4 mb-2 flex items-center justify-between shadow-sm">
+          <div>
+            <div className="font-display font-semibold text-sm text-white">Demo Control Panel</div>
+            <div className="font-sans text-xs text-gray-400 mt-0.5">Trigger live demo events</div>
+          </div>
+          <Link href="/demo" className="bg-harvest-gold text-soil-brown rounded-lg px-3 py-2 font-sans text-xs font-medium">
+            Open →
+          </Link>
+        </div>
 
         {/* Dynamic Grid Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6 items-start">
