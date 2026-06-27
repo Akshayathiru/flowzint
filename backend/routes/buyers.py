@@ -3,7 +3,12 @@ from sqlalchemy.orm import Session
 
 from database import SessionLocal
 from schemas import OfferCreate
-from services.auction_service import save_offer, get_best_offer
+from services.auction_service import (
+    save_offer,
+    get_best_offer,
+    get_all_offers,
+    get_all_buyers,
+)
 
 router = APIRouter()
 
@@ -18,15 +23,30 @@ def get_db():
 
 @router.post("/buyer_offer")
 def buyer_offer(
-        offer: OfferCreate,
-        db: Session = Depends(get_db)
+    offer: OfferCreate,
+    db: Session = Depends(get_db),
 ):
     return save_offer(db, offer)
 
 
 @router.get("/best_offer/{pool_id}")
 def best_offer(
-        pool_id: int,
-        db: Session = Depends(get_db)
+    pool_id: int,
+    db: Session = Depends(get_db),
 ):
     return get_best_offer(db, pool_id)
+
+
+@router.get("/offers/{pool_id}")
+def all_offers(
+    pool_id: int,
+    db: Session = Depends(get_db),
+):
+    return get_all_offers(db, pool_id)
+
+
+@router.get("/buyers")
+def buyers(
+    db: Session = Depends(get_db),
+):
+    return get_all_buyers(db)
