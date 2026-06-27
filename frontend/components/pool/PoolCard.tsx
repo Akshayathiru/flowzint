@@ -1,0 +1,101 @@
+import React from "react";
+import Link from "next/link";
+import { Users } from "lucide-react";
+import StatusBadge from "@/components/shared/StatusBadge";
+import { ActivePool } from "@/types";
+
+interface PoolCardProps {
+  poolId: string;
+  crop: string;
+  location: string;
+  currentQtyKg: number;
+  targetQtyKg: number;
+  farmersCount: number;
+  minutesRemaining: number;
+  status: ActivePool["status"];
+}
+
+export default function PoolCard({
+  poolId,
+  crop,
+  location,
+  currentQtyKg,
+  targetQtyKg,
+  farmersCount,
+  minutesRemaining,
+  status,
+}: PoolCardProps) {
+  const percentage = Math.min(Math.round((currentQtyKg / targetQtyKg) * 100), 100);
+
+  const getBarColorClass = () => {
+    switch (status) {
+      case "filling":
+        return "bg-sky-blue";
+      case "auctioning":
+        return "bg-harvest-gold";
+      case "settled":
+        return "bg-field-green";
+      default:
+        return "bg-gray-400";
+    }
+  };
+
+  const getBorderColorClass = () => {
+    switch (status) {
+      case "auctioning":
+        return "border-l-2 border-l-harvest-gold";
+      case "settled":
+        return "border-l-2 border-l-field-green";
+      default:
+        return "";
+    }
+  };
+
+  return (
+    <div
+      className={`bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:border-gray-300 transition-all ${getBorderColorClass()}`}
+    >
+      {/* Top Row */}
+      <div className="flex justify-between items-start">
+        <div>
+          <h3 className="font-display font-semibold text-sm text-charcoal">
+            {crop}
+          </h3>
+          <p className="font-sans text-xs text-gray-400">{location}</p>
+        </div>
+        <StatusBadge status={status} />
+      </div>
+
+      {/* Progress Bar Row */}
+      <div className="mt-4">
+        <div className="flex justify-between text-[11px] text-gray-400 font-sans mb-1.5">
+          <span>{currentQtyKg}kg pooled</span>
+          <span>Target: {targetQtyKg}kg</span>
+        </div>
+        <div className="w-full h-2 rounded-full bg-gray-100 overflow-hidden">
+          <div
+            className={`h-full rounded-full transition-all duration-700 ${getBarColorClass()}`}
+            style={{ width: `${percentage}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Bottom Row */}
+      <div className="mt-4 flex justify-between items-center text-xs text-gray-500 font-sans">
+        <div className="flex items-center gap-1.5">
+          <Users className="w-3.5 h-3.5 text-gray-400" />
+          <span>{farmersCount} farmers pooled</span>
+        </div>
+        <div>
+          <span>⏱ {minutesRemaining} min remaining</span>
+        </div>
+        <Link
+          href={`/dashboard/pool/${poolId}`}
+          className="font-medium text-sky-blue hover:underline text-xs"
+        >
+          View Details &rarr;
+        </Link>
+      </div>
+    </div>
+  );
+}
