@@ -2,6 +2,7 @@
 
 import React from "react";
 import { CheckCircle } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 interface SettlementReceiptPreviewProps {
   hasDeclined?: boolean;
@@ -10,11 +11,13 @@ interface SettlementReceiptPreviewProps {
 export default function SettlementReceiptPreview({
   hasDeclined = true,
 }: SettlementReceiptPreviewProps) {
+  const { isViewer } = useAuth();
+
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:border-gray-300 transition-colors">
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
-        <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gray-400">
+        <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gray-500">
           Settlement Receipt Preview
         </span>
         <span className="bg-field-green/10 text-field-green text-[10px] rounded-full px-2.5 py-0.5 font-sans font-semibold">
@@ -31,7 +34,7 @@ Ref: KAN-TOM-001`}
       </pre>
 
       {/* Subtext */}
-      <p className="font-sans text-xs text-gray-400 mt-3.5">
+      <p className="font-sans text-xs text-gray-500 mt-3.5">
         This message will be sent in the farmer&apos;s preferred language via SMS after
         confirmation.
       </p>
@@ -49,14 +52,16 @@ Ref: KAN-TOM-001`}
       )}
 
       {/* Button Row */}
-      <div className="mt-5 flex items-center">
-        <button className="bg-charcoal text-white rounded-lg px-4 py-2 text-xs font-sans font-semibold hover:bg-gray-800 transition-colors shadow-sm">
-          Send All Callbacks
-        </button>
-        <button className="border border-gray-200 text-gray-600 rounded-lg px-4 py-2 text-xs font-sans font-semibold hover:bg-gray-50 ml-3 bg-white transition-colors">
-          Export Settlement
-        </button>
-      </div>
+      {!isViewer && (
+        <div className="mt-5 flex items-center">
+          <button className="bg-charcoal text-white rounded-lg px-4 py-2 text-xs font-sans font-semibold hover:bg-gray-800 transition-colors shadow-sm cursor-pointer">
+            Send All Callbacks
+          </button>
+          <button className="border border-gray-200 text-gray-600 rounded-lg px-4 py-2 text-xs font-sans font-semibold hover:bg-gray-50 ml-3 bg-white transition-colors cursor-pointer">
+            Export Settlement
+          </button>
+        </div>
+      )}
     </div>
   );
 }

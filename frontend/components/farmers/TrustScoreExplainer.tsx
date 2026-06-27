@@ -6,7 +6,7 @@ export default function TrustScoreExplainer() {
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:border-gray-300 transition-colors">
       <div className="mb-4">
-        <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gray-400">
+        <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gray-500">
           Trust Score Breakdown
         </span>
       </div>
@@ -21,7 +21,7 @@ export default function TrustScoreExplainer() {
           <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
             <div className="h-full bg-field-green rounded-full" style={{ width: "92%" }} />
           </div>
-          <span className="font-sans text-xs text-gray-400 w-16 text-right font-medium">
+          <span className="font-sans text-xs text-gray-500 w-16 text-right font-medium">
             11 / 12
           </span>
         </div>
@@ -34,7 +34,7 @@ export default function TrustScoreExplainer() {
           <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
             <div className="h-full bg-alert-red rounded-full" style={{ width: "8%" }} />
           </div>
-          <span className="font-sans text-xs text-gray-400 w-16 text-right font-medium">
+          <span className="font-sans text-xs text-gray-500 w-16 text-right font-medium">
             1 / 12
           </span>
         </div>
@@ -47,7 +47,7 @@ export default function TrustScoreExplainer() {
           <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
             <div className="h-full bg-sky-blue rounded-full" style={{ width: "100%" }} />
           </div>
-          <span className="font-sans text-xs text-gray-400 w-16 text-right font-medium">
+          <span className="font-sans text-xs text-gray-500 w-16 text-right font-medium">
             12 / 12
           </span>
         </div>

@@ -108,10 +108,10 @@ export default function FarmerTable() {
     <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:border-gray-300 transition-colors">
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
-        <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gray-400">
+        <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gray-500">
           Farmers in This Pool
         </span>
-        <span className="font-sans text-xs text-gray-400 font-semibold">
+        <span className="font-sans text-xs text-gray-500 font-semibold">
           {demoFarmers.length} farmers &middot; {totalQtyKg} kg total
         </span>
       </div>
@@ -129,27 +129,28 @@ export default function FarmerTable() {
       {/* Table Container */}
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse text-xs font-sans">
+          <caption className="sr-only">Farmers pooled in the current auction lot</caption>
           <thead>
             <tr className="border-b border-gray-100">
-              <th className="pb-3 text-gray-400 uppercase tracking-wider text-[10px] font-bold">
+              <th scope="col" className="pb-3 text-gray-500 uppercase tracking-wider text-[10px] font-bold">
                 Phone
               </th>
-              <th className="pb-3 text-gray-400 uppercase tracking-wider text-[10px] font-bold">
+              <th scope="col" className="pb-3 text-gray-500 uppercase tracking-wider text-[10px] font-bold">
                 STT Confidence
               </th>
-              <th className="pb-3 text-gray-400 uppercase tracking-wider text-[10px] font-bold">
+              <th scope="col" className="pb-3 text-gray-500 uppercase tracking-wider text-[10px] font-bold">
                 Quantity
               </th>
-              <th className="pb-3 text-gray-400 uppercase tracking-wider text-[10px] font-bold">
+              <th scope="col" className="pb-3 text-gray-500 uppercase tracking-wider text-[10px] font-bold">
                 Language
               </th>
-              <th className="pb-3 text-gray-400 uppercase tracking-wider text-[10px] font-bold">
+              <th scope="col" className="pb-3 text-gray-500 uppercase tracking-wider text-[10px] font-bold">
                 Trust Score
               </th>
-              <th className="pb-3 text-gray-400 uppercase tracking-wider text-[10px] font-bold">
+              <th scope="col" className="pb-3 text-gray-500 uppercase tracking-wider text-[10px] font-bold">
                 Total Calls
               </th>
-              <th className="pb-3 text-gray-400 uppercase tracking-wider text-[10px] font-bold">
+              <th scope="col" className="pb-3 text-gray-500 uppercase tracking-wider text-[10px] font-bold">
                 Callback Status
               </th>
             </tr>
@@ -179,7 +180,7 @@ export default function FarmerTable() {
                   {/* STT Confidence */}
                   <td className="py-3">
                     {farmer.confidence >= 0.8 ? (
-                      <span className="font-sans text-xs text-gray-400">
+                      <span className="font-sans text-xs text-gray-500">
                         {(farmer.confidence * 100).toFixed(0)}%
                       </span>
                     ) : (
@@ -195,7 +196,7 @@ export default function FarmerTable() {
                     <span className="font-display font-semibold text-xs text-charcoal">
                       {farmer.qty}
                     </span>{" "}
-                    <span className="text-gray-400">kg</span>
+                    <span className="text-gray-500">kg</span>
                   </td>
 
                   {/* Language */}
@@ -223,7 +224,7 @@ export default function FarmerTable() {
                   {/* Total Calls */}
                   <td className="py-3 text-gray-500 font-medium">
                     {farmer.isFirstCall ? (
-                      <span className="font-sans text-xs text-gray-400">
+                      <span className="font-sans text-xs text-gray-500">
                         1st call
                       </span>
                     ) : (
@@ -251,13 +252,13 @@ export default function FarmerTable() {
                           <PhoneMissed className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                           <span className="text-[10px] font-bold">No Answer</span>
                         </div>
-                        <div className="font-sans text-[10px] text-gray-400 mt-0.5">
+                        <div className="font-sans text-[10px] text-gray-500 mt-0.5">
                           Bulbul will retry in 10 min
                         </div>
                       </div>
                     )}
                     {farmer.farmerResponse === "pending" && (
-                      <div className="flex items-center gap-1.5 text-gray-400">
+                      <div className="flex items-center gap-1.5 text-gray-500">
                         <Clock className="w-3.5 h-3.5 shrink-0" />
                         <span className="text-[10px] font-bold">Awaiting</span>
                       </div>

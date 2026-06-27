@@ -18,8 +18,20 @@ const data = [
   { time: "09:46:38", price: 15, type: "bid", buyer: "Buyer B (Winner)" },
 ];
 
-const CustomizedDot = (props: any) => {
+interface CustomizedDotProps {
+  cx?: number;
+  cy?: number;
+  payload?: {
+    type: string;
+    price: number;
+    buyer: string;
+    time: string;
+  };
+}
+
+const CustomizedDot = (props: CustomizedDotProps) => {
   const { cx, cy, payload } = props;
+  if (!payload) return null;
   const fill =
     payload.type === "mandi_avg"
       ? "#E6A817"
@@ -38,13 +50,26 @@ const CustomizedDot = (props: any) => {
   );
 };
 
-const CustomTooltip = ({ active, payload }: any) => {
+interface TooltipPayloadItem {
+  payload: {
+    price: number;
+    buyer: string;
+    time: string;
+  };
+}
+
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: TooltipPayloadItem[];
+}
+
+const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
     const item = payload[0].payload;
     return (
       <div className="bg-white border border-gray-200 rounded-lg px-3 py-2 shadow-sm text-xs font-sans">
         <div className="font-bold text-charcoal">₹{item.price}/kg</div>
-        <div className="text-gray-400 mt-0.5">
+        <div className="text-gray-500 mt-0.5">
           {item.buyer} &middot; {item.time}
         </div>
       </div>
@@ -58,7 +83,7 @@ export default function PriceSparkline() {
     <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:border-gray-300 transition-colors flex flex-col justify-between h-full">
       {/* Title */}
       <div className="flex justify-between items-center mb-4">
-        <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gray-400">
+        <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gray-500">
           Auction Price History
         </span>
         <span className="font-sans text-xs font-semibold text-field-green">

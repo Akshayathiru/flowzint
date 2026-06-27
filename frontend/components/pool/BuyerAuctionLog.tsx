@@ -50,10 +50,10 @@ export default function BuyerAuctionLog() {
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:border-gray-300 transition-colors flex flex-col gap-4">
       <div className="flex justify-between items-center pb-2 border-b border-gray-50">
-        <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gray-400">
+        <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gray-500">
           Buyer Auction Log
         </span>
-        <span className="font-sans text-[10px] text-gray-400 font-semibold bg-gray-50 px-2 py-0.5 rounded">
+        <span className="font-sans text-[10px] text-gray-500 font-semibold bg-gray-50 px-2 py-0.5 rounded">
           Bulbul Outbound IVR
         </span>
       </div>
@@ -86,7 +86,7 @@ export default function BuyerAuctionLog() {
                       </div>
                     )}
                   </div>
-                  <span className="font-mono text-[10px] text-gray-400">
+                  <span className="font-mono text-[10px] text-gray-500">
                     {entry.phone}
                   </span>
                 </div>
@@ -98,7 +98,7 @@ export default function BuyerAuctionLog() {
                   >
                     ₹{entry.bid}/kg
                   </span>
-                  <span className="font-sans text-[10px] text-gray-400">
+                  <span className="font-sans text-[10px] text-gray-500">
                     {entry.timestamp}
                   </span>
                 </div>
@@ -113,10 +113,10 @@ export default function BuyerAuctionLog() {
                 className="flex justify-between items-center px-4 py-3 border border-amber-200/40 border-l-2 border-l-amber-200 bg-amber-50/50 opacity-80 rounded-lg"
               >
                 <div className="flex flex-col gap-0.5">
-                  <span className="font-sans text-xs font-medium text-gray-400">
+                  <span className="font-sans text-xs font-medium text-gray-500">
                     {entry.buyerName}
                   </span>
-                  <span className="font-mono text-[10px] text-gray-400">
+                  <span className="font-mono text-[10px] text-gray-500">
                     {entry.phone}
                   </span>
                 </div>
@@ -125,7 +125,7 @@ export default function BuyerAuctionLog() {
                   <span className="font-sans text-xs text-amber-600 font-medium italic">
                     No answer
                   </span>
-                  <span className="font-sans text-[10px] text-gray-400 ml-1">
+                  <span className="font-sans text-[10px] text-gray-500 ml-1">
                     {entry.timestamp}
                   </span>
                 </div>
@@ -140,19 +140,19 @@ export default function BuyerAuctionLog() {
                 className="flex justify-between items-center px-4 py-3 border border-gray-150 border-l-2 border-l-gray-100 bg-white opacity-60 rounded-lg"
               >
                 <div className="flex flex-col gap-0.5">
-                  <span className="font-sans text-xs font-medium text-gray-400">
+                  <span className="font-sans text-xs font-medium text-gray-500">
                     {entry.buyerName}
                   </span>
-                  <span className="font-mono text-[10px] text-gray-400">
+                  <span className="font-mono text-[10px] text-gray-500">
                     {entry.phone}
                   </span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <PhoneOff className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                  <span className="font-sans text-xs text-gray-400 italic">
+                  <span className="font-sans text-xs text-gray-500 italic">
                     Call rejected
                   </span>
-                  <span className="font-sans text-[10px] text-gray-400 ml-1">
+                  <span className="font-sans text-[10px] text-gray-500 ml-1">
                     {entry.timestamp}
                   </span>
                 </div>

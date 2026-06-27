@@ -23,7 +23,7 @@ export function Dialog({ open, onOpenChange, children }: DialogProps) {
         if (React.isValidElement(child)) {
           return React.cloneElement(child, {
             onClose: () => onOpenChange(false),
-          } as any);
+          } as React.Attributes & { onClose?: () => void });
         }
         return child;
       })}
@@ -31,7 +31,7 @@ export function Dialog({ open, onOpenChange, children }: DialogProps) {
   );
 }
 
-interface DialogContentProps {
+interface DialogContentProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   onClose?: () => void;
   className?: string;
@@ -41,21 +41,25 @@ export function DialogContent({
   children,
   onClose,
   className = "",
+  ...props
 }: DialogContentProps) {
   return (
     <div
+      role="dialog"
+      aria-modal="true"
+      {...props}
       className={`relative bg-white rounded-xl border border-gray-200 p-6 shadow-xl max-w-lg w-full z-50 transition-all transform duration-300 ${className}`}
     >
       {/* Close button */}
       <button
         onClick={onClose}
-        className="absolute right-4 top-4 rounded-lg p-1 text-gray-400 hover:text-charcoal hover:bg-gray-100 transition-colors focus:outline-none"
+        className="absolute right-4 top-4 rounded-lg p-1 text-gray-500 hover:text-charcoal hover:bg-gray-100 transition-colors focus:outline-none"
       >
         <X className="h-4 w-4" />
       </button>
       {React.Children.map(children, (child) => {
         if (React.isValidElement(child)) {
-          return React.cloneElement(child, { onClose } as any);
+          return React.cloneElement(child, { onClose } as React.Attributes & { onClose?: () => void });
         }
         return child;
       })}
@@ -77,15 +81,19 @@ export function DialogHeader({
   );
 }
 
+interface DialogTitleProps extends React.HTMLAttributes<HTMLHeadingElement> {
+  children: React.ReactNode;
+  className?: string;
+}
+
 export function DialogTitle({
   children,
   className = "",
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
+  ...props
+}: DialogTitleProps) {
   return (
     <h2
+      {...props}
       className={`text-base font-semibold leading-none tracking-tight text-charcoal font-display ${className}`}
     >
       {children}

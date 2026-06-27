@@ -20,7 +20,7 @@ export default function StatCard({
     <div className="bg-white rounded-xl border border-gray-200 p-3 lg:p-4 relative shadow-sm hover:border-gray-300 transition-colors flex flex-col justify-between">
       <div>
         <div className="flex justify-between items-start">
-          <span className="font-sans text-[10px] font-bold uppercase tracking-wider text-gray-400">
+          <span className="font-sans text-[10px] font-bold uppercase tracking-wider text-gray-500">
             {label}
           </span>
           <div className="text-soil-brown">
@@ -42,7 +42,7 @@ export default function StatCard({
             <TrendingDown className="w-3.5 h-3.5" />
           </span>
         )}
-        <span className="text-gray-400 font-sans">{sublabel}</span>
+        <span className="text-gray-500 font-sans">{sublabel}</span>
       </div>
     </div>
   );

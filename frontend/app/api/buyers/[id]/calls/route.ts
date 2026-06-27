@@ -2,9 +2,10 @@ import { NextResponse } from "next/server";
 
 // TODO: proxy to FastAPI GET /api/buyers/:id/calls
 export async function GET(
-  _req: Request,
-  { params }: { params: { id: string } }
+  request: Request,
+  context: { params: { id: string } }
 ) {
+  console.log(`Fetching calls for buyer ${context.params.id} via ${request.url}`);
   return NextResponse.json([
     {
       poolId: "KAN-TOM-001",

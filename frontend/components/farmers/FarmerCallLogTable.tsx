@@ -18,37 +18,52 @@ export interface FarmerCallRecord {
 interface FarmerCallLogTableProps {
   records: FarmerCallRecord[];
   onRowClick: (phone: string) => void;
+  sortBy?: string;
 }
 
 export default function FarmerCallLogTable({
   records,
   onRowClick,
+  sortBy = "recent",
 }: FarmerCallLogTableProps) {
   return (
     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:border-gray-300 transition-colors">
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse text-xs font-sans">
+          <caption className="sr-only">Farmer call records log including crop and trust score</caption>
           <thead>
             <tr className="bg-gray-50 border-b border-gray-200 font-sans">
-              <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-gray-400">
+              <th scope="col" className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-gray-500">
                 Phone
               </th>
-              <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-gray-400">
+              <th scope="col" className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-gray-500">
                 Primary Crop
               </th>
-              <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-gray-400">
+              <th scope="col" className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-gray-500">
                 Last Call
               </th>
-              <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-gray-400">
+              <th
+                scope="col"
+                aria-sort={sortBy === "qty_desc" ? "descending" : "none"}
+                className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-gray-500"
+              >
                 Qty (Last)
               </th>
-              <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-gray-400">
+              <th
+                scope="col"
+                aria-sort={sortBy === "trust_desc" ? "descending" : sortBy === "trust_asc" ? "ascending" : "none"}
+                className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-gray-500"
+              >
                 Trust Score
               </th>
-              <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-gray-400 text-center">
+              <th
+                scope="col"
+                aria-sort={sortBy === "calls_desc" ? "descending" : "none"}
+                className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-gray-500 text-center"
+              >
                 Total Calls
               </th>
-              <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-gray-400">
+              <th scope="col" className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-gray-500">
                 Action
               </th>
             </tr>
@@ -77,7 +92,7 @@ export default function FarmerCallLogTable({
                 </td>
 
                 {/* Last Call */}
-                <td className="px-4 py-3 text-gray-400">
+                <td className="px-4 py-3 text-gray-500">
                   {farmer.lastCall}
                 </td>
 
@@ -86,7 +101,7 @@ export default function FarmerCallLogTable({
                   <span className="font-display font-semibold text-xs text-charcoal">
                     {farmer.lastQty}
                   </span>{" "}
-                  <span className="text-gray-400">kg</span>
+                  <span className="text-gray-500">kg</span>
                 </td>
 
                 {/* Trust Score */}
@@ -109,7 +124,7 @@ export default function FarmerCallLogTable({
                 {/* Total Calls */}
                 <td className="px-4 py-3 text-gray-500 text-center font-medium">
                   {farmer.isFirstCall ? (
-                    <span className="font-sans text-xs text-gray-400">
+                    <span className="font-sans text-xs text-gray-500">
                       1st call
                     </span>
                   ) : (

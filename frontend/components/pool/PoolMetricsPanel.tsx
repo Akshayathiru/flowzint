@@ -8,32 +8,32 @@ export default function PoolMetricsPanel() {
     <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:border-gray-300 transition-colors flex flex-col justify-between">
       <div>
         <div className="mb-4">
-          <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gray-400">
+          <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gray-500">
             Pool Metrics
           </span>
         </div>
 
         <div className="flex flex-col divide-y divide-gray-100">
           <div className="flex justify-between items-center py-2.5">
-            <span className="font-sans text-xs text-gray-400">Total Quantity</span>
+            <span className="font-sans text-xs text-gray-500">Total Quantity</span>
             <span className="font-display font-semibold text-sm text-charcoal">
               1,020 kg
             </span>
           </div>
           <div className="flex justify-between items-center py-2.5">
-            <span className="font-sans text-xs text-gray-400">Farmers Pooled</span>
+            <span className="font-sans text-xs text-gray-500">Farmers Pooled</span>
             <span className="font-display font-semibold text-sm text-charcoal">
               6
             </span>
           </div>
           <div className="flex justify-between items-center py-2.5">
-            <span className="font-sans text-xs text-gray-400">Geo Radius</span>
+            <span className="font-sans text-xs text-gray-500">Geo Radius</span>
             <span className="font-display font-semibold text-sm text-charcoal">
               18 km
             </span>
           </div>
           <div className="flex justify-between items-center py-2.5">
-            <span className="font-sans text-xs text-gray-400">Pool Closed At</span>
+            <span className="font-sans text-xs text-gray-500">Pool Closed At</span>
             <span className="font-mono text-xs text-charcoal">
               09:45 AM
             </span>

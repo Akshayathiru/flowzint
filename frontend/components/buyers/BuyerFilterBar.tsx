@@ -37,7 +37,7 @@ export default function BuyerFilterBar({
     <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:border-gray-300 transition-colors flex flex-col md:flex-row items-stretch md:items-center gap-3">
       {/* Search Input */}
       <div className="relative flex-1">
-        <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-gray-400">
+        <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-gray-500">
           <Search className="w-3.5 h-3.5" />
         </span>
         <input
@@ -78,12 +78,24 @@ export default function BuyerFilterBar({
       </select>
 
       {/* Status Toggle Pills */}
-      <div className="flex items-center gap-2 select-none">
-        <span className="font-sans text-[10px] font-bold text-gray-400 uppercase tracking-wider mr-1 hidden sm:inline">
+      <div
+        role="group"
+        aria-label="Buyer status filter"
+        className="flex items-center gap-2 select-none"
+      >
+        <span className="font-sans text-[10px] font-bold text-gray-500 uppercase tracking-wider mr-1 hidden sm:inline">
           Status:
         </span>
         <button
+          role="radio"
+          aria-checked={statusFilter === "active"}
           onClick={() => toggleStatus("active")}
+          onKeyDown={(e) => {
+            if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === "ArrowLeft" || e.key === "ArrowUp") {
+              e.preventDefault();
+              toggleStatus("inactive");
+            }
+          }}
           className={`rounded-full px-4 py-1.5 font-sans text-xs font-semibold cursor-pointer transition-colors shadow-sm ${
             statusFilter === "active"
               ? "bg-charcoal text-white"
@@ -93,7 +105,15 @@ export default function BuyerFilterBar({
           Active
         </button>
         <button
+          role="radio"
+          aria-checked={statusFilter === "inactive"}
           onClick={() => toggleStatus("inactive")}
+          onKeyDown={(e) => {
+            if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === "ArrowLeft" || e.key === "ArrowUp") {
+              e.preventDefault();
+              toggleStatus("active");
+            }
+          }}
           className={`rounded-full px-4 py-1.5 font-sans text-xs font-semibold cursor-pointer transition-colors shadow-sm ${
             statusFilter === "inactive"
               ? "bg-charcoal text-white"

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Users } from "lucide-react";
 import StatusBadge from "@/components/shared/StatusBadge";
 import { ActivePool } from "@/types";
+import { useTranslations } from "next-intl";
 
 interface PoolCardProps {
   poolId: string;
@@ -25,6 +26,7 @@ export default function PoolCard({
   minutesRemaining,
   status,
 }: PoolCardProps) {
+  const t = useTranslations("pool");
   const percentage = Math.min(Math.round((currentQtyKg / targetQtyKg) * 100), 100);
 
   const getBarColorClass = () => {
@@ -61,18 +63,25 @@ export default function PoolCard({
           <h3 className="font-display font-semibold text-sm text-charcoal">
             {crop}
           </h3>
-          <p className="font-sans text-xs text-gray-400">{location}</p>
+          <p className="font-sans text-xs text-gray-500">{location}</p>
         </div>
         <StatusBadge status={status} />
       </div>
 
       {/* Progress Bar Row */}
       <div className="mt-4">
-        <div className="flex justify-between text-[11px] text-gray-400 font-sans mb-1.5">
+        <div className="flex justify-between text-[11px] text-gray-500 font-sans mb-1.5">
           <span>{currentQtyKg}kg pooled</span>
           <span>Target: {targetQtyKg}kg</span>
         </div>
-        <div className="w-full h-2 rounded-full bg-gray-100 overflow-hidden">
+        <div
+          role="progressbar"
+          aria-valuenow={currentQtyKg}
+          aria-valuemin={0}
+          aria-valuemax={targetQtyKg}
+          aria-label={t("farmers_pooled")}
+          className="w-full h-2 rounded-full bg-gray-100 overflow-hidden"
+        >
           <div
             className={`h-full rounded-full transition-all duration-700 ${getBarColorClass()}`}
             style={{ width: `${percentage}%` }}

@@ -11,7 +11,7 @@ export default function TopBar() {
           MANDI MITRA
         </span>
         <div className="border-r border-gray-200 mx-4 h-4" />
-        <span className="font-sans text-xs text-gray-400 font-medium">
+        <span className="font-sans text-xs text-gray-500 font-medium">
           Operator Dashboard
         </span>
       </div>

@@ -21,7 +21,7 @@ export default function PageHeader({
           {title}
         </h1>
         {subtitle && (
-          <p className="font-sans text-xs text-gray-400 mt-1 leading-normal">
+          <p className="font-sans text-xs text-gray-500 mt-1 leading-normal">
             {subtitle}
           </p>
         )}

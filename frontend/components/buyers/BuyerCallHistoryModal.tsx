@@ -73,11 +73,22 @@ export default function BuyerCallHistoryModal({
   buyerName,
   buyerId,
 }: BuyerCallHistoryModalProps) {
+  const closeButtonRef = React.useRef<HTMLButtonElement>(null);
+
+  React.useEffect(() => {
+    if (isOpen) {
+      console.log("Fetching call history for buyer:", buyerId);
+      setTimeout(() => {
+        closeButtonRef.current?.focus();
+      }, 50);
+    }
+  }, [isOpen, buyerId]);
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-lg">
+      <DialogContent aria-labelledby="buyer-modal-title" className="max-w-lg">
         <DialogHeader>
-          <DialogTitle className="font-display font-semibold text-base text-charcoal">
+          <DialogTitle id="buyer-modal-title" className="font-display font-semibold text-base text-charcoal">
             {buyerName} &mdash; Auction Call History
           </DialogTitle>
         </DialogHeader>
@@ -91,13 +102,13 @@ export default function BuyerCallHistoryModal({
             >
               {/* Left Details */}
               <div className="flex flex-col">
-                <span className="font-mono text-xs text-gray-400 font-bold">
+                <span className="font-mono text-xs text-gray-500 font-bold">
                   {entry.poolId}
                 </span>
                 <span className="font-sans text-xs text-charcoal mt-0.5 font-medium">
                   {entry.crop} &middot; {entry.district} ({entry.lotQtyKg}kg)
                 </span>
-                <span className="font-sans text-[10px] text-gray-400 mt-0.5">
+                <span className="font-sans text-[10px] text-gray-500 mt-0.5">
                   {entry.date}
                 </span>
               </div>
@@ -120,7 +131,7 @@ export default function BuyerCallHistoryModal({
                     <span className="font-display font-medium text-xs text-gray-500">
                       ₹{entry.bid}/kg
                     </span>
-                    <span className="bg-gray-100 text-gray-450 text-[9px] font-bold rounded px-2 py-0.5 font-sans uppercase">
+                    <span className="bg-gray-100 text-gray-455 text-[9px] font-bold rounded px-2 py-0.5 font-sans uppercase">
                       Outbid
                     </span>
                   </>
@@ -140,8 +151,9 @@ export default function BuyerCallHistoryModal({
         {/* Dialog Footer */}
         <div className="flex justify-end mt-4 pt-3 border-t border-gray-100">
           <button
+            ref={closeButtonRef}
             onClick={onClose}
-            className="border border-gray-200 rounded-lg px-4 py-2 font-sans text-xs font-semibold text-gray-600 hover:bg-gray-50 bg-white transition-colors cursor-pointer"
+            className="border border-gray-200 rounded-lg px-4 py-2 font-sans text-xs font-semibold text-gray-500 hover:bg-gray-50 bg-white transition-colors cursor-pointer"
           >
             Close
           </button>

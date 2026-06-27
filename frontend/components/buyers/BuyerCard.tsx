@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/link";
+import { Link } from "@/lib/navigation";
 import BuyerCallHistoryModal from "@/components/buyers/BuyerCallHistoryModal";
+import { useAuth } from "@/hooks/useAuth";
 
 interface CropLot {
   name: string;
@@ -33,6 +34,7 @@ interface BuyerCardProps {
 
 export default function BuyerCard({ buyer, onToggleActive }: BuyerCardProps) {
   const [historyOpen, setHistoryOpen] = useState(false);
+  const { isViewer } = useAuth();
 
   return (
     <div
@@ -46,7 +48,7 @@ export default function BuyerCard({ buyer, onToggleActive }: BuyerCardProps) {
           <h3 className="font-display font-semibold text-base text-charcoal">
             {buyer.name}
           </h3>
-          <p className="font-mono text-xs text-gray-400 mt-0.5">
+          <p className="font-mono text-xs text-gray-500 mt-0.5">
             {buyer.phone}
           </p>
         </div>
@@ -56,7 +58,7 @@ export default function BuyerCard({ buyer, onToggleActive }: BuyerCardProps) {
               Active
             </span>
           ) : (
-            <span className="bg-gray-100 text-gray-400 text-[10px] font-semibold rounded-full px-2.5 py-0.5 font-sans">
+            <span className="bg-gray-100 text-gray-500 text-[10px] font-semibold rounded-full px-2.5 py-0.5 font-sans">
               Inactive
             </span>
           )}
@@ -67,7 +69,7 @@ export default function BuyerCard({ buyer, onToggleActive }: BuyerCardProps) {
       <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-gray-50 pt-4">
         {/* Col 1: Districts */}
         <div>
-          <span className="font-sans text-[10px] uppercase tracking-wider text-gray-400 font-bold block">
+          <span className="font-sans text-[10px] uppercase tracking-wider text-gray-500 font-bold block">
             Districts
           </span>
           <p className="font-sans text-xs text-charcoal mt-1.5 font-medium leading-relaxed">
@@ -77,7 +79,7 @@ export default function BuyerCard({ buyer, onToggleActive }: BuyerCardProps) {
 
         {/* Col 2: Crops & Min Lot */}
         <div>
-          <span className="font-sans text-[10px] uppercase tracking-wider text-gray-400 font-bold block">
+          <span className="font-sans text-[10px] uppercase tracking-wider text-gray-500 font-bold block">
             Crops &amp; Min Lot
           </span>
           <div className="font-sans text-xs text-charcoal mt-1.5 font-medium flex flex-col gap-1">
@@ -91,7 +93,7 @@ export default function BuyerCard({ buyer, onToggleActive }: BuyerCardProps) {
 
         {/* Col 3: Last Win */}
         <div>
-          <span className="font-sans text-[10px] uppercase tracking-wider text-gray-400 font-bold block">
+          <span className="font-sans text-[10px] uppercase tracking-wider text-gray-500 font-bold block">
             Last Auction Win
           </span>
           {buyer.lastWin ? (
@@ -99,7 +101,7 @@ export default function BuyerCard({ buyer, onToggleActive }: BuyerCardProps) {
               ₹{buyer.lastWin.price}/kg &middot; {buyer.lastWin.daysAgo}d ago
             </p>
           ) : (
-            <p className="font-sans text-xs text-gray-400 mt-1.5">
+            <p className="font-sans text-xs text-gray-500 mt-1.5">
               No wins yet
             </p>
           )}
@@ -108,7 +110,7 @@ export default function BuyerCard({ buyer, onToggleActive }: BuyerCardProps) {
 
       {/* Bottom Row */}
       <div className="mt-5 flex flex-col sm:flex-row gap-3 justify-between items-stretch sm:items-center border-t border-gray-100 pt-3">
-        <span className="font-sans text-xs text-gray-400">
+        <span className="font-sans text-xs text-gray-500">
           {buyer.totalAuctions} auctions participated
         </span>
         <div className="flex gap-2 items-center justify-end">
@@ -118,18 +120,22 @@ export default function BuyerCard({ buyer, onToggleActive }: BuyerCardProps) {
           >
             Call History
           </button>
-          <Link
-            href={`/buyers/register?edit=${buyer.id}`}
-            className="border border-gray-200 rounded-lg px-3 py-1.5 font-sans text-xs font-semibold text-gray-655 hover:bg-gray-50 bg-white transition-colors text-center cursor-pointer"
-          >
-            Edit
-          </Link>
-          <button
-            onClick={() => onToggleActive(buyer.id)}
-            className="border border-gray-200 rounded-lg px-3 py-1.5 font-sans text-xs font-semibold text-gray-500 hover:bg-gray-50 bg-white transition-colors"
-          >
-            {buyer.active ? "Deactivate" : "Activate"}
-          </button>
+          {!isViewer && (
+            <>
+              <Link
+                href={`/buyers/register?edit=${buyer.id}`}
+                className="border border-gray-200 rounded-lg px-3 py-1.5 font-sans text-xs font-semibold text-gray-655 hover:bg-gray-50 bg-white transition-colors text-center cursor-pointer"
+              >
+                Edit
+              </Link>
+              <button
+                onClick={() => onToggleActive(buyer.id)}
+                className="border border-gray-200 rounded-lg px-3 py-1.5 font-sans text-xs font-semibold text-gray-500 hover:bg-gray-50 bg-white transition-colors cursor-pointer"
+              >
+                {buyer.active ? "Deactivate" : "Activate"}
+              </button>
+            </>
+          )}
         </div>
       </div>
 

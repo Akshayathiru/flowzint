@@ -87,13 +87,16 @@ export default function LiveEventFeed() {
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:border-gray-300 transition-colors flex flex-col flex-1">
       <div className="flex justify-between items-center mb-3">
-        <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gray-400">
+        <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gray-500">
           Live Event Feed
         </span>
       </div>
 
       <div
         ref={containerRef}
+        role="log"
+        aria-live="polite"
+        aria-label="Live event feed"
         className="overflow-y-auto max-h-[220px] flex-1 divide-y divide-gray-100 pr-1"
       >
         {demoEvents.map((event, index) => (
@@ -102,7 +105,7 @@ export default function LiveEventFeed() {
             className="flex items-start gap-3 py-2.5 last:pb-0 first:pt-0"
           >
             {/* Time */}
-            <span className="font-mono text-xs text-gray-400 w-10 shrink-0 select-none">
+            <span className="font-mono text-xs text-gray-500 w-10 shrink-0 select-none">
               {event.time}
             </span>
 

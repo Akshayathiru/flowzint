@@ -1,8 +1,11 @@
 "use client";
 
 import React from "react";
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/lib/navigation";
 import ConditionalSidebar from "./ConditionalSidebar";
+import { ConnectionBanner } from "./ConnectionBanner";
+import { useConnectionStatus } from "@/hooks/useConnectionStatus";
+import { ErrorBoundary } from "./ErrorBoundary";
 
 export default function LayoutWrapper({
   children,
@@ -11,9 +14,12 @@ export default function LayoutWrapper({
 }) {
   const pathname = usePathname();
   const isLanding = pathname === "/";
+  const status = useConnectionStatus();
 
   return (
-    <div className="flex min-h-screen bg-[#FBF7F0]">
+    <div className="flex min-h-screen bg-[#FBF7F0] w-full">
+      <ConnectionBanner />
+      
       {/* Client-side conditional sidebar */}
       <ConditionalSidebar />
 
@@ -21,9 +27,11 @@ export default function LayoutWrapper({
       <div
         className={`flex-1 min-h-screen overflow-y-auto ${
           isLanding ? "" : "lg:ml-56 ml-0 pb-16 lg:pb-0"
-        }`}
+        } ${status !== "connected" ? "mt-8" : ""}`}
       >
-        {children}
+        <ErrorBoundary>
+          {children}
+        </ErrorBoundary>
       </div>
     </div>
   );

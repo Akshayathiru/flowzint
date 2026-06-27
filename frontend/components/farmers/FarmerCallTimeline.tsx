@@ -77,7 +77,7 @@ export default function FarmerCallTimeline() {
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:border-gray-300 transition-colors">
       <div className="mb-6">
-        <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gray-400">
+        <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gray-500">
           Pool History
         </span>
       </div>
@@ -137,7 +137,7 @@ export default function FarmerCallTimeline() {
                       </>
                     )}
                     {!isSettled && (
-                      <span className="font-sans text-xs text-gray-400 italic">
+                      <span className="font-sans text-xs text-gray-500 italic">
                         Pool expired &mdash; lot not sold
                       </span>
                     )}
@@ -149,7 +149,7 @@ export default function FarmerCallTimeline() {
                     {isSettled && (
                       <button
                         onClick={() => toggleTranscript(entry.poolId)}
-                        className="font-sans text-[10px] text-gray-400 underline cursor-pointer select-none focus:outline-none"
+                        className="font-sans text-[10px] text-gray-500 underline cursor-pointer select-none focus:outline-none"
                       >
                         {isExpanded ? "Hide transcript" : "Show transcript"}
                       </button>
@@ -162,26 +162,26 @@ export default function FarmerCallTimeline() {
                       <div>
                         {entry.poolId === "KAN-TOM-001" && (
                           <span>
-                            "Enakku 80 kilo thakkali irukku, Kanchipuramla"
+                            &quot;Enakku 80 kilo thakkali irukku, Kanchipuramla&quot;
                             [Tamil &middot; Confidence: 95%]
                           </span>
                         )}
                         {entry.poolId === "KAN-TOM-008" && (
                           <span>
-                            "Naa 120 kilo tomato vechirukken" [Tamil &middot;
+                            &quot;Naa 120 kilo tomato vechirukken&quot; [Tamil &middot;
                             Confidence: 72% &#9888; Low]
                           </span>
                         )}
                         {entry.poolId !== "KAN-TOM-001" &&
                           entry.poolId !== "KAN-TOM-008" && (
                             <span>
-                              "Enakku {entry.qty} kilo {entry.crop.toLowerCase()}{" "}
-                              irukku, Kanchipuramla" [Tamil &middot; Confidence:
+                              &quot;Enakku {entry.qty} kilo {entry.crop.toLowerCase()}{" "}
+                              irukku, Kanchipuramla&quot; [Tamil &middot; Confidence:
                               88%]
                             </span>
                           )}
                       </div>
-                      <div className="font-sans text-[10px] text-gray-400 italic mt-2">
+                      <div className="font-sans text-[10px] text-gray-500 italic mt-2">
                         Processed by Sarvam STT &middot; Extracted: {entry.qty}
                         kg {entry.crop}, Kanchipuram
                       </div>
@@ -190,7 +190,7 @@ export default function FarmerCallTimeline() {
                 </div>
 
                 {/* Date */}
-                <span className="font-sans text-xs text-gray-400 whitespace-nowrap self-start sm:self-center">
+                <span className="font-sans text-xs text-gray-500 whitespace-nowrap self-start sm:self-center">
                   {entry.date}
                 </span>
               </div>
