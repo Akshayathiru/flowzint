@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, ArrowRight } from "lucide-react";
 
 const steps = [
   {
@@ -131,16 +131,17 @@ export default function Home() {
         </p>
 
         {/* CTA Row */}
-        <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center w-full max-w-md">
+        <div className="flex items-center gap-4 justify-center mt-10 flex-wrap">
           <Link
             href="/dashboard"
-            className="bg-charcoal text-white px-8 py-3.5 rounded-lg font-sans font-semibold text-sm hover:bg-gray-800 transition-colors shadow-sm text-center"
+            className="inline-flex items-center gap-2 bg-charcoal text-white px-6 py-3 rounded-lg font-sans font-medium text-sm hover:bg-gray-800 transition-colors whitespace-nowrap"
           >
-            Open Operator Dashboard &rarr;
+            Open Operator Dashboard
+            <ArrowRight size={14} strokeWidth={2} />
           </Link>
           <Link
             href="/demo"
-            className="border border-gray-300 text-gray-600 bg-white/50 px-8 py-3.5 rounded-lg font-sans font-semibold text-sm hover:bg-gray-50 transition-colors shadow-sm text-center"
+            className="inline-flex items-center justify-center gap-2 border border-gray-300 text-gray-600 px-6 py-3 rounded-lg font-sans font-medium text-sm hover:bg-gray-50 transition-colors whitespace-nowrap"
           >
             Watch Demo Flow
           </Link>
