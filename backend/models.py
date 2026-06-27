@@ -60,3 +60,11 @@ class TrustScore(Base):
     id = Column(Integer, primary_key=True, index=True)
     phone = Column(String, unique=True)
     score = Column(Float, default=100)
+
+class FarmerConfirmation(Base):
+    __tablename__ = "farmer_confirmations"
+
+    id = Column(Integer, primary_key=True, index=True)
+    pool_id = Column(Integer)
+    phone = Column(String)
+    accepted = Column(String)

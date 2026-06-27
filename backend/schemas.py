@@ -39,3 +39,8 @@ class OfferCreate(BaseModel):
 class TrustUpdate(BaseModel):
     phone: str
     delivered: bool
+
+class FarmerConfirm(BaseModel):
+    pool_id: int
+    phone: str
+    accepted: bool
