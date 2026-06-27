@@ -1,153 +1,188 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "@/lib/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { Loader2, Eye, EyeOff } from "lucide-react";
+import { z } from "zod";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 const LoginSchema = z.object({
   email: z.string().email("Enter a valid email"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
+type LoginData = z.infer<typeof LoginSchema>;
 
-type LoginFormData = z.infer<typeof LoginSchema>;
+function SessionExpiredBanner() {
+  const t = useTranslations("auth");
+  const searchParams = useSearchParams();
+  const sessionExpired = searchParams ? searchParams.get("expired") === "true" : false;
+
+  if (!sessionExpired) return null;
+
+  return (
+    <div className="bg-amber-50 border border-amber-250 rounded-lg px-3 py-2 mb-4 font-sans">
+      <p className="text-xs text-amber-700 font-medium">{t("session_expired")}</p>
+    </div>
+  );
+}
 
 export default function LoginPage() {
-  const router = useRouter();
   const t = useTranslations("auth");
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const {
     register,
     handleSubmit,
     setError,
     formState: { errors },
-  } = useForm<LoginFormData>({
+  } = useForm<LoginData>({
     resolver: zodResolver(LoginSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
   });
 
-  const onSubmit = async (data: LoginFormData) => {
-    setIsSubmitting(true);
+  async function onSubmit(data: LoginData) {
+    setIsLoading(true);
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: data.email, password: data.password }),
+        body: JSON.stringify(data),
       });
-
       if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        setError("root", {
-          message: errData.message || t("invalid_credentials"),
-        });
-        setIsSubmitting(false);
+        const body = await res.json();
+        setError("root", { message: body.message || t("invalid_credentials") });
         return;
       }
-
       router.push("/dashboard");
+      router.refresh();
     } catch {
-      setError("root", { message: "An unexpected error occurred" });
-      setIsSubmitting(false);
+      setError("root", { message: "Network error. Please try again." });
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }
 
   return (
-    <div className="min-h-screen bg-warm-cream flex flex-col justify-start items-center px-4 font-sans select-none">
-      <div className="w-full max-w-sm bg-white rounded-xl border border-gray-200 p-8 shadow-sm mt-32">
-        {/* TOP SECTION */}
-        <div className="flex flex-col items-center mb-6">
-          <span className="font-display font-bold text-sm tracking-widest uppercase text-soil-brown">
+    <div className="min-h-screen bg-[#FBF7F0] flex items-center justify-center px-4">
+      <div className="w-full max-w-sm bg-white rounded-xl border border-gray-200 p-8 shadow-sm">
+        <div className="text-center mb-8">
+          <div
+            className="font-bold text-sm tracking-widest uppercase text-[#6B4226]"
+            style={{ fontFamily: "Mukta, sans-serif" }}
+          >
             MANDI MITRA
-          </span>
-          <span className="font-sans text-xs text-gray-500 mt-1 font-semibold">
+          </div>
+          <div
+            className="text-xs text-gray-500 mt-1 font-semibold"
+            style={{ fontFamily: "Inter, sans-serif" }}
+          >
             {t("title")}
-          </span>
+          </div>
         </div>
 
-        {/* FORM */}
+        <React.Suspense fallback={null}>
+          <SessionExpiredBanner />
+        </React.Suspense>
+
+        <div
+          className="text-lg font-semibold text-[#1C1C1E] text-center mb-6"
+          style={{ fontFamily: "Mukta, sans-serif" }}
+        >
+          {t("signin_heading")}
+        </div>
+
         <div className="flex flex-col gap-4">
-          {/* Email */}
-          <div className="flex flex-col">
-            <label htmlFor="email-input" className="font-sans text-xs font-semibold text-gray-600 mb-1">
+          <div>
+            <label
+              htmlFor="email-input"
+              className="text-xs font-semibold text-gray-655 block mb-1"
+              style={{ fontFamily: "Inter, sans-serif" }}
+            >
               {t("email_label")}
             </label>
             <input
               id="email-input"
+              {...register("email")}
               type="email"
               autoComplete="email"
               aria-required="true"
-              placeholder="operator@mandimitra.in"
-              {...register("email")}
-              className="border border-gray-200 rounded-lg px-3 py-2.5 font-sans text-sm focus:outline-none focus:ring-1 focus:ring-soil-brown/40 focus:border-soil-brown transition-all bg-white text-charcoal"
+              className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#6B4226]/20 focus:border-[#6B4226] bg-white text-charcoal"
+              style={{ fontFamily: "Inter, sans-serif" }}
             />
             {errors.email && (
-              <span role="alert" aria-live="polite" className="font-sans text-[11px] text-alert-red mt-1 font-medium">
+              <div
+                role="alert"
+                aria-live="polite"
+                className="text-xs text-[#DC2626] mt-1 font-medium"
+                style={{ fontFamily: "Inter, sans-serif" }}
+              >
                 {errors.email.message}
-              </span>
+              </div>
             )}
           </div>
 
-          {/* Password */}
-          <div className="flex flex-col">
-            <label htmlFor="password-input" className="font-sans text-xs font-semibold text-gray-600 mb-1">
+          <div>
+            <label
+              htmlFor="password-input"
+              className="text-xs font-semibold text-gray-655 block mb-1"
+              style={{ fontFamily: "Inter, sans-serif" }}
+            >
               {t("password_label")}
             </label>
             <div className="relative">
               <input
                 id="password-input"
+                {...register("password")}
                 type={showPassword ? "text" : "password"}
                 autoComplete="current-password"
                 aria-required="true"
-                placeholder="••••••••"
-                {...register("password")}
-                className="w-full border border-gray-200 rounded-lg pl-3 pr-10 py-2.5 font-sans text-sm focus:outline-none focus:ring-1 focus:ring-soil-brown/40 focus:border-soil-brown transition-all bg-white text-charcoal"
+                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-[#6B4226]/20 focus:border-[#6B4226] bg-white text-charcoal"
+                style={{ fontFamily: "Inter, sans-serif" }}
               />
               <button
                 type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-505 hover:text-charcoal focus:outline-none"
+                onClick={() => setShowPassword((v) => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-505 hover:text-charcoal focus:outline-none cursor-pointer"
+                aria-label={showPassword ? "Hide password" : "Show password"}
               >
-                {showPassword ? (
-                  <EyeOff className="w-4 h-4" />
-                ) : (
-                  <Eye className="w-4 h-4" />
-                )}
+                {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
               </button>
             </div>
             {errors.password && (
-              <span role="alert" aria-live="polite" className="font-sans text-[11px] text-alert-red mt-1 font-medium">
+              <div
+                role="alert"
+                aria-live="polite"
+                className="text-xs text-[#DC2626] mt-1 font-medium"
+                style={{ fontFamily: "Inter, sans-serif" }}
+              >
                 {errors.password.message}
-              </span>
+              </div>
             )}
           </div>
 
-          {/* Root Form Error */}
           {errors.root && (
-            <div role="alert" aria-live="polite" className="bg-red-50 border border-red-200 rounded-lg px-3 py-2 mt-2">
-              <span className="font-sans text-xs text-alert-red font-medium">
-                {errors.root.message}
-              </span>
+            <div
+              role="alert"
+              aria-live="polite"
+              className="text-xs text-[#DC2626] text-center font-medium"
+              style={{ fontFamily: "Inter, sans-serif" }}
+            >
+              {errors.root.message}
             </div>
           )}
 
-          {/* Submit */}
           <button
             onClick={handleSubmit(onSubmit)}
-            disabled={isSubmitting}
-            className="bg-charcoal text-white rounded-lg py-3 mt-4 font-sans font-semibold text-sm hover:bg-gray-800 transition-colors shadow-sm w-full flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 select-none"
+            disabled={isLoading}
+            className="w-full bg-[#1C1C1E] text-white rounded-lg py-3 text-sm font-semibold hover:bg-gray-800 transition-colors disabled:opacity-60 flex items-center justify-center gap-2 mt-2 cursor-pointer shadow-sm"
+            style={{ fontFamily: "Inter, sans-serif" }}
           >
-            {isSubmitting ? (
+            {isLoading ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Signing In...
+                <Loader2 size={14} className="animate-spin" /> Signing in...
               </>
             ) : (
               t("signin_button")
@@ -155,47 +190,51 @@ export default function LoginPage() {
           </button>
         </div>
 
-        {/* Role credentials card */}
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mt-6">
-          <span className="font-sans text-[10px] font-bold uppercase tracking-wider text-gray-500 block mb-2">
-            Demo Credentials
-          </span>
-          <div className="flex flex-col gap-1.5 divide-y divide-gray-100">
-            <div className="pt-1.5 first:pt-0">
-              <span className="font-sans text-xs text-charcoal font-semibold block">
-                Admin
-              </span>
-              <span className="font-mono text-[10px] text-gray-500 block">
-                admin@mandimitra.in / admin2024
-              </span>
-            </div>
-            <div className="pt-2">
-              <span className="font-sans text-xs text-charcoal font-semibold block">
-                Operator
-              </span>
-              <span className="font-mono text-[10px] text-gray-500 block">
-                operator@mandimitra.in / demo2024
-              </span>
-              <span className="font-sans text-[10px] text-gray-500 block mt-0.5">
-                Full access &mdash; manage pools, buyers, settlements
-              </span>
-            </div>
-            <div className="pt-2">
-              <span className="font-sans text-xs text-charcoal font-semibold block">
-                Viewer
-              </span>
-              <span className="font-mono text-[10px] text-gray-500 block">
-                viewer@mandimitra.in / view2024
-              </span>
-              <span className="font-sans text-[10px] text-gray-500 block mt-0.5">
-                Read-only access &mdash; view pools and settlements
-              </span>
-            </div>
+          <div
+            className="text-[10px] text-gray-505 text-center mb-2 uppercase tracking-wider font-semibold"
+            style={{ fontFamily: "Inter, sans-serif" }}
+          >
+            Demo credentials
           </div>
-          <span className="font-sans text-[10px] text-gray-500 block mt-3 font-medium">
-            * Role is assigned by admin, contact your NGO administrator
-            {/* TODO: role is assigned by admin, contact your NGO administrator */}
-          </span>
+          {[
+            {
+              role: "Admin",
+              email: "admin@mandimitra.in",
+              password: "admin2024",
+            },
+            {
+              role: "Operator",
+              email: "operator@mandimitra.in",
+              password: "demo2024",
+            },
+            {
+              role: "Viewer",
+              email: "viewer@mandimitra.in",
+              password: "view2024",
+            },
+          ].map((c) => (
+            <div
+              key={c.role}
+              className="flex justify-between items-center py-1.5 border-b border-gray-100 last:border-0"
+            >
+              <span
+                className="text-[10px] font-semibold text-gray-505"
+                style={{ fontFamily: "Inter, sans-serif" }}
+              >
+                {c.role}
+              </span>
+              <span className="font-mono text-[10px] text-gray-505">
+                {c.email} / {c.password}
+              </span>
+            </div>
+          ))}
+          <div
+            className="text-[10px] text-gray-505 text-center mt-2 font-medium"
+            style={{ fontFamily: "Inter, sans-serif" }}
+          >
+            {"// TODO: replace with POST /api/auth/login backed by real DB"}
+          </div>
         </div>
       </div>
     </div>

@@ -16,6 +16,9 @@ import { CROPS, DISTRICTS } from "@/lib/constants";
 import { getSocket } from "@/lib/socket";
 import LanguageBadge from "@/components/shared/LanguageBadge";
 import { useAuth } from "@/hooks/useAuth";
+import { usePoolStore } from "@/store/poolStore";
+import { useDemoStore } from "@/store/demoStore";
+import { useFeedStore } from "@/store/feedStore";
 
 interface DemoEvent {
   time: string;
@@ -192,6 +195,24 @@ export default function DemoControlPanelPage() {
     if (isViewer) return;
     setDemoEvents([]);
     toast.success("Demo control state reset successfully");
+  };
+
+  const handleResetDemo = async () => {
+    if (isViewer) return;
+    const confirmed = window.confirm('Are you sure? This will clear all demo data.');
+    if (!confirmed) return;
+
+    try {
+      await fetch('/api/demo/reset', { method: 'POST' });
+      useDemoStore.getState().resetScenario();
+      usePoolStore.getState().clearAll();
+      useFeedStore.getState().clearEvents();
+      setDemoEvents([]);
+      toast.success('Demo state reset — ready for a fresh run');
+      // TODO: also emit socket event demo:reset to clear state on all connected clients
+    } catch {
+      toast.error('Failed to reset demo data');
+    }
   };
 
   const getDotColorClass = (type: DemoEvent["type"]) => {
@@ -642,6 +663,24 @@ export default function DemoControlPanelPage() {
                 No events triggered yet. Use the panels above to simulate the demo flow.
               </span>
             </div>
+          )}
+        </section>
+
+        {/* RESET DEMO SECTION */}
+        <section className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:border-gray-300 transition-colors flex flex-col gap-2">
+          <span className="font-sans text-xs font-medium tracking-wider text-gray-500 uppercase">
+            RESET DEMO
+          </span>
+          <p className="font-sans text-xs text-gray-500 mt-2">
+            Clear all demo pools, bids, and callbacks. Start fresh.
+          </p>
+          {!isViewer && (
+            <button
+              onClick={handleResetDemo}
+              className="border-2 border-alert-red text-alert-red rounded-lg px-4 py-2.5 font-sans text-sm font-medium hover:bg-red-55 mt-3 self-start cursor-pointer transition-colors"
+            >
+              Reset All Demo Data
+            </button>
           )}
         </section>
       </main>

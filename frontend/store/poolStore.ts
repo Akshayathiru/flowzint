@@ -11,6 +11,7 @@ interface PoolStore {
   addFarmerToPool: (poolId: string, farmer: FarmerEntry) => void;
   receiveBid: (poolId: string, bid: BuyerBid) => void;
   closePool: (poolId: string, winningBid: BuyerBid) => void;
+  clearAll: () => void;
 }
 
 export const usePoolStore = create<PoolStore>((set) => ({
@@ -56,4 +57,6 @@ export const usePoolStore = create<PoolStore>((set) => ({
         p.poolId === poolId ? { ...p, status: "settled" as const } : p
       ),
     })),
+
+  clearAll: () => set({ pools: [], selectedPoolId: null }),
 }));

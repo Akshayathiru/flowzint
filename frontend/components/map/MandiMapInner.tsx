@@ -3,6 +3,14 @@
 import React, { useEffect } from "react";
 import { MapContainer, TileLayer, CircleMarker, Circle, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+import MarkerClusterGroup from "react-leaflet-cluster";
+import L from "leaflet";
+import "react-leaflet-cluster/lib/assets/MarkerCluster.css";
+import "react-leaflet-cluster/lib/assets/MarkerCluster.Default.css";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const ClusterGroup: any = (MarkerClusterGroup as any).default || MarkerClusterGroup;
+console.log("MarkerClusterGroup type:", typeof MarkerClusterGroup, MarkerClusterGroup);
 
 interface FarmerPin {
   phone: string;
@@ -108,41 +116,72 @@ export default function MandiMapInner({
         />
 
         {/* Farmer pins */}
-        {farmerPins.map((f) => (
-          <CircleMarker
-            key={f.phone}
-            center={[f.lat, f.lng]}
-            radius={6}
-            pathOptions={{
-              color:
-                f.trustScore >= 3.5
-                  ? "#2D6A4F"
-                  : f.trustScore >= 2.0
-                  ? "#D97706"
-                  : "#DC2626",
-              fillColor:
-                f.trustScore >= 3.5
-                  ? "#2D6A4F"
-                  : f.trustScore >= 2.0
-                  ? "#D97706"
-                  : "#DC2626",
-              fillOpacity: 0.8,
-              weight: 1.5,
-            }}
-            eventHandlers={{
-              click: () => onFarmerClick?.(f.phone),
-            }}
-          >
-            <Popup>
-              <div className="font-sans text-xs p-0.5">
-                <div className="font-bold text-charcoal">{f.phone}</div>
-                <div className="text-gray-500 mt-0.5">
-                  {f.qtyKg}kg &middot; Trust: {f.trustScore}
+        {/* TODO: when farmer count exceeds 50, clustering becomes essential — test with real data */}
+        <ClusterGroup
+          chunkedLoading
+          maxClusterRadius={40}
+          spiderfyOnMaxZoom
+          showCoverageOnHover={false}
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          iconCreateFunction={(cluster: any) => {
+            const count = cluster.getChildCount();
+            return L.divIcon({
+              html: `<div style="
+                background: #6B4226;
+                color: white;
+                border-radius: 50%;
+                width: 32px;
+                height: 32px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-family: Inter, sans-serif;
+                font-size: 11px;
+                font-weight: 600;
+                border: 2px solid white;
+                box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+              ">${count}</div>`,
+              className: "",
+              iconSize: L.point(32, 32),
+            });
+          }}
+        >
+          {farmerPins.map((f) => (
+            <CircleMarker
+              key={f.phone}
+              center={[f.lat, f.lng]}
+              radius={6}
+              pathOptions={{
+                color:
+                  f.trustScore >= 3.5
+                    ? "#2D6A4F"
+                    : f.trustScore >= 2.0
+                    ? "#D97706"
+                    : "#DC2626",
+                fillColor:
+                  f.trustScore >= 3.5
+                    ? "#2D6A4F"
+                    : f.trustScore >= 2.0
+                    ? "#D97706"
+                    : "#DC2626",
+                fillOpacity: 0.8,
+                weight: 1.5,
+              }}
+              eventHandlers={{
+                click: () => onFarmerClick?.(f.phone),
+              }}
+            >
+              <Popup>
+                <div className="font-sans text-xs p-0.5">
+                  <div className="font-bold text-charcoal">{f.phone}</div>
+                  <div className="text-gray-500 mt-0.5">
+                    {f.qtyKg}kg &middot; Trust: {f.trustScore}
+                  </div>
                 </div>
-              </div>
-            </Popup>
-          </CircleMarker>
-        ))}
+              </Popup>
+            </CircleMarker>
+          ))}
+        </ClusterGroup>
 
         {/* Buyer pins */}
         {buyerPins.map((b) => (

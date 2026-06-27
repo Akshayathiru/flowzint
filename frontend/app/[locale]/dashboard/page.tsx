@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import StatCardSkeleton from "@/components/shared/StatCardSkeleton";
 import PoolCardSkeleton from "@/components/shared/PoolCardSkeleton";
+import { useQuery } from "@tanstack/react-query";
 
 const MandiMap = dynamic(() => import("@/components/map/MandiMap"), {
   ssr: false,
@@ -21,6 +22,15 @@ const MandiMap = dynamic(() => import("@/components/map/MandiMap"), {
 export default function Dashboard() {
   const t = useTranslations("dashboard");
   const [isLoading, setIsLoading] = useState(true);
+
+  const { data: stats } = useQuery({
+    queryKey: ['stats'],
+    queryFn: async () => {
+      const res = await fetch('/api/stats');
+      return res.json();
+    },
+    refetchInterval: 10000
+  });
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -63,17 +73,23 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <StatCard
               icon={Layers}
-              value="3"
+              value={String(stats?.activePoolsCount ?? 0)}
               label={t("active_pools")}
               sublabel="2 filling · 1 auctioning"
             />
             <StatCard
               icon={Phone}
-              value="1"
+              value={String(stats?.liveBuyerCallsCount ?? 0)}
               label={t("buyer_calls")}
               sublabel="Bulbul outbound in progress"
             />
-            <CheckCircleIconCard t={t} />
+            <StatCard
+              icon={CheckCircle}
+              value={String(stats?.settlementsCount ?? 0)}
+              label={t("settlements_today")}
+              sublabel="↑ 4 from yesterday"
+              trend="up"
+            />
           </div>
         )}
       </section>
@@ -191,14 +207,4 @@ export default function Dashboard() {
   );
 }
 
-function CheckCircleIconCard({ t }: { t: ReturnType<typeof useTranslations> }) {
-  return (
-    <StatCard
-      icon={CheckCircle}
-      value="12"
-      label={t("settlements_today")}
-      sublabel="↑ 4 from yesterday"
-      trend="up"
-    />
-  );
-}
+

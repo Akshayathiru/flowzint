@@ -1,21 +1,26 @@
 "use client";
 
 import React from "react";
-import { usePathname } from "@/lib/navigation";
+import { usePathname } from "next/navigation";
 import Sidebar from "./Sidebar";
 import MobileNav from "./MobileNav";
 
-export default function ConditionalSidebar() {
+function isLandingOrLoginPage(pathname: string): boolean {
+  const cleanPath = pathname.replace(/^\/(en|hi|ta|te|kn|mr)(\/|$)/, "/");
+  return cleanPath === "/" || cleanPath === "/login";
+}
+
+export function ConditionalSidebar() {
   const pathname = usePathname();
-
-  if (pathname === "/" || pathname === "/login") {
-    return null;
-  }
-
+  if (isLandingOrLoginPage(pathname)) return null;
   return (
     <>
-      <Sidebar />
-      <MobileNav />
+      <div className="hidden lg:block">
+        <Sidebar />
+      </div>
+      <div className="block lg:hidden">
+        <MobileNav />
+      </div>
     </>
   );
 }

@@ -9,25 +9,34 @@ export function useConnectionStatus(): ConnectionStatus {
   const [status, setStatus] = useState<ConnectionStatus>("connected");
 
   useEffect(() => {
-    const socket = getSocket();
-    const handleDisconnect = () => setStatus("disconnected");
-    const handleConnect = () => setStatus("connected");
-    const handleReconnectAttempt = () => setStatus("reconnecting");
-
-    // Initial state check
-    if (socket.connected) {
+    if (process.env.NEXT_PUBLIC_DEMO_MODE === "true") {
       setStatus("connected");
-    } else {
-      setStatus("disconnected");
+      return;
     }
+
+    const socket = getSocket();
+
+    const updateStatus = () => {
+      if (typeof window !== "undefined" && !navigator.onLine) {
+        setStatus("disconnected");
+      } else if (socket.connected) {
+        setStatus("connected");
+      } else {
+        setStatus("reconnecting");
+      }
+    };
+
+    updateStatus();
+
+    const handleDisconnect = () => updateStatus();
+    const handleConnect = () => updateStatus();
+    const handleReconnectAttempt = () => setStatus("reconnecting");
+    const handleOffline = () => setStatus("disconnected");
+    const handleOnline = () => updateStatus();
 
     socket.on("disconnect", handleDisconnect);
     socket.on("connect", handleConnect);
     socket.on("reconnect_attempt", handleReconnectAttempt);
-
-    // Also watch browser online/offline
-    const handleOffline = () => setStatus("disconnected");
-    const handleOnline = () => setStatus("reconnecting");
     window.addEventListener("offline", handleOffline);
     window.addEventListener("online", handleOnline);
 

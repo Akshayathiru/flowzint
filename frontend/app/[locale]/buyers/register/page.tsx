@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Link, useRouter } from "@/lib/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,7 +9,6 @@ import { toast } from "sonner";
 import {
   ChevronLeft,
   CheckCircle,
-  XCircle,
   Loader2,
   Phone,
   Mic,
@@ -28,14 +27,22 @@ const FormSchema = BuyerSchema.omit({ phone: true }).extend({
 
 type FormFormData = z.infer<typeof FormSchema>;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function debounce<T extends (...args: any[]) => void>(func: T, wait: number) {
+  let timeout: NodeJS.Timeout;
+  return function(...args: Parameters<T>) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), wait);
+  };
+}
+
 export default function RegisterBuyerPage() {
   const router = useRouter();
   const t = useTranslations("buyer");
   const { isViewer } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [phoneCheckStatus, setPhoneCheckStatus] = useState<
-    "idle" | "loading" | "available" | "taken"
-  >("idle");
+  const [phoneExists, setPhoneExists] = useState(false);
+  const [checkingPhone, setCheckingPhone] = useState(false);
 
   const {
     register,
@@ -62,24 +69,26 @@ export default function RegisterBuyerPage() {
   const phoneDigitsValue = watch("phoneDigits") || "";
   const phoneValue = phoneDigitsValue ? "+91" + phoneDigitsValue : "";
 
-  // TODO: wire to GET /api/buyers/check?phone=...
-  useEffect(() => {
-    if (!phoneValue || phoneValue.length < 5) {
-      setPhoneCheckStatus("idle");
-      return;
-    }
-
-    setPhoneCheckStatus("loading");
-    const timer = setTimeout(() => {
-      if (phoneValue === "+918000020001" || phoneValue === "+919999999999") {
-        setPhoneCheckStatus("taken");
-      } else {
-        setPhoneCheckStatus("available");
-      }
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [phoneValue]);
+  const checkPhone = React.useMemo(
+    () =>
+      debounce(async (phone: string) => {
+        if (phone.length < 13) {
+          setPhoneExists(false);
+          return;
+        }
+        setCheckingPhone(true);
+        try {
+          const res = await fetch(`/api/buyers/check?phone=${encodeURIComponent(phone)}`);
+          const data = await res.json();
+          setPhoneExists(data.exists);
+        } catch {
+          setPhoneExists(false);
+        } finally {
+          setCheckingPhone(false);
+        }
+      }, 600),
+    []
+  );
 
   const toggleDistrict = (districtName: string) => {
     if (isViewer) return;
@@ -112,7 +121,7 @@ export default function RegisterBuyerPage() {
 
   const onSubmit = (data: FormFormData) => {
     if (isViewer) return;
-    if (phoneCheckStatus === "taken") {
+    if (phoneExists) {
       toast.error("Please use an unregistered phone number");
       return;
     }
@@ -224,6 +233,7 @@ export default function RegisterBuyerPage() {
                         onChange: (e) => {
                           const val = e.target.value.replace(/\D/g, "").slice(0, 10);
                           setValue("phoneDigits", val, { shouldValidate: true });
+                          checkPhone("+91" + val);
                         },
                       })}
                       placeholder="9876543210"
@@ -238,25 +248,18 @@ export default function RegisterBuyerPage() {
                   )}
 
                   {/* Async check UI */}
-                  {phoneCheckStatus !== "idle" && !errors.phoneDigits && !isViewer && (
-                    <div className="flex items-center gap-1.5 mt-1.5">
-                      {phoneCheckStatus === "loading" && (
-                        <span className="font-sans text-[10px] text-gray-500 flex items-center gap-1">
-                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                          Checking...
+                  {!errors.phoneDigits && !isViewer && (
+                    <div className="flex flex-col mt-1">
+                      {checkingPhone && (
+                        <span className="font-sans text-[11px] text-gray-500">Checking...</span>
+                      )}
+                      {phoneExists && (
+                        <span className="font-sans text-[11px] text-alert-red" role="alert">
+                          This phone number is already registered
                         </span>
                       )}
-                      {phoneCheckStatus === "available" && (
-                        <span className="font-sans text-[10px] text-field-green flex items-center gap-1">
-                          <CheckCircle className="w-3 h-3" />
-                          Number available
-                        </span>
-                      )}
-                      {phoneCheckStatus === "taken" && (
-                        <span className="font-sans text-[10px] text-alert-red flex items-center gap-1">
-                          <XCircle className="w-3 h-3" />
-                          Already registered
-                        </span>
+                      {!phoneExists && phoneValue.length >= 13 && !checkingPhone && (
+                        <span className="font-sans text-[11px] text-field-green">Phone available</span>
                       )}
                     </div>
                   )}
@@ -406,7 +409,7 @@ export default function RegisterBuyerPage() {
             {!isViewer && (
               <button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || phoneExists}
                 className="bg-charcoal text-white rounded-lg py-3 font-sans font-semibold text-sm hover:bg-gray-800 transition-colors shadow-sm w-full flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 {isSubmitting ? (

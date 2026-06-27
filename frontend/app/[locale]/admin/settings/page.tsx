@@ -1,706 +1,497 @@
 "use client";
 
+// TODO: GET /api/admin/settings on mount to load saved values from backend
+
 import React, { useState } from "react";
-import { Link } from "@/lib/navigation";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 import {
-  AlertTriangle,
   Eye,
   EyeOff,
-  Trash2,
-  ExternalLink,
-  CheckCircle,
   Loader2,
+  Trash2,
+  CheckCircle,
+  AlertTriangle,
 } from "lucide-react";
-import { toast } from "sonner";
-import PageHeader from "@/components/shared/PageHeader";
 
 interface CatchmentZone {
-  id: string;
   name: string;
-  lat: string;
-  lng: string;
-  radius: string;
+  lat: number;
+  lng: number;
+  radiusKm: number;
+  status: "active" | "inactive";
 }
 
 export default function AdminSettingsPage() {
+  const { isViewer } = useAuth();
+
+  // Loading States
   const [isSaving, setIsSaving] = useState(false);
+  const [isTestingApi, setIsTestingApi] = useState(false);
 
-  // Pool Threshold values
-  const [maxWindow, setMaxWindow] = useState("90");
-  const [geoRadius, setGeoRadius] = useState("20");
-  const [minLotTomatoes, setMinLotTomatoes] = useState("250");
-  const [minLotOnions, setMinLotOnions] = useState("300");
-  const [minLotDefault, setMinLotDefault] = useState("150");
+  // Pool Configuration States
+  const [minLot, setMinLot] = useState(500);
+  const [maxWindow, setMaxWindow] = useState(90);
+  const [geoRadius, setGeoRadius] = useState(25);
+  const [minBuyers, setMinBuyers] = useState(2);
 
-  // API Config credentials & Visibility toggles
-  const [sarvamKey, setSarvamKey] = useState("");
+  // Trust Score Weights States
+  const [weightDelivery, setWeightDelivery] = useState(0.4);
+  const [weightNoShow, setWeightNoShow] = useState(0.3);
+  const [weightCallback, setWeightCallback] = useState(0.2);
+  const [weightFrequency, setWeightFrequency] = useState(0.1);
+
+  // API Configuration States
+  const [sarvamKey, setSarvamKey] = useState("sk-sarv-••••••••••");
   const [showSarvamKey, setShowSarvamKey] = useState(false);
-  const [bulbulEndpoint, setBulbulEndpoint] = useState("");
-  const [webhookUrl, setWebhookUrl] = useState("");
-  const [apiSecret, setApiSecret] = useState("");
-  const [showApiSecret, setShowApiSecret] = useState(false);
+  const [bulbulEndpoint, setBulbulEndpoint] = useState(
+    "https://api.sarvam.ai/bulbul/v3"
+  );
+  const [webhookUrl, setWebhookUrl] = useState(
+    "https://mandimitra.in/webhooks"
+  );
 
-  // Mandi Catchment Zones
+  // Mandi Catchment Zones States
   const [zones, setZones] = useState<CatchmentZone[]>([
     {
-      id: "z1",
-      name: "Kanchipuram Central",
-      lat: "12.8342",
-      lng: "79.7036",
-      radius: "18",
+      name: "Kanchipuram Mandi",
+      lat: 12.8342,
+      lng: 79.7036,
+      radiusKm: 18,
+      status: "active",
     },
     {
-      id: "z2",
       name: "Vellore Mandi",
-      lat: "12.9165",
-      lng: "79.1325",
-      radius: "20",
+      lat: 12.9165,
+      lng: 79.1325,
+      radiusKm: 22,
+      status: "active",
     },
     {
-      id: "z3",
-      name: "Salem North",
-      lat: "11.6643",
-      lng: "78.1460",
-      radius: "15",
+      name: "Chengalpattu Mandi",
+      lat: 12.6819,
+      lng: 80.0012,
+      radiusKm: 15,
+      status: "active",
+    },
+    {
+      name: "Tiruvannamalai Mandi",
+      lat: 12.2269,
+      lng: 79.0745,
+      radiusKm: 30,
+      status: "inactive",
     },
   ]);
 
-  // Trust score weights
-  const [weightDeliveries, setWeightDeliveries] = useState(60);
-  const [weightNoShow, setWeightNoShow] = useState(30);
-  const [weightCallback, setWeightCallback] = useState(10);
+  // Live Trust weights validation
+  const trustWeightSum = Number(
+    (
+      weightDelivery +
+      weightNoShow +
+      weightCallback +
+      weightFrequency
+    ).toFixed(2)
+  );
+  const isWeightsSumValid = trustWeightSum === 1.0;
 
-  const trustSum =
-    (Number(weightDeliveries) || 0) +
-    (Number(weightNoShow) || 0) +
-    (Number(weightCallback) || 0);
+  const handleTestConnection = () => {
+    setIsTestingApi(true);
+    // TODO: POST /api/admin/test-sarvam
+    setTimeout(() => {
+      setIsTestingApi(false);
+      toast.success("Sarvam API: Connected ✓");
+    }, 1500);
+  };
 
   const handleAddZone = () => {
-    const nextId = "zone_" + Date.now();
-    setZones((prev) => [
-      ...prev,
-      { id: nextId, name: "", lat: "", lng: "", radius: "" },
-    ]);
+    // TODO: modal with map picker for lat/lng and radius slider
+    toast.info("Zone editor coming soon");
   };
 
-  const handleDeleteZone = (id: string) => {
-    setZones((prev) => prev.filter((z) => z.id !== id));
-  };
-
-  const handleZoneChange = (
-    id: string,
-    field: keyof CatchmentZone,
-    val: string
-  ) => {
+  const handleToggleZoneStatus = (idx: number) => {
+    if (isViewer) return;
     setZones((prev) =>
-      prev.map((z) => (z.id === id ? { ...z, [field]: val } : z))
+      prev.map((z, i) =>
+        i === idx
+          ? { ...z, status: z.status === "active" ? "inactive" : "active" }
+          : z
+      )
     );
   };
 
-  const handleSaveChanges = () => {
-    if (trustSum !== 100) {
-      toast.error("Trust score weights must sum to 100%");
+  const handleRemoveZone = (idx: number) => {
+    if (isViewer) return;
+    setZones((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  const handleSave = () => {
+    if (!isWeightsSumValid) {
+      toast.error("Trust score weights must sum to 1.0");
       return;
     }
-
     setIsSaving(true);
+    // TODO: POST /api/admin/settings with all form values
     setTimeout(() => {
       setIsSaving(false);
       toast.success("Settings saved");
-    }, 600);
+    }, 800);
   };
-
-  const handleResetDemoData = () => {
-    toast.success("Demo data has been reset to defaults");
-  };
-
-  const handleFlushTrust = () => {
-    toast.success("All farmer trust scores set to 3.0");
-  };
-
-  const inputClass =
-    "border border-gray-200 rounded-lg px-3 py-1.5 font-sans text-sm text-right focus:outline-none focus:ring-1 focus:ring-gray-300 bg-white text-charcoal";
-  const apiInputClass =
-    "border border-gray-200 rounded-lg px-3 py-1.5 font-sans text-sm focus:outline-none focus:ring-1 focus:ring-gray-300 bg-white text-charcoal";
 
   return (
-    <div className="min-h-screen bg-warm-cream flex flex-col font-sans">
-      {/* PAGE HEADER */}
-      <PageHeader
-        title="Settings"
-        subtitle="System configuration"
-        actions={
-          <button
-            onClick={handleSaveChanges}
-            disabled={isSaving}
-            className="bg-charcoal text-white rounded-lg px-4 py-2 font-sans text-xs font-semibold hover:bg-gray-800 transition-colors shadow-sm flex items-center gap-1.5 cursor-pointer disabled:opacity-50 select-none"
-          >
-            {isSaving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-            Save Changes
-          </button>
-        }
-      />
-
-      {/* Main Content Area */}
-      <main className="max-w-6xl w-full mx-auto px-6 py-6 flex flex-col gap-6">
-        <div className="lg:hidden bg-charcoal rounded-xl p-4 mb-2 flex items-center justify-between shadow-sm">
-          <div>
-            <div className="font-display font-semibold text-sm text-white">Demo Control Panel</div>
-            <div className="font-sans text-xs text-gray-500 mt-0.5">Trigger live demo events</div>
-          </div>
-          <Link href="/demo" className="bg-harvest-gold text-soil-brown rounded-lg px-3 py-2 font-sans text-xs font-medium">
-            Open &rarr;
-          </Link>
+    <div className="min-h-screen bg-warm-cream py-8 px-6 font-sans">
+      <div className="max-w-3xl mx-auto flex flex-col gap-6">
+        {/* HEADER */}
+        <div className="border-b border-gray-200 pb-5">
+          <h1 className="font-semibold text-xl text-charcoal font-display">
+            System Settings
+          </h1>
+          <p className="text-sm text-gray-500 mt-1">
+            Configure pool thresholds, API integrations, and mandi catchment zones.
+          </p>
         </div>
 
-        {/* Dynamic Grid Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6 items-start">
-          {/* LEFT Panels */}
+        {/* SECTION 1: POOL CONFIGURATION */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+          <h2 className="text-xs font-bold tracking-wider text-gray-550 uppercase mb-5">
+            Pool Configuration
+          </h2>
           <div className="flex flex-col gap-5">
-            {/* SECTION 1: Pool Thresholds */}
-            <section className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:border-gray-300 transition-colors">
-              <h2 className="font-display font-semibold text-sm text-charcoal mb-0.5">
-                Pool Thresholds
-              </h2>
-              <p className="font-sans text-xs text-gray-500 mb-4">
-                Controls when a pool closes and triggers the buyer auction
-              </p>
-
-              <div className="flex flex-col divide-y divide-gray-100">
-                {/* Max Pool Window */}
-                <div className="flex justify-between items-center py-3">
-                  <div className="flex flex-col">
-                    <span className="font-sans text-xs font-semibold text-charcoal">
-                      Max Pool Window
-                    </span>
-                    <span className="font-sans text-[10px] text-gray-500 mt-0.5">
-                      Hard close after this many minutes regardless of threshold
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <input
-                      type="number"
-                      value={maxWindow}
-                      onChange={(e) => setMaxWindow(e.target.value)}
-                      className={`${inputClass} w-20`}
-                    />
-                    <span className="font-sans text-xs text-gray-500 font-medium">
-                      min
-                    </span>
-                  </div>
-                </div>
-
-                {/* Geo Radius */}
-                <div className="flex justify-between items-center py-3">
-                  <div className="flex flex-col">
-                    <span className="font-sans text-xs font-semibold text-charcoal">
-                      Geo Radius
-                    </span>
-                    <span className="font-sans text-[10px] text-gray-500 mt-0.5">
-                      Max distance between farmers in the same pool
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <input
-                      type="number"
-                      value={geoRadius}
-                      onChange={(e) => setGeoRadius(e.target.value)}
-                      className={`${inputClass} w-20`}
-                    />
-                    <span className="font-sans text-xs text-gray-500 font-medium">
-                      km
-                    </span>
-                  </div>
-                </div>
-
-                {/* Min Lot Tomatoes */}
-                <div className="flex justify-between items-center py-3">
-                  <div className="flex flex-col">
-                    <span className="font-sans text-xs font-semibold text-charcoal">
-                      Min Viable Lot &mdash; Tomatoes
-                    </span>
-                    <span className="font-sans text-[10px] text-gray-500 mt-0.5">
-                      Pool closes early when this quantity is reached
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <input
-                      type="number"
-                      value={minLotTomatoes}
-                      onChange={(e) => setMinLotTomatoes(e.target.value)}
-                      className={`${inputClass} w-24`}
-                    />
-                    <span className="font-sans text-xs text-gray-500 font-medium">
-                      kg
-                    </span>
-                  </div>
-                </div>
-
-                {/* Min Lot Onions */}
-                <div className="flex justify-between items-center py-3">
-                  <div className="flex flex-col">
-                    <span className="font-sans text-xs font-semibold text-charcoal">
-                      Min Viable Lot &mdash; Onions
-                    </span>
-                    <span className="font-sans text-[10px] text-gray-500 mt-0.5">
-                      Pool closes early when this quantity is reached
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <input
-                      type="number"
-                      value={minLotOnions}
-                      onChange={(e) => setMinLotOnions(e.target.value)}
-                      className={`${inputClass} w-24`}
-                    />
-                    <span className="font-sans text-xs text-gray-500 font-medium">
-                      kg
-                    </span>
-                  </div>
-                </div>
-
-                {/* Min Lot Default */}
-                <div className="flex justify-between items-center py-3">
-                  <div className="flex flex-col">
-                    <span className="font-sans text-xs font-semibold text-charcoal">
-                      Min Viable Lot &mdash; Default
-                    </span>
-                    <span className="font-sans text-[10px] text-gray-500 mt-0.5">
-                      Threshold for all other agricultural crops
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <input
-                      type="number"
-                      value={minLotDefault}
-                      onChange={(e) => setMinLotDefault(e.target.value)}
-                      className={`${inputClass} w-24`}
-                    />
-                    <span className="font-sans text-xs text-gray-500 font-medium">
-                      kg
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* SECTION 2: API Configuration */}
-            <section className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:border-gray-300 transition-colors">
-              <h2 className="font-display font-semibold text-sm text-charcoal mb-0.5">
-                API Configuration
-              </h2>
-              <p className="font-sans text-xs text-gray-500 mb-4">
-                Sarvam AI and Bulbul v3 credentials
-              </p>
-
-              <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 mb-4 flex gap-2.5 items-start">
-                <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-                <span className="font-sans text-xs text-amber-700 leading-normal">
-                  API keys are stored server-side only and never exposed to the browser. Set them in your .env file.
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
+              <div>
+                <label htmlFor="min-lot-input" className="text-xs font-semibold text-charcoal block">
+                  Minimum viable lot per crop (kg)
+                </label>
+                <span className="text-[11px] text-gray-500 block mt-0.5">
+                  Pools below this threshold will expire without auction
                 </span>
               </div>
+              <input
+                id="min-lot-input"
+                type="number"
+                disabled={isViewer}
+                value={minLot}
+                onChange={(e) => setMinLot(Number(e.target.value))}
+                className="border border-gray-200 rounded-lg px-3 py-2.5 text-sm w-32 focus:outline-none focus:ring-2 focus:ring-soil-brown/20 focus:border-soil-brown bg-white text-charcoal"
+              />
+            </div>
 
-              <div className="flex flex-col divide-y divide-gray-100">
-                {/* Sarvam Key */}
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-3.5 gap-2 sm:gap-0">
-                  <div className="flex flex-col">
-                    <span className="font-sans text-xs font-semibold text-charcoal">
-                      Sarvam API Key
-                    </span>
-                    <span className="font-sans text-[10px] text-gray-500 mt-0.5">
-                      Used for STT and NLU on inbound farmer calls
-                    </span>
-                  </div>
-                  <div className="relative w-full sm:w-64">
-                    <input
-                      type={showSarvamKey ? "text" : "password"}
-                      value={sarvamKey}
-                      onChange={(e) => setSarvamKey(e.target.value)}
-                      placeholder="sk-sarvam-••••••••"
-                      className={`${apiInputClass} w-full pr-10`}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowSarvamKey(!showSarvamKey)}
-                      className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-455 hover:text-charcoal focus:outline-none"
-                    >
-                      {showSarvamKey ? (
-                        <EyeOff className="w-4 h-4" />
-                      ) : (
-                        <Eye className="w-4 h-4" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Bulbul Endpoint */}
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-3.5 gap-2 sm:gap-0">
-                  <div className="flex flex-col">
-                    <span className="font-sans text-xs font-semibold text-charcoal">
-                      Bulbul Endpoint
-                    </span>
-                    <span className="font-sans text-[10px] text-gray-500 mt-0.5">
-                      Base URL for outbound TTS call orchestration
-                    </span>
-                  </div>
-                  <input
-                    type="text"
-                    value={bulbulEndpoint}
-                    onChange={(e) => setBulbulEndpoint(e.target.value)}
-                    placeholder="https://api.bulbul.ai/v3"
-                    className={`${apiInputClass} w-full sm:w-64`}
-                  />
-                </div>
-
-                {/* Webhook Base URL */}
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-3.5 gap-2 sm:gap-0">
-                  <div className="flex flex-col">
-                    <span className="font-sans text-xs font-semibold text-charcoal">
-                      Webhook Base URL
-                    </span>
-                    <span className="font-sans text-[10px] text-gray-500 mt-0.5">
-                      Your backend receives Sarvam callbacks here
-                    </span>
-                  </div>
-                  <input
-                    type="text"
-                    value={webhookUrl}
-                    onChange={(e) => setWebhookUrl(e.target.value)}
-                    placeholder="https://your-backend.com/webhooks"
-                    className={`${apiInputClass} w-full sm:w-64`}
-                  />
-                </div>
-
-                {/* Internal Secret */}
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-3.5 gap-2 sm:gap-0">
-                  <div className="flex flex-col">
-                    <span className="font-sans text-xs font-semibold text-charcoal">
-                      Internal API Secret
-                    </span>
-                    <span className="font-sans text-[10px] text-gray-500 mt-0.5">
-                      Shared secret between Next.js API routes and FastAPI backend
-                    </span>
-                  </div>
-                  <div className="relative w-full sm:w-64">
-                    <input
-                      type={showApiSecret ? "text" : "password"}
-                      value={apiSecret}
-                      onChange={(e) => setApiSecret(e.target.value)}
-                      placeholder="••••••••••••••••"
-                      className={`${apiInputClass} w-full pr-10`}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowApiSecret(!showApiSecret)}
-                      className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-455 hover:text-charcoal focus:outline-none"
-                    >
-                      {showApiSecret ? (
-                        <EyeOff className="w-4 h-4" />
-                      ) : (
-                        <Eye className="w-4 h-4" />
-                      )}
-                    </button>
-                  </div>
-                </div>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
+              <div>
+                <label htmlFor="max-window-input" className="text-xs font-semibold text-charcoal block">
+                  Maximum pool window (minutes)
+                </label>
+                <span className="text-[11px] text-gray-500 block mt-0.5">
+                  Pools auto-close after this duration regardless of fill level
+                </span>
               </div>
-            </section>
+              <input
+                id="max-window-input"
+                type="number"
+                disabled={isViewer}
+                value={maxWindow}
+                onChange={(e) => setMaxWindow(Number(e.target.value))}
+                className="border border-gray-200 rounded-lg px-3 py-2.5 text-sm w-32 focus:outline-none focus:ring-2 focus:ring-soil-brown/20 focus:border-soil-brown bg-white text-charcoal"
+              />
+            </div>
 
-            {/* SECTION 3: Mandi Catchment Editor */}
-            <section className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:border-gray-300 transition-colors">
-              <h2 className="font-display font-semibold text-sm text-charcoal mb-0.5">
-                Mandi Catchment Zones
-              </h2>
-              <p className="font-sans text-xs text-gray-500 mb-4">
-                Define the geo-boundary zones used for farmer pooling
-              </p>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
+              <div>
+                <label htmlFor="geo-radius-input" className="text-xs font-semibold text-charcoal block">
+                  Default geo-radius (km)
+                </label>
+                <span className="text-[11px] text-gray-500 block mt-0.5">
+                  Catchment boundary for grouping farmers into the same pool
+                </span>
+              </div>
+              <input
+                id="geo-radius-input"
+                type="number"
+                disabled={isViewer}
+                value={geoRadius}
+                onChange={(e) => setGeoRadius(Number(e.target.value))}
+                className="border border-gray-200 rounded-lg px-3 py-2.5 text-sm w-32 focus:outline-none focus:ring-2 focus:ring-soil-brown/20 focus:border-soil-brown bg-white text-charcoal"
+              />
+            </div>
 
-              <div className="flex flex-col gap-3.5">
-                {zones.map((zone) => (
-                  <div
-                    key={zone.id}
-                    className="bg-white border border-gray-200 rounded-lg p-3 grid grid-cols-1 sm:grid-cols-[1fr_100px_100px_90px_32px] gap-3 items-center"
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
+              <div>
+                <label htmlFor="min-buyers-input" className="text-xs font-semibold text-charcoal block">
+                  Minimum buyers for valid auction
+                </label>
+                <span className="text-[11px] text-gray-500 block mt-0.5">
+                  At least this many buyers must be called before accepting a winning bid
+                </span>
+              </div>
+              <input
+                id="min-buyers-input"
+                type="number"
+                disabled={isViewer}
+                value={minBuyers}
+                onChange={(e) => setMinBuyers(Number(e.target.value))}
+                className="border border-gray-200 rounded-lg px-3 py-2.5 text-sm w-32 focus:outline-none focus:ring-2 focus:ring-soil-brown/20 focus:border-soil-brown bg-white text-charcoal"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* SECTION 2: TRUST SCORE WEIGHTS */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+          <h2 className="text-xs font-bold tracking-wider text-gray-550 uppercase mb-5">
+            Trust Score Weights
+          </h2>
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-between gap-2">
+              <label htmlFor="weight-delivery-input" className="text-xs font-semibold text-charcoal">
+                Confirmed delivery weight
+              </label>
+              <input
+                id="weight-delivery-input"
+                type="number"
+                step="0.1"
+                min="0"
+                max="1"
+                disabled={isViewer}
+                value={weightDelivery}
+                onChange={(e) => setWeightDelivery(Number(e.target.value))}
+                className="border border-gray-200 rounded-lg px-3 py-2.5 text-sm w-32 focus:outline-none focus:ring-2 focus:ring-soil-brown/20 focus:border-soil-brown bg-white text-charcoal"
+              />
+            </div>
+
+            <div className="flex items-center justify-between gap-2">
+              <label htmlFor="weight-noshow-input" className="text-xs font-semibold text-charcoal">
+                No-show penalty weight
+              </label>
+              <input
+                id="weight-noshow-input"
+                type="number"
+                step="0.1"
+                min="0"
+                max="1"
+                disabled={isViewer}
+                value={weightNoShow}
+                onChange={(e) => setWeightNoShow(Number(e.target.value))}
+                className="border border-gray-200 rounded-lg px-3 py-2.5 text-sm w-32 focus:outline-none focus:ring-2 focus:ring-soil-brown/20 focus:border-soil-brown bg-white text-charcoal"
+              />
+            </div>
+
+            <div className="flex items-center justify-between gap-2">
+              <label htmlFor="weight-callback-input" className="text-xs font-semibold text-charcoal">
+                Callback confirmation weight
+              </label>
+              <input
+                id="weight-callback-input"
+                type="number"
+                step="0.1"
+                min="0"
+                max="1"
+                disabled={isViewer}
+                value={weightCallback}
+                onChange={(e) => setWeightCallback(Number(e.target.value))}
+                className="border border-gray-200 rounded-lg px-3 py-2.5 text-sm w-32 focus:outline-none focus:ring-2 focus:ring-soil-brown/20 focus:border-soil-brown bg-white text-charcoal"
+              />
+            </div>
+
+            <div className="flex items-center justify-between gap-2">
+              <label htmlFor="weight-frequency-input" className="text-xs font-semibold text-charcoal">
+                Call frequency weight
+              </label>
+              <input
+                id="weight-frequency-input"
+                type="number"
+                step="0.1"
+                min="0"
+                max="1"
+                disabled={isViewer}
+                value={weightFrequency}
+                onChange={(e) => setWeightFrequency(Number(e.target.value))}
+                className="border border-gray-200 rounded-lg px-3 py-2.5 text-sm w-32 focus:outline-none focus:ring-2 focus:ring-soil-brown/20 focus:border-soil-brown bg-white text-charcoal"
+              />
+            </div>
+
+            {/* Weights summary validation feedback banner */}
+            <div className="pt-4 border-t border-gray-100 flex items-center justify-between text-xs">
+              <span className="font-semibold text-gray-500">
+                Total weight: {trustWeightSum}
+              </span>
+              {isWeightsSumValid ? (
+                <div className="text-field-green flex items-center gap-1.5 font-bold">
+                  <CheckCircle className="w-4 h-4" />
+                  <span>Weights sum to 1.0 ✓</span>
+                </div>
+              ) : (
+                <div className="text-alert-red flex items-center gap-1.5 font-bold" role="alert">
+                  <AlertTriangle className="w-4 h-4" />
+                  <span>Weights must sum to 1.0</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* SECTION 3: API CONFIGURATION */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+          <h2 className="text-xs font-bold tracking-wider text-gray-550 uppercase mb-5">
+            API Integrations
+          </h2>
+          <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="sarvam-key-input" className="text-xs font-semibold text-charcoal block">
+                Sarvam API Key
+              </label>
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <input
+                    id="sarvam-key-input"
+                    type={showSarvamKey ? "text" : "password"}
+                    disabled={isViewer}
+                    value={sarvamKey}
+                    onChange={(e) => setSarvamKey(e.target.value)}
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-soil-brown/20 focus:border-soil-brown bg-white text-charcoal font-mono"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowSarvamKey((prev) => !prev)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none cursor-pointer"
+                    aria-label={showSarvamKey ? "Hide key" : "Show key"}
                   >
-                    <input
-                      type="text"
-                      value={zone.name}
-                      placeholder="Zone Name"
-                      onChange={(e) =>
-                        handleZoneChange(zone.id, "name", e.target.value)
-                      }
-                      className="border border-gray-200 rounded px-2.5 py-1.5 font-sans text-xs focus:outline-none focus:ring-1 focus:ring-gray-300 w-full"
-                    />
+                    {showSarvamKey ? <EyeOff size={14} /> : <Eye size={14} />}
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleTestConnection}
+                  disabled={isTestingApi}
+                  className="border border-gray-200 rounded-lg px-4 py-2.5 text-xs font-semibold text-gray-655 hover:bg-gray-50 bg-white transition-colors cursor-pointer flex items-center justify-center gap-1.5 select-none"
+                >
+                  {isTestingApi && <Loader2 size={12} className="animate-spin" />}
+                  Test Connection
+                </button>
+              </div>
+              <span className="text-[11px] text-gray-500 block">
+                Used for STT and NLU on inbound farmer calls
+              </span>
+            </div>
 
-                    <input
-                      type="number"
-                      value={zone.lat}
-                      placeholder="Lat"
-                      onChange={(e) =>
-                        handleZoneChange(zone.id, "lat", e.target.value)
-                      }
-                      className="border border-gray-200 rounded px-2.5 py-1.5 font-sans text-xs focus:outline-none focus:ring-1 focus:ring-gray-300 w-full text-center"
-                    />
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="bulbul-endpoint-input" className="text-xs font-semibold text-charcoal block">
+                Bulbul TTS Endpoint
+              </label>
+              <input
+                id="bulbul-endpoint-input"
+                type="text"
+                disabled={isViewer}
+                value={bulbulEndpoint}
+                onChange={(e) => setBulbulEndpoint(e.target.value)}
+                className="border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-soil-brown/20 focus:border-soil-brown bg-white text-charcoal font-mono"
+              />
+              <span className="text-[11px] text-gray-500 block">
+                Outbound IVR call synthesis endpoint
+              </span>
+            </div>
 
-                    <input
-                      type="number"
-                      value={zone.lng}
-                      placeholder="Lng"
-                      onChange={(e) =>
-                        handleZoneChange(zone.id, "lng", e.target.value)
-                      }
-                      className="border border-gray-200 rounded px-2.5 py-1.5 font-sans text-xs focus:outline-none focus:ring-1 focus:ring-gray-300 w-full text-center"
-                    />
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="webhook-url-input" className="text-xs font-semibold text-charcoal block">
+                Webhook Base URL
+              </label>
+              <input
+                id="webhook-url-input"
+                type="text"
+                disabled={isViewer}
+                value={webhookUrl}
+                onChange={(e) => setWebhookUrl(e.target.value)}
+                className="border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-soil-brown/20 focus:border-soil-brown bg-white text-charcoal font-mono"
+              />
+              <span className="text-[11px] text-gray-500 block">
+                Base URL for receiving call status callbacks from telephony provider
+              </span>
+            </div>
+          </div>
+        </div>
 
-                    <div className="flex items-center gap-1">
-                      <input
-                        type="number"
-                        value={zone.radius}
-                        placeholder="Radius"
-                        onChange={(e) =>
-                          handleZoneChange(zone.id, "radius", e.target.value)
-                        }
-                        className="border border-gray-200 rounded px-2.5 py-1.5 font-sans text-xs focus:outline-none focus:ring-1 focus:ring-gray-300 w-full text-center"
-                      />
-                      <span className="font-sans text-[10px] text-gray-500">km</span>
-                    </div>
-
-                    <div className="flex justify-center">
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteZone(zone.id)}
-                        className="text-gray-500 hover:text-alert-red transition-colors p-1"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
+        {/* SECTION 4: MANDI CATCHMENT ZONES */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+          <h2 className="text-xs font-bold tracking-wider text-gray-550 uppercase mb-5">
+            Mandi Catchment Zones
+          </h2>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse text-xs font-sans">
+              <caption className="sr-only">List of mandi catchment zones and coordinates</caption>
+              <thead>
+                <tr className="border-b border-gray-150 font-sans text-gray-505 font-bold uppercase tracking-wider text-[10px]">
+                  <th scope="col" className="pb-2">Zone Name</th>
+                  <th scope="col" className="pb-2">Center (lat, lng)</th>
+                  <th scope="col" className="pb-2">Radius (km)</th>
+                  <th scope="col" className="pb-2">Status</th>
+                  <th scope="col" className="pb-2 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-105 text-gray-655 font-sans">
+                {zones.map((z, idx) => (
+                  <tr key={idx} className="hover:bg-gray-50/50">
+                    <td className="py-3 font-semibold text-charcoal">{z.name}</td>
+                    <td className="py-3 font-mono">{z.lat.toFixed(4)}, {z.lng.toFixed(4)}</td>
+                    <td className="py-3">{z.radiusKm}km</td>
+                    <td className="py-3">
+                      {z.status === "active" ? (
+                        <span className="bg-field-green/10 text-field-green font-bold text-[10px] px-2 py-0.5 rounded">
+                          Active
+                        </span>
+                      ) : (
+                        <span className="bg-gray-100 text-gray-500 font-bold text-[10px] px-2 py-0.5 rounded">
+                          Inactive
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-3 text-right">
+                      <div className="flex items-center justify-end gap-3 font-semibold">
+                        <button
+                          type="button"
+                          onClick={() => handleToggleZoneStatus(idx)}
+                          className="text-soil-brown hover:underline cursor-pointer"
+                        >
+                          {z.status === "active" ? "Deactivate" : "Activate"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveZone(idx)}
+                          className="text-alert-red hover:text-red-800 cursor-pointer flex items-center justify-center"
+                          aria-label={`Remove ${z.name}`}
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
                 ))}
-              </div>
-
-              <button
-                onClick={handleAddZone}
-                className="border border-dashed border-gray-300 rounded-lg py-2.5 mt-4 w-full text-center font-sans text-xs text-gray-450 hover:bg-gray-50 bg-white transition-colors cursor-pointer select-none"
-              >
-                + Add Zone
-              </button>
-            </section>
-
-            {/* SECTION 4: Trust Score Weights */}
-            <section className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:border-gray-300 transition-colors">
-              <h2 className="font-display font-semibold text-sm text-charcoal mb-0.5">
-                Trust Score Weights
-              </h2>
-              <p className="font-sans text-xs text-gray-500 mb-4">
-                How each factor contributes to a farmer&apos;s trust score (must sum to 100)
-              </p>
-
-              <div className="flex flex-col divide-y divide-gray-100">
-                {/* Confirmed Deliveries */}
-                <div className="flex justify-between items-center py-3">
-                  <div className="flex flex-col">
-                    <span className="font-sans text-xs font-semibold text-charcoal">
-                      Confirmed Deliveries
-                    </span>
-                    <span className="font-sans text-[10px] text-gray-500 mt-0.5">
-                      Weight allocation for successfully fulfilled crop drops
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <input
-                      type="number"
-                      value={weightDeliveries}
-                      onChange={(e) =>
-                        setWeightDeliveries(Number(e.target.value) || 0)
-                      }
-                      className={`${inputClass} w-20`}
-                    />
-                    <span className="font-sans text-xs text-gray-500 font-medium">
-                      %
-                    </span>
-                  </div>
-                </div>
-
-                {/* No-Shows */}
-                <div className="flex justify-between items-center py-3">
-                  <div className="flex flex-col">
-                    <span className="font-sans text-xs font-semibold text-charcoal">
-                      No-Show Penalty
-                    </span>
-                    <span className="font-sans text-[10px] text-gray-500 mt-0.5">
-                      Penalty weight deduction for missed bookings (inverted)
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <input
-                      type="number"
-                      value={weightNoShow}
-                      onChange={(e) =>
-                        setWeightNoShow(Number(e.target.value) || 0)
-                      }
-                      className={`${inputClass} w-20`}
-                    />
-                    <span className="font-sans text-xs text-gray-500 font-medium">
-                      %
-                    </span>
-                  </div>
-                </div>
-
-                {/* Callback Confirmations */}
-                <div className="flex justify-between items-center py-3">
-                  <div className="flex flex-col">
-                    <span className="font-sans text-xs font-semibold text-charcoal">
-                      Callback Confirmation
-                    </span>
-                    <span className="font-sans text-[10px] text-gray-500 mt-0.5">
-                      Weight of call answering and verbal verification callback rates
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <input
-                      type="number"
-                      value={weightCallback}
-                      onChange={(e) =>
-                        setWeightCallback(Number(e.target.value) || 0)
-                      }
-                      className={`${inputClass} w-20`}
-                    />
-                    <span className="font-sans text-xs text-gray-500 font-medium">
-                      %
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 mt-4 pt-3 border-t border-gray-150">
-                {trustSum === 100 ? (
-                  <div className="flex items-center gap-1.5 text-field-green text-xs font-semibold font-sans">
-                    <CheckCircle className="w-3.5 h-3.5" />
-                    Total: {trustSum}%
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-1.5 text-alert-red text-xs font-semibold font-sans">
-                    <AlertTriangle className="w-3.5 h-3.5" />
-                    Total: {trustSum}% &mdash; Must sum to 100
-                  </div>
-                )}
-              </div>
-            </section>
+              </tbody>
+            </table>
           </div>
 
-          {/* RIGHT Sidebar (sticky) */}
-          <aside className="lg:sticky lg:top-6 flex flex-col gap-4">
-            {/* Card 1: System Status */}
-            <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:border-gray-300 transition-colors">
-              <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gray-500 block mb-3">
-                System Status
-              </span>
-
-              <div className="flex flex-col divide-y divide-gray-100">
-                <div className="flex justify-between items-center py-2 first:pt-0">
-                  <span className="font-sans text-xs text-stone-600">Sarvam STT</span>
-                  <div className="flex items-center gap-1.5 font-sans text-xs text-field-green font-medium">
-                    <span className="w-2 h-2 rounded-full bg-field-green animate-pulse" />
-                    Connected
-                  </div>
-                </div>
-
-                <div className="flex justify-between items-center py-2">
-                  <span className="font-sans text-xs text-stone-600">Bulbul v3</span>
-                  <div className="flex items-center gap-1.5 font-sans text-xs text-field-green font-medium">
-                    <span className="w-2 h-2 rounded-full bg-field-green animate-pulse" />
-                    Connected
-                  </div>
-                </div>
-
-                <div className="flex justify-between items-center py-2">
-                  <span className="font-sans text-xs text-stone-600">WebSocket</span>
-                  <div className="flex items-center gap-1.5 font-sans text-xs text-field-green font-medium">
-                    <span className="w-2 h-2 rounded-full bg-field-green animate-pulse" />
-                    Live
-                  </div>
-                </div>
-
-                <div className="flex justify-between items-center py-2 last:pb-0">
-                  <span className="font-sans text-xs text-stone-600">FastAPI Backend</span>
-                  <div className="flex items-center gap-1.5 font-sans text-xs text-amber-600 font-medium">
-                    <span className="w-2 h-2 rounded-full bg-amber-400" />
-                    Simulated
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Card 2: Documentation Links */}
-            <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:border-gray-300 transition-colors">
-              <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gray-500 block mb-3">
-                Documentation
-              </span>
-
-              <div className="flex flex-col divide-y divide-gray-100">
-                {[
-                  "Sarvam AI Docs",
-                  "Bulbul v3 API Reference",
-                  "Mandi Mitra Backend Repo",
-                  "Frontend Spec (this build)",
-                ].map((doc) => (
-                  <a
-                    key={doc}
-                    href="#"
-                    className="flex items-center gap-2 py-2 first:pt-0 last:pb-0 text-xs text-sky-blue hover:underline font-sans font-medium"
-                  >
-                    <ExternalLink className="w-3 h-3 text-gray-400 shrink-0" />
-                    {doc}
-                  </a>
-                ))}
-              </div>
-            </div>
-
-            {/* Card 3: Danger Zone */}
-            <div className="bg-white rounded-xl border border-alert-red/20 p-4 shadow-sm hover:border-alert-red/30 transition-colors">
-              <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-alert-red block mb-3">
-                Danger Zone
-              </span>
-
-              <div className="flex flex-col divide-y divide-gray-100">
-                {/* Reset simulated data */}
-                <div className="flex justify-between items-center py-2 first:pt-0">
-                  <div className="flex flex-col">
-                    <span className="font-sans text-xs font-semibold text-charcoal">
-                      Reset Demo Data
-                    </span>
-                    <span className="font-sans text-[10px] text-gray-500 mt-0.5">
-                      Clears all simulated pools and events
-                    </span>
-                  </div>
-                  <button
-                    onClick={handleResetDemoData}
-                    className="border border-gray-200 rounded px-2.5 py-1.5 font-sans text-[10px] font-bold text-gray-600 hover:bg-gray-50 bg-white transition-colors cursor-pointer"
-                  >
-                    Reset
-                  </button>
-                </div>
-
-                {/* Flush trust */}
-                <div className="flex justify-between items-center py-2 last:pb-0">
-                  <div className="flex flex-col">
-                    <span className="font-sans text-xs font-semibold text-charcoal">
-                      Flush Trust Scores
-                    </span>
-                    <span className="font-sans text-[10px] text-gray-500 mt-0.5">
-                      Sets all farmer trust scores to 3.0
-                    </span>
-                  </div>
-                  <button
-                    onClick={handleFlushTrust}
-                    className="border border-alert-red/30 text-alert-red rounded px-2.5 py-1.5 font-sans text-[10px] font-bold hover:bg-red-50 bg-white transition-colors cursor-pointer"
-                  >
-                    Flush
-                  </button>
-                </div>
-              </div>
-            </div>
-          </aside>
+          <button
+            type="button"
+            onClick={handleAddZone}
+            className="border border-dashed border-gray-300 rounded-lg px-4 py-3 font-sans text-xs font-semibold text-gray-500 hover:border-soil-brown hover:text-soil-brown w-full text-center mt-5 cursor-pointer transition-colors"
+          >
+            + Add Catchment Zone
+          </button>
         </div>
-      </main>
+
+        {/* BOTTOM SAVE CONTROLS */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-6 border-t border-gray-200 mt-4 pb-8">
+          <p className="text-[11px] text-gray-500 max-w-sm">
+            Changes apply to all new pools. Existing pools are not affected.
+          </p>
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={isSaving}
+            className="bg-charcoal text-white rounded-lg px-6 py-2.5 text-sm font-semibold hover:bg-gray-800 transition-colors cursor-pointer shadow-sm flex items-center justify-center gap-1.5 select-none disabled:opacity-50"
+          >
+            {isSaving && <Loader2 size={14} className="animate-spin" />}
+            Save Changes
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

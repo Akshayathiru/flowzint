@@ -19,6 +19,7 @@ import { CROPS, DISTRICTS } from "@/lib/constants";
 import { useTranslations } from "next-intl";
 import TableSkeleton from "@/components/shared/TableSkeleton";
 import StatCardSkeleton from "@/components/shared/StatCardSkeleton";
+import { toast } from "sonner";
 
 interface SettlementRecord {
   poolId: string;
@@ -235,6 +236,24 @@ export default function SettlementsArchivePage() {
     setExpandedRow((prev) => (prev === poolId ? null : poolId));
   };
 
+  const handleExportCSV = async () => {
+    try {
+      const res = await fetch('/api/settlements/export');
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'mandi-mitra-settlements.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast.success('CSV downloaded');
+    } catch {
+      toast.error('Export failed');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-warm-cream flex flex-col font-sans">
       {/* PAGE HEADER */}
@@ -243,14 +262,13 @@ export default function SettlementsArchivePage() {
         subtitle={t("archive_subtitle")}
         actions={
           <div className="flex items-center gap-2">
-            <Link
-              href="/api/settlements/export"
-              target="_blank"
-              className="bg-charcoal text-white rounded-lg px-4 py-2 font-sans text-xs font-semibold hover:bg-gray-800 transition-colors shadow-sm flex items-center gap-1.5 cursor-pointer"
+            <button
+              onClick={handleExportCSV}
+              className="bg-charcoal text-white rounded-lg px-4 py-2 font-sans text-xs font-semibold hover:bg-gray-800 transition-colors shadow-sm flex items-center gap-1.5 cursor-pointer select-none"
             >
               <Download className="w-3.5 h-3.5" />
               <span>{t("export_csv")}</span>
-            </Link>
+            </button>
           </div>
         }
       />

@@ -61,8 +61,67 @@ export interface FeedEvent {
 }
 
 export interface FarmerEntry {
-  phone: string;
-  qtyKg: number;
-  language: string;
-  trustScore: number;
+  phone: string
+  qtyKg: number
+  language: string
+  calledAt: string
+  trustScore: number
+  confidence: number
+  isFirstCall: boolean
+  callbackStatus: 'pending' | 'called' | 'confirmed' | 'declined' | 'no_answer'
+  farmerResponse: 'yes' | 'no' | 'no_answer' | 'pending'
+}
+
+export interface FarmerCallPayload {
+  phone: string
+  rawTranscript: string
+  detectedLanguage: string
+  extractedData: {
+    commodity: string
+    quantityKg: number
+    location: string
+    confidence: number
+  }
+}
+
+export interface BuyerCallResult {
+  buyerId: string
+  callDuration: number
+  rawTranscript: string
+  extractedBidPerKg: number
+  confidence: number
+  callStatus: 'completed' | 'no_answer' | 'rejected'
+}
+
+export interface FarmerCallbackResult {
+  phone: string
+  language: string
+  deliveredMessage: string
+  farmerResponse: 'yes' | 'no' | 'no_answer'
+  callStatus: 'completed' | 'no_answer'
+}
+
+export interface AuctionEntry {
+  buyerName: string
+  phone: string
+  callStatus: 'completed' | 'no_answer' | 'rejected'
+  bid: number | null
+  timestamp: string
+  isWinning?: boolean
+}
+
+export interface CatchmentZone {
+  name: string
+  lat: number
+  lng: number
+  radiusKm: number
+}
+
+export type UserRole = 'admin' | 'operator' | 'viewer'
+
+export interface AuthUser {
+  userId: string
+  email: string
+  role: UserRole
+  orgId: string;
 }

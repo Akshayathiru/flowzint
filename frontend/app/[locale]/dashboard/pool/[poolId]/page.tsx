@@ -8,7 +8,7 @@ import StatusBadge from "@/components/shared/StatusBadge";
 import PoolMetricsPanel from "@/components/pool/PoolMetricsPanel";
 import PriceSparkline from "@/components/charts/PriceSparkline";
 import FarmerTable from "@/components/farmers/FarmerTable";
-import BuyerAuctionLog from "@/components/pool/BuyerAuctionLog";
+import { BuyerAuctionLog } from "@/components/pool/BuyerAuctionLog";
 import SettlementReceiptPreview from "@/components/shared/SettlementReceiptPreview";
 
 interface PageProps {
@@ -67,8 +67,20 @@ export default function PoolDetailPage({ params }: PageProps) {
           <div className="flex flex-col gap-6">
             <FarmerTable />
           </div>
-          <div className="flex flex-col gap-6">
-            <BuyerAuctionLog />
+          <div className="flex flex-col gap-6 bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:border-gray-300 transition-colors">
+            <div className="flex justify-between items-center pb-2 border-b border-gray-50 mb-2">
+              <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                Buyer Auction Log
+              </span>
+              <span className="font-sans text-[10px] text-gray-500 font-semibold bg-gray-50 px-2 py-0.5 rounded">
+                Bulbul Outbound IVR
+              </span>
+            </div>
+            <BuyerAuctionLog entries={[
+              { buyerName: "Buyer C (Murugan Agro)", phone: "+91 98XXX 20003", callStatus: "no_answer", bid: null, timestamp: "09:45:30" },
+              { buyerName: "Buyer A (Ramesh Traders)", phone: "+91 80XXX 20001", callStatus: "completed", bid: 14, timestamp: "09:46:12" },
+              { buyerName: "Buyer B (Sri Lakshmi)", phone: "+91 79XXX 20002", callStatus: "completed", bid: 15, timestamp: "09:46:38", isWinning: true }
+            ]} />
           </div>
         </div>
 

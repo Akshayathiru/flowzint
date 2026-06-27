@@ -15,6 +15,7 @@ import LanguageBadge from "@/components/shared/LanguageBadge";
 import TrustScoreExplainer from "@/components/farmers/TrustScoreExplainer";
 import FarmerCallTimeline from "@/components/farmers/FarmerCallTimeline";
 import { useTranslations } from "next-intl";
+import { useQuery } from "@tanstack/react-query";
 
 interface PageProps {
   params: {
@@ -40,9 +41,28 @@ const mockProfile = {
   },
 };
 
+interface FarmerSettlement {
+  poolId: string;
+  crop: string;
+  qtyKg: number;
+  pricePerKg: number;
+  premiumPct: number;
+  totalEarnings: number;
+}
+
 export default function FarmerProfilePage({ params }: PageProps) {
   const t = useTranslations("farmer");
   const phoneParam = decodeURIComponent(params.phone || mockProfile.phone);
+
+  const { data: settlements } = useQuery<FarmerSettlement[]>({
+    queryKey: ['farmer-settlements', phoneParam],
+    queryFn: async () => {
+      const res = await fetch(`/api/farmers/${encodeURIComponent(phoneParam)}/settlements`);
+      return res.json();
+    }
+  });
+
+  const totalEarned = settlements?.reduce((sum: number, item: FarmerSettlement) => sum + (item.totalEarnings || 0), 0) || 0;
 
   const getScoreColorClass = (score: number) => {
     if (score >= 3.5) return "text-field-green";
@@ -183,6 +203,57 @@ export default function FarmerProfilePage({ params }: PageProps) {
         {/* ROW 3: POOL HISTORY TIMELINE */}
         <div className="w-full">
           <FarmerCallTimeline />
+        </div>
+
+        {/* ROW 4: SETTLEMENT EARNINGS HISTORY */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:border-gray-300 transition-colors flex flex-col gap-4">
+          <h3 className="font-semibold text-sm text-charcoal font-display" style={{ fontFamily: 'Mukta, sans-serif' }}>
+            Settlement Earnings
+          </h3>
+          {settlements && settlements.length > 0 ? (
+            <div className="flex flex-col gap-3">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse text-xs font-sans">
+                  <thead>
+                    <tr className="border-b border-gray-100 font-sans text-gray-500 font-semibold">
+                      <th scope="col" className="pb-2">Pool ID</th>
+                      <th scope="col" className="pb-2">Crop</th>
+                      <th scope="col" className="pb-2">Qty</th>
+                      <th scope="col" className="pb-2">Price/kg</th>
+                      <th scope="col" className="pb-2">Premium</th>
+                      <th scope="col" className="pb-2 text-right">Total Earnings</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50 font-sans text-gray-655">
+                    {settlements.map((s: FarmerSettlement, idx: number) => (
+                      <tr key={idx} className="hover:bg-gray-50/50">
+                        <td className="py-2.5 font-mono text-xs text-charcoal">{s.poolId}</td>
+                        <td className="py-2.5">
+                          <span className="bg-soil-brown/10 text-soil-brown font-semibold text-[10px] uppercase px-2 py-0.5 rounded">
+                            {s.crop}
+                          </span>
+                        </td>
+                        <td className="py-2.5">{s.qtyKg} kg</td>
+                        <td className="py-2.5">₹{s.pricePerKg}</td>
+                        <td className="py-2.5">
+                          <span className="bg-field-green/10 text-field-green font-bold text-[10px] px-1.5 py-0.5 rounded">
+                            +{s.premiumPct}%
+                          </span>
+                        </td>
+                        <td className="py-2.5 text-right font-bold text-field-green">₹{s.totalEarnings}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="pt-2 border-t border-gray-100 flex justify-between items-center text-xs font-medium text-field-green">
+                <span>Total earned:</span>
+                <span className="text-sm font-bold">₹{totalEarned}</span>
+              </div>
+            </div>
+          ) : (
+            <p className="font-sans text-xs text-gray-500">No settlement history found.</p>
+          )}
         </div>
       </main>
     </div>

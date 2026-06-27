@@ -92,3 +92,10 @@
     @apply font-sans;
   }
 }
+
+.marker-cluster {
+  background: transparent !important;
+}
+.marker-cluster div {
+  background: transparent !important;
+}

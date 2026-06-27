@@ -53,7 +53,12 @@ const config: Config = {
       },
       fontFamily: {
         sans: ['var(--font-inter)', 'sans-serif'],
-        display: ['var(--font-mukta)', 'sans-serif'],
+        mukta: ['var(--font-mukta)', 'sans-serif'],
+        inter: ['var(--font-inter)', 'sans-serif'],
+        'noto-telugu': ['var(--font-noto-telugu)', 'sans-serif'],
+        'noto-kannada': ['var(--font-noto-kannada)', 'sans-serif'],
+        'noto-tamil': ['var(--font-noto-tamil)', 'sans-serif'],
+        'display': ['var(--font-mukta)', 'var(--font-noto-tamil)', 'var(--font-noto-telugu)', 'var(--font-noto-kannada)', 'sans-serif'],
       },
       borderRadius: {
         lg: "var(--radius)",

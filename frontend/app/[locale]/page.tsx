@@ -5,65 +5,63 @@ import { Link } from "@/lib/navigation";
 import { ArrowRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
+import { useQuery } from "@tanstack/react-query";
 
 export default function Home() {
   const t = useTranslations("landing");
+
+  const [activeStep, setActiveStep] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveStep((prev) => (prev + 1) % 5);
+    }, 2000);
+    return () => clearInterval(timer);
+  }, []);
 
   const steps = [
     {
       num: 1,
       title: t("steps.s1_title"),
       desc: t("steps.s1_desc"),
-      active: true,
+      active: activeStep >= 0,
     },
     {
       num: 2,
       title: t("steps.s2_title"),
       desc: t("steps.s2_desc"),
-      active: true,
+      active: activeStep >= 1,
     },
     {
       num: 3,
       title: t("steps.s3_title"),
       desc: t("steps.s3_desc"),
-      active: false,
+      active: activeStep >= 2,
     },
     {
       num: 4,
       title: t("steps.s4_title"),
       desc: t("steps.s4_desc"),
-      active: false,
+      active: activeStep >= 3,
     },
     {
       num: 5,
       title: t("steps.s5_title"),
       desc: t("steps.s5_desc"),
-      active: false,
+      active: activeStep >= 4,
     },
   ];
 
   const [isVisible, setIsVisible] = useState(false);
-  const [stats, setStats] = useState({
-    activePoolsCount: 3,
-    farmersCalledTodayCount: 47,
-    settlementsCount: 128,
-    avgPricePremiumPct: 18,
-    liveBuyerCallsCount: 1,
+  const { data: stats } = useQuery({
+    queryKey: ['stats'],
+    queryFn: async () => {
+      const res = await fetch('/api/stats');
+      return res.json();
+    },
+    refetchInterval: 10000
   });
   const sectionRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    // Fetch live statistics
-    fetch("/api/stats")
-      .then((res) => {
-        if (res.ok) return res.json();
-        throw new Error();
-      })
-      .then((data) => {
-        setStats(data);
-      })
-      .catch(() => {});
-  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -148,7 +146,7 @@ export default function Home() {
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
               </span>
               <span className="font-display font-extrabold text-4xl text-charcoal">
-                {stats.activePoolsCount}
+                {stats?.activePoolsCount ?? 0}
               </span>
             </div>
             <span className="font-sans text-xs font-semibold text-gray-500 uppercase tracking-wider mt-2">
@@ -159,7 +157,7 @@ export default function Home() {
           {/* Metric 2 */}
           <div className="flex flex-col items-center justify-center py-6 md:py-0 md:px-4">
             <span className="font-display font-extrabold text-4xl text-charcoal">
-              {stats.farmersCalledTodayCount}
+              {stats?.farmersCalledTodayCount ?? 0}
             </span>
             <span className="font-sans text-xs font-semibold text-gray-500 uppercase tracking-wider mt-2">
               {t("stats_farmers")}
@@ -169,7 +167,7 @@ export default function Home() {
           {/* Metric 3 */}
           <div className="flex flex-col items-center justify-center pt-6 md:pt-0 md:px-4">
             <span className="font-display font-extrabold text-4xl text-charcoal">
-              {stats.settlementsCount}
+              {stats?.settlementsCount ?? 0}
             </span>
             <span className="font-sans text-xs font-semibold text-gray-500 uppercase tracking-wider mt-2">
               {t("stats_settlements")}
