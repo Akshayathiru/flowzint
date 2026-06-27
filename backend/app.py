@@ -8,6 +8,7 @@ from routes import trust
 from routes import pools
 from routes import confirmation
 from routes import receipt
+from routes import mandi
 
 
 def ensure_pool_schema():
@@ -38,6 +39,7 @@ app.include_router(farmer.router)
 app.include_router(trust.router)
 app.include_router(confirmation.router)
 app.include_router(receipt.router)
+app.include_router(mandi.router)
 
 
 @app.get("/")
