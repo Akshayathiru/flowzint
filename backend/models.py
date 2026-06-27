@@ -1,5 +1,7 @@
 from sqlalchemy import Column, Integer, String, Float, ForeignKey
 from database import Base
+from datetime import datetime
+from sqlalchemy import DateTime
 
 
 class Farmer(Base):
@@ -19,6 +21,9 @@ class Pool(Base):
     location = Column(String)
     total_quantity = Column(Float, default=0)
     status = Column(String, default="OPEN")
+    winning_price = Column(Float, nullable=True)
+    winning_buyer_id = Column(Integer, nullable=True)
+    closed_at = Column(DateTime, nullable=True)
 
 
 class PoolMember(Base):

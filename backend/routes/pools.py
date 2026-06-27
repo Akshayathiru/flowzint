@@ -1,54 +1,33 @@
-from models import Pool, PoolMember, Farmer
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+
+from database import SessionLocal
+
+from services.pooling_engine import close_pool
+from services.pools_service import get_pool_summary
+
+router = APIRouter()
 
 
-THRESHOLD = 250
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
-def add_farmer_to_pool(db, farmer):
+@router.post("/close_pool/{pool_id}")
+def close_pool_route(
+    pool_id: int,
+    db: Session = Depends(get_db)
+):
+    return close_pool(db, pool_id)
 
-    # Search for an OPEN pool
-    pool = db.query(Pool).filter(
-        Pool.crop == farmer.crop,
-        Pool.location == farmer.location,
-        Pool.status == "OPEN"
-    ).first()
 
-    # If no pool exists, create one
-    if pool is None:
-
-        pool = Pool(
-            crop=farmer.crop,
-            location=farmer.location,
-            total_quantity=0,
-            status="OPEN"
-        )
-
-        db.add(pool)
-        db.commit()
-        db.refresh(pool)
-
-    # Add farmer to pool members
-    member = PoolMember(
-        pool_id=pool.id,
-        farmer_phone=farmer.phone,
-        quantity=farmer.quantity
-    )
-
-    db.add(member)
-
-    # Increase total quantity
-    pool.total_quantity += farmer.quantity
-
-    # Close pool if threshold reached
-    if pool.total_quantity >= THRESHOLD:
-        pool.status = "CLOSED"
-
-    db.commit()
-
-    return {
-        "pool_id": pool.id,
-        "crop": pool.crop,
-        "location": pool.location,
-        "total_quantity": pool.total_quantity,
-        "status": pool.status
-    }
+@router.get("/pool_summary/{pool_id}")
+def pool_summary(
+    pool_id: int,
+    db: Session = Depends(get_db)
+):
+    return get_pool_summary(db, pool_id)
