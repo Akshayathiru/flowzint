@@ -84,7 +84,8 @@ export default function LiveEventFeed() {
 
     const timer = setInterval(() => {
       if (idx < mockLogs.length) {
-        setEvents((prev) => [...prev, mockLogs[idx]]);
+        const currentLog = mockLogs[idx];
+        setEvents((prev) => [...prev, currentLog]);
         idx++;
       } else {
         clearInterval(timer);
