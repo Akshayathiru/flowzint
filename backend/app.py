@@ -7,6 +7,7 @@ from routes import buyers
 from routes import trust
 from routes import pools
 from routes import confirmation
+from routes import receipt
 
 
 def ensure_pool_schema():
@@ -36,6 +37,7 @@ app.include_router(pools.router)
 app.include_router(farmer.router)
 app.include_router(trust.router)
 app.include_router(confirmation.router)
+app.include_router(receipt.router)
 
 
 @app.get("/")
