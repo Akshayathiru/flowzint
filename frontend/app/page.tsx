@@ -38,6 +38,80 @@ const steps = [
 ];
 
 export default function Home() {
+  const [lang, setLang] = useState<"en" | "hi" | "ta" | "kn">("en");
+
+  const t = {
+    en: {
+      eyebrow: "AI-Orchestrated Flash Bargaining Network",
+      line1: "FPO-level bargaining power.",
+      line2: "One call. Ninety minutes.",
+      sub: "Smallholder farmers call in their crop and quantity. Our system pools them, auctions the lot to registered bulk buyers, and calls every farmer back with a verified price — all without an app, a membership, or literacy.",
+      cta: "Open Operator Dashboard",
+      demo: "Watch Demo Flow",
+      step1: "Farmer Calls In",
+      step2: "Pool Forms",
+      step3: "Buyer Auction",
+      step4: "Farmer Callback",
+      step5: "Settlement",
+    },
+    hi: {
+      eyebrow: "AI-संचालित फ्लैश बार्गेनिंग नेटवर्क",
+      line1: "एफपीओ-स्तरीय मोलभाव की शक्ति।",
+      line2: "एक कॉल। नब्बे मिनट।",
+      sub: "किसान अपनी फसल और मात्रा बताने के लिए कॉल करते हैं। हमारा सिस्टम उन्हें पूल करता है, थोक खरीदारों को नीलामी करता है, और हर किसान को सत्यापित मूल्य के साथ वापस कॉल करता है।",
+      cta: "डैशबोर्ड खोलें",
+      demo: "डेमो देखें",
+      step1: "किसान कॉल करे",
+      step2: "पूल बने",
+      step3: "खरीदार नीलामी",
+      step4: "किसान को कॉलबैक",
+      step5: "निपटान",
+    },
+    ta: {
+      eyebrow: "AI-ஒருங்கிணைந்த ஃபிளாஷ் பேரம் நெட்வொர்க்",
+      line1: "FPO-நிலை பேரம் பேசும் சக்தி.",
+      line2: "ஒரு அழைப்பு. தொண்ணூறு நிமிடங்கள்.",
+      sub: "சிறு விவசாயிகள் தங்கள் பயிர் மற்றும் அளவை தெரிவிக்க அழைக்கிறார்கள். எங்கள் அமைப்பு அவர்களை தொகுத்து, மொத்த வாங்குபவர்களுக்கு ஏலம் விட்டு, ஒவ்வொரு விவசாயிக்கும் உறுதிப்படுத்தப்பட்ட விலையுடன் திரும்ப அழைக்கிறது.",
+      cta: "டாஷ்போர்டு திற",
+      demo: "டெமோ பார்",
+      step1: "விவசாயி அழைக்கிறார்",
+      step2: "குழு உருவாகிறது",
+      step3: "வாங்குபவர் ஏலம்",
+      step4: "விவசாயிக்கு திரும்ப அழைப்பு",
+      step5: "தீர்வு",
+    },
+    kn: {
+      eyebrow: "AI-ಸಂಘಟಿತ ಫ್ಲ್ಯಾಶ್ ಚೌಕಾಸಿ ನೆಟ್ವರ್ಕ್",
+      line1: "FPO-ಮಟ್ಟದ ಚೌಕಾಸಿ ಶಕ್ತಿ.",
+      line2: "ಒಂದು ಕರೆ. ತೊಂಬತ್ತು ನಿಮಿಷ.",
+      sub: "ಸಣ್ಣ ರೈತರು ತಮ್ಮ ಬೆಳೆ ಮತ್ತು ಪ್ರಮಾಣವನ್ನು ತಿಳಿಸಲು ಕರೆ ಮಾಡುತ್ತಾರೆ. ನಮ್ಮ ವ್ಯವಸ್ಥೆ ಅವರನ್ನು ಒಟ್ಟುಗೂಡಿಸಿ, ಸಗಟು ಖರೀದಿದಾರರಿಗೆ ಹರಾಜು ಮಾಡಿ, ಪ್ರತಿ ರೈತರಿಗೆ ದೃಢೀಕರಿಸಿದ ಬೆಲೆಯೊಂದಿಗೆ ಮರಳಿ ಕರೆ ಮಾಡುತ್ತದೆ.",
+      cta: "ಡ್ಯಾಶ್ಬೋರ್ಡ್ ತೆರೆಯಿರಿ",
+      demo: "ಡೆಮೋ ನೋಡಿ",
+      step1: "ರೈತ ಕರೆ ಮಾಡುತ್ತಾರೆ",
+      step2: "ಪೂಲ್ ರಚನೆ",
+      step3: "ಖರೀದಿದಾರ ಹರಾಜು",
+      step4: "ರೈತರಿಗೆ ಮರಳಿ ಕರೆ",
+      step5: "ಇತ್ಯರ್ಥ",
+    },
+  };
+
+  const getStepTitle = (num: number) => {
+    switch (num) {
+      case 1:
+        return t[lang].step1;
+      case 2:
+        return t[lang].step2;
+      case 3:
+        return t[lang].step3;
+      case 4:
+        return t[lang].step4;
+      case 5:
+        return t[lang].step5;
+      default:
+        return "";
+    }
+  };
+
   const [isVisible, setIsVisible] = useState(false);
   const [stats, setStats] = useState({
     activePoolsCount: 3,
@@ -93,15 +167,46 @@ export default function Home() {
           MANDI MITRA
         </span>
         <div className="flex items-center gap-2">
-          <span className="border border-gray-300 rounded-md px-2.5 py-0.5 text-xs font-semibold text-gray-500 font-sans">
+          <button
+            onClick={() => setLang("en")}
+            className={`border rounded-md px-2.5 py-0.5 text-xs font-semibold font-sans cursor-pointer transition-colors ${
+              lang === "en"
+                ? "bg-soil-brown text-white border-soil-brown"
+                : "border-gray-300 text-gray-500 hover:bg-gray-50 bg-white"
+            }`}
+          >
+            EN
+          </button>
+          <button
+            onClick={() => setLang("hi")}
+            className={`border rounded-md px-2.5 py-0.5 text-xs font-semibold font-sans cursor-pointer transition-colors ${
+              lang === "hi"
+                ? "bg-soil-brown text-white border-soil-brown"
+                : "border-gray-300 text-gray-500 hover:bg-gray-50 bg-white"
+            }`}
+          >
             नमस्ते
-          </span>
-          <span className="border border-gray-300 rounded-md px-2.5 py-0.5 text-xs font-semibold text-gray-500 font-sans">
+          </button>
+          <button
+            onClick={() => setLang("ta")}
+            className={`border rounded-md px-2.5 py-0.5 text-xs font-semibold font-sans cursor-pointer transition-colors ${
+              lang === "ta"
+                ? "bg-soil-brown text-white border-soil-brown"
+                : "border-gray-300 text-gray-500 hover:bg-gray-50 bg-white"
+            }`}
+          >
             வணக்கம்
-          </span>
-          <span className="border border-gray-300 rounded-md px-2.5 py-0.5 text-xs font-semibold text-gray-500 font-sans">
+          </button>
+          <button
+            onClick={() => setLang("kn")}
+            className={`border rounded-md px-2.5 py-0.5 text-xs font-semibold font-sans cursor-pointer transition-colors ${
+              lang === "kn"
+                ? "bg-soil-brown text-white border-soil-brown"
+                : "border-gray-300 text-gray-500 hover:bg-gray-50 bg-white"
+            }`}
+          >
             ಹಲೋ
-          </span>
+          </button>
         </div>
       </nav>
 
@@ -110,24 +215,21 @@ export default function Home() {
         {/* Eyebrow Line */}
         <div className="flex items-center gap-4 w-full max-w-2xl mb-6">
           <div className="flex-1 h-[1px] bg-gray-300" />
-          <span className="font-sans text-xs md:text-sm font-semibold tracking-widest uppercase text-harvest-gold whitespace-nowrap">
-            AI-Orchestrated Flash Bargaining Network
+          <span className="font-sans text-xs md:text-sm font-semibold tracking-widest uppercase text-harvest-gold whitespace-nowrap transition-opacity duration-200">
+            {t[lang].eyebrow}
           </span>
           <div className="flex-1 h-[1px] bg-gray-300" />
         </div>
 
         {/* Headlines */}
-        <h1 className="font-display font-extrabold text-4xl sm:text-6xl text-charcoal tracking-tight leading-none mt-2">
-          FPO-level bargaining power.
+        <h1 className="font-display font-extrabold text-4xl sm:text-6xl text-charcoal tracking-tight leading-none mt-2 transition-opacity duration-200">
+          {t[lang].line1}
           <br />
-          <span className="text-soil-brown mt-1 block">One call. Ninety minutes.</span>
+          <span className="text-soil-brown mt-1 block">{t[lang].line2}</span>
         </h1>
 
-        <p className="font-sans text-stone-500 text-base sm:text-lg max-w-2xl mt-6 leading-relaxed font-medium">
-          Smallholder farmers call in their crop and quantity. Our system pools
-          them, auctions the lot to registered bulk buyers, and calls every
-          farmer back with a verified price — all without an app, a membership,
-          or literacy.
+        <p className="font-sans text-stone-500 text-base sm:text-lg max-w-2xl mt-6 leading-relaxed font-medium transition-opacity duration-200">
+          {t[lang].sub}
         </p>
 
         {/* CTA Row */}
@@ -136,14 +238,14 @@ export default function Home() {
             href="/dashboard"
             className="inline-flex items-center gap-2 bg-charcoal text-white px-6 py-3 rounded-lg font-sans font-medium text-sm hover:bg-gray-800 transition-colors whitespace-nowrap"
           >
-            Open Operator Dashboard
+            {t[lang].cta}
             <ArrowRight size={14} strokeWidth={2} />
           </Link>
           <Link
             href="/demo"
             className="inline-flex items-center justify-center gap-2 border border-gray-300 text-gray-600 px-6 py-3 rounded-lg font-sans font-medium text-sm hover:bg-gray-50 transition-colors whitespace-nowrap"
           >
-            Watch Demo Flow
+            {t[lang].demo}
           </Link>
         </div>
       </section>
@@ -224,8 +326,8 @@ export default function Home() {
               >
                 {step.num}
               </div>
-              <h3 className="font-display font-semibold text-sm text-charcoal mt-3">
-                {step.title}
+              <h3 className="font-display font-semibold text-sm text-charcoal mt-3 transition-opacity duration-200">
+                {getStepTitle(step.num)}
               </h3>
               <p className="font-sans text-[11px] text-gray-400 mt-2 leading-relaxed max-w-[130px]">
                 {step.desc}
@@ -259,8 +361,8 @@ export default function Home() {
                 {step.num}
               </div>
               <div className="pt-1.5">
-                <h3 className="font-display font-semibold text-sm text-charcoal leading-none">
-                  {step.title}
+                <h3 className="font-display font-semibold text-sm text-charcoal leading-none transition-opacity duration-200">
+                  {getStepTitle(step.num)}
                 </h3>
                 <p className="font-sans text-xs text-gray-400 mt-2 leading-relaxed">
                   {step.desc}

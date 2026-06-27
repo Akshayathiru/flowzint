@@ -12,6 +12,7 @@ export interface FarmerCallRecord {
   trust: number;
   totalCalls: number;
   district: string;
+  isFirstCall?: boolean;
 }
 
 interface FarmerCallLogTableProps {
@@ -90,12 +91,30 @@ export default function FarmerCallLogTable({
 
                 {/* Trust Score */}
                 <td className="px-4 py-3">
-                  <TrustBadge score={farmer.trust} />
+                  {farmer.isFirstCall ? (
+                    <span
+                      style={{
+                        background: "var(--bg-accent)",
+                        color: "var(--text-accent)",
+                      }}
+                      className="rounded px-2 py-0.5 text-[10px] font-medium font-sans"
+                    >
+                      New caller
+                    </span>
+                  ) : (
+                    <TrustBadge score={farmer.trust} />
+                  )}
                 </td>
 
                 {/* Total Calls */}
                 <td className="px-4 py-3 text-gray-500 text-center font-medium">
-                  {farmer.totalCalls}
+                  {farmer.isFirstCall ? (
+                    <span className="font-sans text-xs text-gray-400">
+                      1st call
+                    </span>
+                  ) : (
+                    farmer.totalCalls
+                  )}
                 </td>
 
                 {/* Action */}

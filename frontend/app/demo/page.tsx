@@ -14,6 +14,7 @@ import {
 import { toast } from "sonner";
 import PageHeader from "@/components/shared/PageHeader";
 import { CROPS, DISTRICTS } from "@/lib/constants";
+import { getSocket } from "@/lib/socket";
 import { DemoTriggerCallSchema, DemoInjectBidSchema } from "@/lib/schemas";
 import LanguageBadge from "@/components/shared/LanguageBadge";
 
@@ -64,7 +65,30 @@ export default function DemoControlPanelPage() {
 
   const handleTriggerCall = () => {
     setLoadingCall(true);
-    // TODO: POST /api/demo/trigger-call with form data and emit WebSocket event
+    
+    // Trigger REST API call
+    fetch("/api/demo/trigger-call", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        phone: callPhone,
+        crop: callCrop,
+        qtyKg: parseFloat(callQty),
+        language: callLang,
+        districtCode: "KAN",
+      }),
+    }).catch(() => {});
+
+    // TODO: backend must listen for this event and broadcast pool:update + feed:event to all connected clients
+    const socket = getSocket();
+    socket.emit("demo:trigger_call", {
+      phone: callPhone,
+      crop: callCrop,
+      qtyKg: parseFloat(callQty),
+      language: callLang,
+      districtCode: "KAN", // TODO: derive from crop/district selection
+    });
+
     setTimeout(() => {
       setLoadingCall(false);
       const phoneNum = callPhone || "+91 9876540001";
@@ -94,7 +118,26 @@ export default function DemoControlPanelPage() {
 
   const handleInjectBid = () => {
     setLoadingBid(true);
-    // TODO: POST /api/demo/inject-bid
+    
+    // Trigger REST API call
+    fetch("/api/demo/inject-bid", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        poolId: bidPool,
+        buyerId: bidBuyer,
+        pricePerKg: parseFloat(bidPrice),
+      }),
+    }).catch(() => {});
+
+    // TODO: backend must listen for this event and broadcast pool:update + feed:event to all connected clients
+    const socket = getSocket();
+    socket.emit("demo:inject_bid", {
+      poolId: bidPool,
+      buyerId: bidBuyer,
+      pricePerKg: parseFloat(bidPrice),
+    });
+
     setTimeout(() => {
       setLoadingBid(false);
       const poolVal = bidPool;

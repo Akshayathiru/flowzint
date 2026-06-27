@@ -25,12 +25,13 @@ interface SettlementRecord {
   crop: string;
   district: string;
   qtyKg: number;
-  winningPrice: number;
+  winningPrice: number | null;
   mandiAvg: number;
-  premiumPct: number;
-  buyer: string;
+  premiumPct: number | null;
+  buyer: string | null;
   farmersCount: number;
   smsSent: boolean;
+  status?: "settled" | "expired";
 }
 
 const initialSettlements: SettlementRecord[] = [
@@ -46,6 +47,7 @@ const initialSettlements: SettlementRecord[] = [
     buyer: "Ramesh Traders",
     farmersCount: 6,
     smsSent: true,
+    status: "settled",
   },
   {
     poolId: "VEL-ONI-002",
@@ -59,6 +61,7 @@ const initialSettlements: SettlementRecord[] = [
     buyer: "Sri Lakshmi Wholesale",
     farmersCount: 4,
     smsSent: true,
+    status: "settled",
   },
   {
     poolId: "CHE-POT-003",
@@ -72,6 +75,21 @@ const initialSettlements: SettlementRecord[] = [
     buyer: "Murugan Agro",
     farmersCount: 7,
     smsSent: true,
+    status: "settled",
+  },
+  {
+    poolId: "TIR-TOM-007",
+    date: "2 days ago",
+    crop: "Tomatoes",
+    district: "Tiruvannamalai",
+    qtyKg: 90,
+    winningPrice: null,
+    mandiAvg: 12,
+    premiumPct: null,
+    buyer: null,
+    farmersCount: 2,
+    smsSent: true,
+    status: "expired",
   },
   {
     poolId: "SAL-CHI-004",
@@ -85,6 +103,7 @@ const initialSettlements: SettlementRecord[] = [
     buyer: "Ramesh Traders",
     farmersCount: 3,
     smsSent: false,
+    status: "settled",
   },
   {
     poolId: "KAN-TOM-005",
@@ -98,6 +117,7 @@ const initialSettlements: SettlementRecord[] = [
     buyer: "Ramesh Traders",
     farmersCount: 5,
     smsSent: true,
+    status: "settled",
   },
   {
     poolId: "TIR-BRI-006",
@@ -111,6 +131,7 @@ const initialSettlements: SettlementRecord[] = [
     buyer: "Sri Lakshmi Wholesale",
     farmersCount: 4,
     smsSent: true,
+    status: "settled",
   },
 ];
 
@@ -174,6 +195,18 @@ const subRowFarmers: Record<
       text: "Mandi Mitra: Your 320kg onions sold at Rs.19/kg. Ref VEL-ONI-002",
     },
   ],
+  "TIR-TOM-007": [
+    {
+      phone: "+91 91XXX 10008",
+      qty: 45,
+      text: "Mandi Mitra: Your 45kg tomato lot in Tiruvannamalai did not reach the minimum threshold today. No sale was made. Please call again tomorrow to join the next pool. Ref: TIR-TOM-007",
+    },
+    {
+      phone: "+91 92XXX 10009",
+      qty: 45,
+      text: "Mandi Mitra: Your 45kg tomato lot in Tiruvannamalai did not reach the minimum threshold today. No sale was made. Please call again tomorrow to join the next pool. Ref: TIR-TOM-007",
+    },
+  ],
 };
 
 const defaultSubRow = [
@@ -230,7 +263,7 @@ export default function SettlementsArchivePage() {
     // Search
     const matchesSearch =
       s.poolId.toLowerCase().includes(search.toLowerCase()) ||
-      s.buyer.toLowerCase().includes(search.toLowerCase());
+      (s.buyer?.toLowerCase().includes(search.toLowerCase()) ?? false);
 
     return matchesCrop && matchesDistrict && matchesSearch;
   });
@@ -409,13 +442,17 @@ export default function SettlementsArchivePage() {
               <tbody className="divide-y divide-gray-100 font-sans">
                 {filteredSettlements.map((s) => {
                   const isExpanded = expandedRow === s.poolId;
-                  const showPremiumGold = s.premiumPct < 10;
+                  const showPremiumGold = s.premiumPct !== null && s.premiumPct < 10;
                   const nestedRows = subRowFarmers[s.poolId] || defaultSubRow;
 
                   return (
                     <React.Fragment key={s.poolId}>
                       {/* Main Row */}
-                      <tr className="hover:bg-gray-50/50 transition-colors">
+                      <tr
+                        className={`hover:bg-gray-50/50 transition-colors ${
+                          s.status === "expired" ? "opacity-60 bg-gray-50/20" : ""
+                        }`}
+                      >
                         <td className="px-4 py-3">
                           <Link
                             href={`/dashboard/pool/${s.poolId}`}
@@ -438,21 +475,35 @@ export default function SettlementsArchivePage() {
                           <span className="text-gray-400">kg</span>
                         </td>
                         <td className="px-4 py-3 font-display font-semibold text-sm text-field-green whitespace-nowrap">
-                          ₹{s.winningPrice}/kg
+                          {s.winningPrice !== null ? (
+                            `₹${s.winningPrice}/kg`
+                          ) : (
+                            <span className="font-sans text-xs text-gray-400 italic font-normal">
+                              &mdash; No deal
+                            </span>
+                          )}
                         </td>
                         <td className="px-4 py-3">
-                          <span
-                            className={`inline-block text-[10px] font-bold rounded px-2 py-0.5 ${
-                              showPremiumGold
-                                ? "bg-amber-50 text-amber-600"
-                                : "bg-field-green/10 text-field-green"
-                            }`}
-                          >
-                            +{s.premiumPct}%
-                          </span>
+                          {s.premiumPct !== null ? (
+                            <span
+                              className={`inline-block text-[10px] font-bold rounded px-2 py-0.5 ${
+                                showPremiumGold
+                                  ? "bg-amber-50 text-amber-600"
+                                  : "bg-field-green/10 text-field-green"
+                              }`}
+                            >
+                              +{s.premiumPct}%
+                            </span>
+                          ) : null}
                         </td>
                         <td className="px-4 py-3 text-charcoal font-medium">
-                          {s.buyer}
+                          {s.buyer !== null ? (
+                            s.buyer
+                          ) : (
+                            <span className="font-sans text-xs text-gray-400 italic font-normal">
+                              Pool expired
+                            </span>
+                          )}
                         </td>
                         <td className="px-4 py-3 text-gray-500 text-center font-medium">
                           {s.farmersCount} farmers
@@ -515,7 +566,7 @@ export default function SettlementsArchivePage() {
                                           {f.qty} kg
                                         </td>
                                         <td className="py-2 font-display font-semibold text-[10px] text-field-green">
-                                          ₹{f.qty * s.winningPrice}
+                                          {s.winningPrice !== null ? `₹${f.qty * s.winningPrice}` : "₹0"}
                                         </td>
                                         <td
                                           className="py-2 text-[10px] text-gray-400 italic truncate max-w-[300px]"

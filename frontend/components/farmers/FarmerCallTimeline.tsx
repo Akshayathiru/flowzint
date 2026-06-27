@@ -1,6 +1,6 @@
-// TODO: replace with useQuery('/api/farmers/KAN-TOM-001/pools')
+"use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import StatusBadge from "@/components/shared/StatusBadge";
 
@@ -63,6 +63,17 @@ const poolHistory: HistoryEntry[] = [
 ];
 
 export default function FarmerCallTimeline() {
+  const [expandedTranscripts, setExpandedTranscripts] = useState<
+    Record<string, boolean>
+  >({});
+
+  const toggleTranscript = (poolId: string) => {
+    setExpandedTranscripts((prev) => ({
+      ...prev,
+      [poolId]: !prev[poolId],
+    }));
+  };
+
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:border-gray-300 transition-colors">
       <div className="mb-6">
@@ -75,11 +86,13 @@ export default function FarmerCallTimeline() {
       <div className="flex flex-col gap-6 relative pl-6 z-0">
         {poolHistory.map((entry, idx) => {
           const isSettled = entry.status === "settled";
+          const isExpanded = !!expandedTranscripts[entry.poolId];
+
           return (
             <div key={entry.poolId} className="relative flex items-start gap-4">
               {/* Vertical Line */}
               {idx < poolHistory.length - 1 && (
-                <div className="absolute left-[-16px] top-5 bottom-[-24px] w-[1px] bg-gray-250 -z-10" />
+                <div className="absolute left-[-16px] top-5 bottom-[-24px] w-[1px] bg-gray-200 -z-10" />
               )}
 
               {/* Circle Node */}
@@ -93,7 +106,7 @@ export default function FarmerCallTimeline() {
 
               {/* Content Panel */}
               <div className="flex-1 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-gray-100 pb-4 w-full">
-                <div className="flex flex-col">
+                <div className="flex flex-col w-full">
                   {/* Pool ID & Crop info */}
                   <div className="flex items-center gap-2">
                     <Link
@@ -130,10 +143,50 @@ export default function FarmerCallTimeline() {
                     )}
                   </div>
 
-                  {/* Badge */}
-                  <div className="mt-2">
+                  {/* Badge & Toggle */}
+                  <div className="mt-2 flex items-center gap-3">
                     <StatusBadge status={entry.status} />
+                    {isSettled && (
+                      <button
+                        onClick={() => toggleTranscript(entry.poolId)}
+                        className="font-sans text-[10px] text-gray-400 underline cursor-pointer select-none focus:outline-none"
+                      >
+                        {isExpanded ? "Hide transcript" : "Show transcript"}
+                      </button>
+                    )}
                   </div>
+
+                  {/* Collapsible Transcript Detail */}
+                  {isSettled && isExpanded && (
+                    <div className="bg-gray-50 rounded-lg p-3 border border-gray-200 mt-2.5 font-mono text-[10px] text-gray-500 leading-relaxed w-full max-w-xl">
+                      <div>
+                        {entry.poolId === "KAN-TOM-001" && (
+                          <span>
+                            "Enakku 80 kilo thakkali irukku, Kanchipuramla"
+                            [Tamil &middot; Confidence: 95%]
+                          </span>
+                        )}
+                        {entry.poolId === "KAN-TOM-008" && (
+                          <span>
+                            "Naa 120 kilo tomato vechirukken" [Tamil &middot;
+                            Confidence: 72% &#9888; Low]
+                          </span>
+                        )}
+                        {entry.poolId !== "KAN-TOM-001" &&
+                          entry.poolId !== "KAN-TOM-008" && (
+                            <span>
+                              "Enakku {entry.qty} kilo {entry.crop.toLowerCase()}{" "}
+                              irukku, Kanchipuramla" [Tamil &middot; Confidence:
+                              88%]
+                            </span>
+                          )}
+                      </div>
+                      <div className="font-sans text-[10px] text-gray-400 italic mt-2">
+                        Processed by Sarvam STT &middot; Extracted: {entry.qty}
+                        kg {entry.crop}, Kanchipuram
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Date */}

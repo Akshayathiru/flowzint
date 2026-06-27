@@ -22,6 +22,16 @@ export function usePoolSocket(poolId?: string) {
       addPool(data);
     });
 
+    socket.on("pool:settled", (data: { poolId: string; winningPricePerKg: number; settlementIds: string[] }) => {
+      updatePool(data.poolId, { status: "settled" as const });
+      addEvent({
+        timestamp: new Date().toISOString(),
+        type: "settlement",
+        message: `Pool ${data.poolId} settled at ₹${data.winningPricePerKg}/kg`,
+        meta: data
+      });
+    });
+
     socket.on("feed:event", (event: FeedEvent) => {
       addEvent(event);
     });
@@ -57,6 +67,7 @@ export function usePoolSocket(poolId?: string) {
       socket.off("pool:update");
       socket.off("pool:new");
       socket.off("feed:event");
+      socket.off("pool:settled");
       if (poolId) {
         socket.off(`pool:${poolId}:bid`);
         socket.off(`pool:${poolId}:callback`);

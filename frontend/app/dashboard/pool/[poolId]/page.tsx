@@ -8,6 +8,7 @@ import StatusBadge from "@/components/shared/StatusBadge";
 import PoolMetricsPanel from "@/components/pool/PoolMetricsPanel";
 import PriceSparkline from "@/components/charts/PriceSparkline";
 import FarmerTable from "@/components/farmers/FarmerTable";
+import BuyerAuctionLog from "@/components/pool/BuyerAuctionLog";
 import SettlementReceiptPreview from "@/components/shared/SettlementReceiptPreview";
 
 interface PageProps {
@@ -61,9 +62,14 @@ export default function PoolDetailPage({ params }: PageProps) {
           <PriceSparkline />
         </div>
 
-        {/* ROW 2: FARMER TABLE */}
-        <div className="w-full">
-          <FarmerTable />
+        {/* ROW 2: FARMER TABLE & BUYER AUCTION LOG */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6">
+          <div className="flex flex-col gap-6">
+            <FarmerTable />
+          </div>
+          <div className="flex flex-col gap-6">
+            <BuyerAuctionLog />
+          </div>
         </div>
 
         {/* ROW 3: SETTLEMENT RECEIPT PREVIEW */}

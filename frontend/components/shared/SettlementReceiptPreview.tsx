@@ -1,8 +1,15 @@
-// TODO: replace callback execution with useMutation('/api/pools/callbacks/trigger')
+"use client";
 
 import React from "react";
+import { CheckCircle } from "lucide-react";
 
-export default function SettlementReceiptPreview() {
+interface SettlementReceiptPreviewProps {
+  hasDeclined?: boolean;
+}
+
+export default function SettlementReceiptPreview({
+  hasDeclined = true,
+}: SettlementReceiptPreviewProps) {
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:border-gray-300 transition-colors">
       {/* Header */}
@@ -28,6 +35,18 @@ Ref: KAN-TOM-001`}
         This message will be sent in the farmer&apos;s preferred language via SMS after
         confirmation.
       </p>
+
+      {/* Reconciliation Note */}
+      {hasDeclined ? (
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-3 font-sans text-xs text-amber-700">
+          Note: 1 farmer declined (220kg removed). Adjusted settlement: 800kg at ₹15/kg.
+        </div>
+      ) : (
+        <div className="bg-field-green/10 border border-field-green/20 rounded-lg p-3 mt-3 font-sans text-xs text-field-green flex items-center gap-1.5">
+          <CheckCircle className="w-3.5 h-3.5 text-field-green shrink-0" />
+          <span>All 6 farmers confirmed. Full 1,020kg settlement proceeds.</span>
+        </div>
+      )}
 
       {/* Button Row */}
       <div className="mt-5 flex items-center">

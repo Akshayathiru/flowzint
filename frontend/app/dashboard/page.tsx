@@ -9,6 +9,7 @@ import PoolCard from "@/components/pool/PoolCard";
 import LiveEventFeed from "@/components/feed/LiveEventFeed";
 import PageHeader from "@/components/shared/PageHeader";
 import DemoTriggerButton from "@/components/demo/DemoTriggerButton";
+import { toast } from "sonner";
 
 const MandiMap = dynamic(() => import("@/components/map/MandiMap"), {
   ssr: false,
@@ -144,6 +145,20 @@ export default function Dashboard() {
                   >
                     View
                   </Link>
+                </div>
+                <div className="flex justify-between items-center py-3">
+                  <span className="font-sans text-xs font-semibold text-gray-600">
+                    Retry Failed Callbacks
+                  </span>
+                  <button
+                    onClick={() => {
+                      // TODO: POST /api/demo/retry-callbacks
+                      toast.success("Retry queued — Bulbul will call 2 unreached farmers");
+                    }}
+                    className="border border-gray-200 rounded px-2 py-1 text-xs font-semibold text-gray-600 hover:bg-gray-50 bg-white transition-colors cursor-pointer"
+                  >
+                    Retry
+                  </button>
                 </div>
               </div>
             </div>

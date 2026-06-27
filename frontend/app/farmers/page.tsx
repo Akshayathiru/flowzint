@@ -56,6 +56,7 @@ const initialFarmers: FarmerCallRecord[] = [
     trust: 1.8,
     totalCalls: 3,
     district: "Salem",
+    isFirstCall: true,
   },
   {
     phone: "+91 93XXX 10006",
@@ -83,6 +84,7 @@ const initialFarmers: FarmerCallRecord[] = [
     trust: 2.3,
     totalCalls: 4,
     district: "Tiruvannamalai",
+    isFirstCall: true,
   },
 ];
 
@@ -109,10 +111,14 @@ export default function FarmerCallLogPage() {
 
     // Trust
     let matchesTrust = true;
-    if (trustFilter === "high") matchesTrust = farmer.trust >= 3.5;
-    else if (trustFilter === "medium")
-      matchesTrust = farmer.trust >= 2 && farmer.trust < 3.5;
-    else if (trustFilter === "low") matchesTrust = farmer.trust < 2;
+    if (farmer.isFirstCall) {
+      matchesTrust = trustFilter === "all" || trustFilter === "high";
+    } else {
+      if (trustFilter === "high") matchesTrust = farmer.trust >= 3.5;
+      else if (trustFilter === "medium")
+        matchesTrust = farmer.trust >= 2 && farmer.trust < 3.5;
+      else if (trustFilter === "low") matchesTrust = farmer.trust < 2;
+    }
 
     return matchesSearch && matchesCrop && matchesTrust;
   });
@@ -136,8 +142,8 @@ export default function FarmerCallLogPage() {
     }
   };
 
-  // Count flagged in initial data
-  const flaggedCount = initialFarmers.filter((f) => f.trust < 2).length;
+  // Count flagged in initial data (excluding first-time callers)
+  const flaggedCount = initialFarmers.filter((f) => f.trust < 2 && !f.isFirstCall).length;
 
   return (
     <div className="min-h-screen bg-warm-cream flex flex-col font-sans">
@@ -244,7 +250,7 @@ export default function FarmerCallLogPage() {
           <div className="bg-alert-red/5 border border-alert-red/20 rounded-xl px-4 py-3 flex items-center gap-3">
             <AlertTriangle className="w-4 h-4 text-alert-red shrink-0" />
             <span className="font-sans text-xs text-alert-red font-medium">
-              {flaggedCount} farmers have a trust score below 2.0 &mdash; their pool weight is automatically reduced.
+              {flaggedCount} farmers have a trust score below 2.0 &mdash; their pool weight is automatically reduced. New callers are trusted by default and excluded from trust filtering.
             </span>
             <button
               onClick={handleReviewFlagged}
