@@ -70,7 +70,7 @@ export default async function LocaleLayout({
         <meta name="color-scheme" content="light" />
       </head>
       <body className="font-sans antialiased bg-warm-cream text-charcoal min-h-screen">
-        <NextIntlClientProvider messages={messages}>
+        <NextIntlClientProvider messages={messages} locale={locale}>
           <ReactQueryProvider>
             <LocaleFontWrapper>
               <div className="flex min-h-screen bg-[#FBF7F0]">
