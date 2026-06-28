@@ -2,12 +2,13 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from database import SessionLocal
-from schemas import OfferCreate
+from schemas import OfferCreate, BuyerCreate
 from services.auction_service import (
     save_offer,
     get_best_offer,
     get_all_offers,
     get_all_buyers,
+    create_buyer,
 )
 
 router = APIRouter()
@@ -19,6 +20,14 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+@router.post("/add_buyer")
+def add_buyer(
+    buyer: BuyerCreate,
+    db: Session = Depends(get_db)
+):
+    return create_buyer(db, buyer)
 
 
 @router.post("/buyer_offer")
