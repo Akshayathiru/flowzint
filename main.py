@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Voice & Language Layer API")
 
-MEMBER2_ENDPOINT = os.getenv("MEMBER2_ENDPOINT", "http://localhost:8001/add_farmer")
+MEMBER2_ENDPOINT = os.getenv("MEMBER2_ENDPOINT", "http://localhost:8000/add_farmer")
 
 @app.post("/inbound-call", response_model=InboundCallResponse)
 async def handle_inbound_call(
