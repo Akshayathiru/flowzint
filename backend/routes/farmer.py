@@ -86,10 +86,10 @@ def get_farmer_settlements(phone: str, db: Session = Depends(get_db)):
         if not pool:
             continue
         settled_date = pool.closed_at.strftime("%Y-%m-%d") if pool.closed_at else ""
-        wp = float(pool.winning_price) if pool.winning_price else 0.0
+        wp = float(str(pool.winning_price)) if pool.winning_price else 0.0
         mandi_rate = wp * 0.8
         premium_pct = round(((wp - mandi_rate) / mandi_rate * 100)) if mandi_rate else 0
-        qty = float(m.quantity) if m.quantity else 0.0
+        qty = float(str(m.quantity)) if m.quantity else 0.0
         result.append({
             "poolId": str(pool.id),
             "date": settled_date,
