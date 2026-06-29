@@ -1,11 +1,7 @@
-from models import Pool, PoolMember, Buyer
-
+from models import Pool, PoolMember, Buyer, Offer
 
 def get_receipt(db, pool_id, phone):
-
-    pool = db.query(Pool).filter(
-        Pool.id == pool_id
-    ).first()
+    pool = db.query(Pool).filter(Pool.id == pool_id).first()
 
     if pool is None:
         return {"message": "Pool not found"}
@@ -18,14 +14,25 @@ def get_receipt(db, pool_id, phone):
     if member is None:
         return {"message": "Farmer not found in this pool"}
 
-    buyer = db.query(Buyer).filter(
-        Buyer.id == pool.winning_buyer_id
-    ).first()
+    # Fetch all winning bids for this pool
+    winning_offers = db.query(Offer).filter(
+        Offer.pool_id == pool_id,
+        Offer.status == "WON"
+    ).all()
 
-    buyer_name = buyer.name if buyer else "Unknown"
+    buyers = []
+    total_revenue = 0.0
+    total_sold = 0.0
 
-    winning_price = pool.winning_price
-    total_amount = member.quantity * winning_price if winning_price is not None else None
+    for offer in winning_offers:
+        buyer = db.query(Buyer).filter(Buyer.id == offer.buyer_id).first()
+        if buyer:
+            buyers.append(f"{buyer.name}")
+        total_revenue += offer.allocated_quantity * offer.price
+        total_sold += offer.allocated_quantity
+
+    avg_price_per_kg = (total_revenue / total_sold) if total_sold > 0 else 0.0
+    total_farmer_amount = member.quantity * avg_price_per_kg if avg_price_per_kg > 0 else 0.0
 
     return {
         "pool_id": pool.id,
@@ -33,8 +40,8 @@ def get_receipt(db, pool_id, phone):
         "location": pool.location,
         "farmer_phone": phone,
         "quantity": member.quantity,
-        "price_per_kg": winning_price,
-        "total_amount": total_amount,
-        "buyer": buyer_name,
+        "average_price_per_kg": round(avg_price_per_kg, 2),
+        "total_amount": round(total_farmer_amount, 2),
+        "buyers": ", ".join(buyers) if buyers else "Unknown",
         "status": pool.status
     }

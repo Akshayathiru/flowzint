@@ -1,11 +1,22 @@
-from models import Offer, Buyer
+from models import Offer, Buyer, Pool
 
+
+from datetime import datetime
 
 def save_offer(db, offer_data):
+    # Check if pool auction time has expired
+    pool = db.query(Pool).filter(Pool.id == offer_data.pool_id).first()
+    if pool and pool.auction_end_time and datetime.utcnow() > pool.auction_end_time:
+        return {"error": "Auction has already closed"}
+        
     offer = Offer(
         buyer_id=offer_data.buyer_id,
         pool_id=offer_data.pool_id,
-        price=offer_data.price
+        price=offer_data.price,
+        quantity=offer_data.quantity,
+        timestamp=datetime.utcnow(),
+        status="PENDING",
+        allocated_quantity=0.0
     )
 
     db.add(offer)
@@ -18,7 +29,8 @@ def save_offer(db, offer_data):
     emit_pool_bid(str(offer_data.pool_id), buyer_name, offer_data.price)
 
     return {
-        "message": "Offer saved"
+        "message": "Offer saved",
+        "offer_id": offer.id
     }
 
 
@@ -85,3 +97,19 @@ def get_all_buyers(db):
         })
 
     return result
+
+def create_buyer(db, buyer_data):
+    buyer = Buyer(
+        name=buyer_data.name,
+        phone=buyer_data.phone,
+        crop=buyer_data.crop,
+        location=buyer_data.location,
+        min_quantity=buyer_data.min_quantity
+    )
+    db.add(buyer)
+    db.commit()
+    db.refresh(buyer)
+    return {
+        "message": "Buyer created successfully",
+        "buyer_id": buyer.id
+    }

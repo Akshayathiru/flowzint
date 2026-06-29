@@ -21,8 +21,8 @@ class Pool(Base):
     location = Column(String)
     total_quantity = Column(Float, default=0)
     status = Column(String, default="OPEN")
-    winning_price = Column(Float, nullable=True)
-    winning_buyer_id = Column(Integer, nullable=True)
+    auction_start_time = Column(DateTime, nullable=True)
+    auction_end_time = Column(DateTime, nullable=True)
     closed_at = Column(DateTime, nullable=True)
 
 
@@ -53,6 +53,10 @@ class Offer(Base):
     buyer_id = Column(Integer)
     pool_id = Column(Integer)
     price = Column(Float)
+    quantity = Column(Float, default=0.0)
+    timestamp = Column(DateTime, default=datetime.utcnow)
+    allocated_quantity = Column(Float, default=0.0)
+    status = Column(String, default="PENDING")
 
 class TrustScore(Base):
     __tablename__ = "trust_scores"

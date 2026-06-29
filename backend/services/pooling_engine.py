@@ -1,5 +1,5 @@
 from models import Pool, PoolMember, Offer
-from datetime import datetime
+from datetime import datetime, timedelta
 
 THRESHOLD = 250
 
@@ -39,8 +39,10 @@ def add_farmer_to_pool(db, farmer):
 
     pool.total_quantity += farmer.quantity
 
-    if pool.total_quantity >= THRESHOLD:
+    if pool.total_quantity >= THRESHOLD and pool.status == "OPEN":
         pool.status = "CLOSED"
+        pool.auction_start_time = datetime.utcnow()
+        pool.auction_end_time = datetime.utcnow() + timedelta(minutes=30)
 
     db.commit()
 
@@ -69,32 +71,43 @@ def add_farmer_to_pool(db, farmer):
 
 
 def close_pool(db, pool_id):
-
-    pool = db.query(Pool).filter(
-        Pool.id == pool_id
-    ).first()
+    pool = db.query(Pool).filter(Pool.id == pool_id).first()
 
     if pool is None:
-        return {
-            "message": "Pool not found"
-        }
+        return {"message": "Pool not found"}
 
-    best_offer = db.query(Offer).filter(
+    offers = db.query(Offer).filter(
         Offer.pool_id == pool_id
     ).order_by(
         Offer.price.desc()
-    ).first()
+    ).all()
 
-    if best_offer is None:
-        return {
-            "message": "No offers available"
-        }
+    if not offers:
+        return {"message": "No offers available"}
 
-    pool.status = "CLOSED"
+    remaining_qty = pool.total_quantity
+    winning_buyers = []
 
-    pool.winning_price = best_offer.price
-    pool.winning_buyer_id = best_offer.buyer_id
-    pool.closed_at = datetime.now()
+    for offer in offers:
+        if remaining_qty <= 0:
+            offer.status = "LOST"
+            offer.allocated_quantity = 0.0
+            continue
+        
+        # Allocate quantity to this buyer
+        allocated = min(remaining_qty, offer.quantity)
+        offer.allocated_quantity = allocated
+        offer.status = "WON"
+        remaining_qty -= allocated
+        
+        winning_buyers.append({
+            "buyer_id": offer.buyer_id,
+            "allocated_quantity": allocated,
+            "price": offer.price
+        })
+
+    pool.status = "SETTLED"
+    pool.closed_at = datetime.utcnow()
 
     db.commit()
 
@@ -107,6 +120,5 @@ def close_pool(db, pool_id):
     return {
         "pool_id": pool.id,
         "status": pool.status,
-        "winning_price": pool.winning_price,
-        "buyer_id": pool.winning_buyer_id
+        "allocations": winning_buyers
     }
