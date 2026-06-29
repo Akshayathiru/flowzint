@@ -127,6 +127,12 @@ export default function Home() {
             <ArrowRight size={14} strokeWidth={2} />
           </Link>
           <Link
+            href="/login?role=buyer"
+            className="inline-flex items-center justify-center gap-2 border border-harvest-gold text-harvest-gold hover:bg-harvest-gold/5 px-6 py-3 rounded-lg font-sans font-medium text-sm transition-colors whitespace-nowrap"
+          >
+            {t("cta_buyer")} &rarr;
+          </Link>
+          <Link
             href="/demo"
             className="inline-flex items-center justify-center gap-2 border border-gray-300 text-gray-600 px-6 py-3 rounded-lg font-sans font-medium text-sm hover:bg-gray-50 transition-colors whitespace-nowrap"
           >

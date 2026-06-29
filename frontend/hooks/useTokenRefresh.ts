@@ -15,6 +15,21 @@ export function useTokenRefresh() {
     const REFRESH_INTERVAL = 7 * 60 * 60 * 1000
 
     const refresh = async () => {
+      if (typeof window !== 'undefined') {
+        const path = window.location.pathname;
+        const isOperatorRoute = [
+          "/dashboard",
+          "/farmers",
+          "/buyers",
+          "/settlements",
+          "/demo",
+          "/admin",
+        ].some((r) => path.includes(r));
+        if (!isOperatorRoute) {
+          return;
+        }
+      }
+
       try {
         const res = await fetch('/api/auth/refresh', { method: 'POST' })
         if (!res.ok) {

@@ -125,3 +125,44 @@ export interface AuthUser {
   role: UserRole
   orgId: string;
 }
+
+export interface BuyerProfile {
+  buyer_id: number
+  name: string
+  phone: string
+  crop: string
+  location: string
+  min_quantity: number
+}
+
+export interface AuctionPool {
+  pool_id: number
+  crop: string
+  location: string
+  current_qty_kg: number
+  target_qty_kg: number
+  farmers_count: number
+  status: 'filling' | 'auctioning' | 'settled'
+  auctionEndTime: string | null  // ISO UTC timestamp
+  auctionClosed: boolean
+}
+
+export interface BidSubmission {
+  buyer_id: number
+  pool_id: number
+  price: number
+  quantity: number
+}
+
+export interface PoolAllocation {
+  buyer_id: number
+  allocated_quantity: number
+  price: number
+}
+
+export interface SettlementResult {
+  pool_id: number
+  status: string
+  allocations: PoolAllocation[]
+}
+

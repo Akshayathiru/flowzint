@@ -18,7 +18,7 @@ export async function middleware(request: NextRequest) {
   const pathWithoutLocale =
     pathname.replace(/^\/(en|hi|ta|te|kn|mr)\b/, "") || "/";
 
-  const isPublic = PUBLIC_PATHS.includes(pathWithoutLocale);
+  const isPublic = PUBLIC_PATHS.includes(pathWithoutLocale) || pathWithoutLocale.startsWith("/buyer");
   const token = request.cookies.get("mm_auth")?.value;
 
   const match = pathname.match(/^\/(en|hi|ta|te|kn|mr)\b/);

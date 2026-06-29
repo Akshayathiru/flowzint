@@ -51,7 +51,19 @@ export async function GET() {
     }
     
     // Map backend output to ActivePool structure
-    const pools = data.map((pool: any) => ({
+    const pools = data.map((pool: {
+      poolId?: string | number;
+      id?: string | number;
+      crop?: string;
+      location?: string;
+      currentQtyKg?: number;
+      total_quantity?: number;
+      targetQtyKg?: number;
+      farmersCount?: number;
+      minutesRemaining?: number;
+      status?: "filling" | "closed" | "auctioning" | "settled" | "expired";
+      geoCenter?: [number, number];
+    }) => ({
       poolId: String(pool.poolId || pool.id),
       crop: pool.crop || "",
       location: pool.location || "",
