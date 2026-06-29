@@ -9,19 +9,30 @@ import {
   Building2,
   CheckCircle,
   Menu,
+  Gavel,
+  FileText,
 } from "lucide-react";
 
 export default function MobileNav() {
   const pathname = usePathname();
   const t = useTranslations("nav");
 
-  const mobileItems = [
+  const isBuyerRoute = pathname.includes("/buyer");
+
+  const operatorItems = [
     { label: t("dashboard"), key: "dashboard", href: "/dashboard", icon: LayoutDashboard },
     { label: t("farmers"), key: "farmers", href: "/farmers", icon: Users },
     { label: t("buyers"), key: "buyers", href: "/buyers", icon: Building2 },
     { label: t("settlements"), key: "settlements", href: "/settlements", icon: CheckCircle },
     { label: t("settings"), key: "settings", href: "/admin/settings", icon: Menu },
   ];
+
+  const buyerItems = [
+    { label: "Auctions", key: "auctions", href: "/buyer/auctions", icon: Gavel },
+    { label: "My Bids", key: "bids", href: "/buyer/bids", icon: FileText },
+  ];
+
+  const mobileItems = isBuyerRoute ? buyerItems : operatorItems;
 
   return (
     <nav

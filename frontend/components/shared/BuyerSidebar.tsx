@@ -1,65 +1,50 @@
 "use client";
 
 import React from "react";
-import { Link, usePathname } from "@/lib/navigation";
-import { useTranslations } from "next-intl";
-import {
-  LayoutDashboard,
-  Users,
-  Building2,
-  CheckCircle,
-  Play,
-  Settings,
-} from "lucide-react";
+import { Link, usePathname, useRouter } from "@/lib/navigation";
+import { Gavel, FileText } from "lucide-react";
 import { usePoolStore } from "@/store/poolStore";
 import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
-import { useAuth } from "@/hooks/useAuth";
+import { useBuyerSessionStore } from "@/store/buyerSessionStore";
 
-export default function Sidebar() {
+export default function BuyerSidebar() {
   const pathname = usePathname();
-  const t = useTranslations("nav");
-  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
+  const router = useRouter();
   const { pools } = usePoolStore();
-  const { user, signOut, isAdmin, isViewer } = useAuth();
+  const { currentBuyer, setCurrentBuyer } = useBuyerSessionStore();
 
   const activePoolsCount = pools.length || 3;
 
-  const navItems = [
-    { label: t("dashboard"), key: "dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { label: t("farmers"), key: "farmers", href: "/farmers", icon: Users },
-    { label: t("buyers"), key: "buyers", href: "/buyers", icon: Building2 },
-    { label: t("settlements"), key: "settlements", href: "/settlements", icon: CheckCircle },
-    { label: t("demo"), key: "demo", href: "/demo", icon: Play },
-    { label: t("settings"), key: "settings", href: "/admin/settings", icon: Settings },
+  const buyerNavItems = [
+    { label: "Live Auctions", href: "/buyer/auctions", icon: Gavel },
+    { label: "My Bids", href: "/buyer/bids", icon: FileText },
   ];
 
+  const handleSignOut = () => {
+    setCurrentBuyer(null);
+    router.push("/login");
+  };
+
   return (
-    <aside className="w-56 bg-white border-r border-gray-200 fixed left-0 top-0 h-screen z-40 flex flex-col lg:flex hidden font-sans select-none">
+    <aside className="w-56 bg-white border-r border-gray-200 fixed left-0 top-0 h-screen z-40 flex flex-col font-sans select-none shadow-sm">
       {/* TOP SECTION */}
       <div className="px-4 pt-5 pb-4 border-b border-gray-100 shrink-0">
         <span className="font-display font-bold text-sm tracking-widest uppercase text-soil-brown">
           MANDI MITRA
         </span>
         <p className="font-sans text-[10px] text-gray-500 mt-0.5 font-semibold">
-          Operator Dashboard
+          Buyer Portal
         </p>
       </div>
 
       {/* NAVIGATION LINKS */}
       <nav className="px-3 pt-4 flex flex-col gap-1 overflow-y-auto pr-1">
-        {navItems.map((item) => {
-          if (item.key === "demo" && (isViewer || !isDemoMode)) {
-            return null;
-          }
-          if (item.key === "settings" && !isAdmin) {
-            return null;
-          }
-
+        {buyerNavItems.map((item) => {
           const isActive = pathname.startsWith(item.href);
 
           return (
             <Link
-              key={item.key}
+              key={item.href}
               href={item.href}
               aria-label={item.label}
               aria-current={isActive ? "page" : undefined}
@@ -74,10 +59,6 @@ export default function Sidebar() {
               )}
               <item.icon className="w-4 h-4 shrink-0" strokeWidth={1.5} />
               <span className="flex-1">{item.label}</span>
-
-              {item.key === "demo" && (
-                <span className="w-1.5 h-1.5 rounded-full bg-harvest-gold animate-pulse ml-auto" />
-              )}
             </Link>
           );
         })}
@@ -86,21 +67,24 @@ export default function Sidebar() {
       {/* Spacer */}
       <div className="flex-1" />
 
-      {/* USER DETAILS & LOGOUT */}
-      {user && (
-        <div className="px-4 py-4 border-t border-gray-100 shrink-0 bg-white flex flex-col gap-2">
-          <div className="flex flex-col gap-0.5 min-w-0">
-            <span className="font-sans text-xs font-semibold text-charcoal truncate" title={user.email}>
-              {user.email}
+      {/* BUYER IDENTITY & SIGN OUT */}
+      {currentBuyer && (
+        <div className="px-4 py-4 border-t border-gray-100 shrink-0 bg-white flex flex-col gap-1.5">
+          <div className="flex flex-col min-w-0">
+            <span className="font-sans font-semibold text-xs text-charcoal truncate" title={currentBuyer.name}>
+              {currentBuyer.name}
             </span>
-            <div className="flex items-center gap-1.5 mt-1">
-              <span className="border border-gray-200 rounded px-2 py-0.5 text-[10px] text-gray-500 font-semibold tracking-wider uppercase select-none bg-gray-50/50">
-                {user.role}
+            <span className="font-mono text-[10px] text-gray-400 mt-0.5">
+              {currentBuyer.phone}
+            </span>
+            <div className="flex items-center gap-1.5 mt-2">
+              <span className="border border-harvest-gold rounded px-2 py-0.5 text-[9px] text-harvest-gold font-bold tracking-wider uppercase select-none bg-harvest-gold/5">
+                BUYER
               </span>
             </div>
           </div>
           <button
-            onClick={signOut}
+            onClick={handleSignOut}
             className="text-left font-sans text-xs font-semibold text-alert-red hover:underline mt-1 cursor-pointer select-none"
           >
             Sign Out
@@ -116,7 +100,7 @@ export default function Sidebar() {
         <LanguageSwitcher />
       </div>
 
-      {/* BOTTOM STATUS */}
+      {/* SYSTEM STATUS INDICATOR */}
       <div className="px-4 py-4 border-t border-gray-100 shrink-0 bg-white">
         <div className="flex items-center gap-2">
           <span className="relative flex h-2 w-2">
