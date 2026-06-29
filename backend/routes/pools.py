@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
+from datetime import datetime
 
 from database import SessionLocal
 from models import Pool, PoolMember, Buyer, Offer
@@ -30,7 +31,9 @@ def get_active_pools(db: Session = Depends(get_db)):
             "currentQtyKg": pool.total_quantity,
             "targetQtyKg": 250.0,
             "farmersCount": len(members),
-            "status": "filling" if pool.status == "OPEN" else "auctioning"
+            "status": "filling" if pool.status == "OPEN" else "auctioning",
+            "auctionEndTime": pool.auction_end_time.isoformat() if pool.auction_end_time else None,
+            "auctionClosed": (datetime.utcnow() > pool.auction_end_time) if pool.auction_end_time else False
         })
     return result
 
