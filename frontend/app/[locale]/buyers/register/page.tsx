@@ -18,6 +18,7 @@ import { CROPS, DISTRICTS } from "@/lib/constants";
 import { BuyerSchema } from "@/lib/schemas";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/hooks/useAuth";
+import { api } from "@/lib/api";
 
 const FormSchema = BuyerSchema.omit({ phone: true }).extend({
   phoneDigits: z
@@ -119,7 +120,7 @@ export default function RegisterBuyerPage() {
     setValue("crops", next, { shouldValidate: true });
   };
 
-  const onSubmit = (data: FormFormData) => {
+  const onSubmit = async (data: FormFormData) => {
     if (isViewer) return;
     if (phoneExists) {
       toast.error("Please use an unregistered phone number");
@@ -142,11 +143,16 @@ export default function RegisterBuyerPage() {
     }
 
     setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      await api.buyers.register(finalData);
       toast.success(t("register_success"));
       router.push("/buyers");
-    }, 1200);
+    } catch (err) {
+      console.error("Failed to register buyer:", err);
+      toast.error("Failed to register buyer. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

@@ -14,25 +14,79 @@ from routes import stats
 
 def ensure_pool_schema():
     inspector = inspect(engine)
-    if "pools" not in inspector.get_table_names():
-        Base.metadata.create_all(bind=engine)
-        return
+    Base.metadata.create_all(bind=engine)
+    
+    # Check farmers table
+    if "farmers" in inspector.get_table_names():
+        farmers_cols = {column["name"] for column in inspector.get_columns("farmers")}
+        with engine.begin() as connection:
+            if "transaction_count" not in farmers_cols:
+                connection.execute(text("ALTER TABLE farmers ADD COLUMN transaction_count INTEGER DEFAULT 0"))
 
-    columns = {column["name"] for column in inspector.get_columns("pools")}
+    # Check pools table
+    if "pools" in inspector.get_table_names():
+        columns = {column["name"] for column in inspector.get_columns("pools")}
+        with engine.begin() as connection:
+            if "winning_price" not in columns:
+                connection.execute(text("ALTER TABLE pools ADD COLUMN winning_price REAL"))
+            if "winning_buyer_id" not in columns:
+                connection.execute(text("ALTER TABLE pools ADD COLUMN winning_buyer_id INTEGER"))
+            if "closed_at" not in columns:
+                connection.execute(text("ALTER TABLE pools ADD COLUMN closed_at DATETIME"))
+            if "created_at" not in columns:
+                connection.execute(text("ALTER TABLE pools ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP"))
+            if "extended" not in columns:
+                connection.execute(text("ALTER TABLE pools ADD COLUMN extended BOOLEAN DEFAULT 0"))
+            if "current_highest_bid" not in columns:
+                connection.execute(text("ALTER TABLE pools ADD COLUMN current_highest_bid REAL DEFAULT 0.0"))
 
-    with engine.begin() as connection:
-        if "winning_price" not in columns:
-            connection.execute(text("ALTER TABLE pools ADD COLUMN winning_price REAL"))
-        if "winning_buyer_id" not in columns:
-            connection.execute(text("ALTER TABLE pools ADD COLUMN winning_buyer_id INTEGER"))
-        if "closed_at" not in columns:
-            connection.execute(text("ALTER TABLE pools ADD COLUMN closed_at DATETIME"))
+    # Check pool_members table
+    if "pool_members" in inspector.get_table_names():
+        members_cols = {column["name"] for column in inspector.get_columns("pool_members")}
+        with engine.begin() as connection:
+            if "delivered" not in members_cols:
+                connection.execute(text("ALTER TABLE pool_members ADD COLUMN delivered TEXT DEFAULT 'PENDING'"))
+            if "crop_quality_grade" not in members_cols:
+                connection.execute(text("ALTER TABLE pool_members ADD COLUMN crop_quality_grade TEXT"))
+
+    # Check buyers table
+    if "buyers" in inspector.get_table_names():
+        buyers_cols = {column["name"] for column in inspector.get_columns("buyers")}
+        with engine.begin() as connection:
+            if "trust_score" not in buyers_cols:
+                connection.execute(text("ALTER TABLE buyers ADD COLUMN trust_score INTEGER DEFAULT 100"))
+            if "transaction_count" not in buyers_cols:
+                connection.execute(text("ALTER TABLE buyers ADD COLUMN transaction_count INTEGER DEFAULT 0"))
+            if "no_show_count" not in buyers_cols:
+                connection.execute(text("ALTER TABLE buyers ADD COLUMN no_show_count INTEGER DEFAULT 0"))
+            if "suspended" not in buyers_cols:
+                connection.execute(text("ALTER TABLE buyers ADD COLUMN suspended BOOLEAN DEFAULT 0"))
+
+    # Check offers table
+    if "offers" in inspector.get_table_names():
+        offers_cols = {column["name"] for column in inspector.get_columns("offers")}
+        with engine.begin() as connection:
+            if "binding_bid" not in offers_cols:
+                connection.execute(text("ALTER TABLE offers ADD COLUMN binding_bid BOOLEAN DEFAULT 1"))
+
 
 
 Base.metadata.create_all(bind=engine)
 ensure_pool_schema()
 
+from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI()
+
+# Enable CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.include_router(buyers.router)
 app.include_router(pools.router)
 
@@ -50,5 +104,17 @@ def home():
 from socket_manager import sio
 import socketio
 
+from services.scheduler import scheduler
+
+@app.on_event("startup")
+async def start_scheduler():
+    if not scheduler.running:
+        scheduler.start()
+
+@app.on_event("shutdown")
+async def stop_scheduler():
+    if scheduler.running:
+        scheduler.shutdown()
+
 # Wrap the FastAPI app with the socketio ASGIApp
-app = socketio.ASGIApp(sio, other_asgi_app=app)
+app = socketio.ASGIApp(sio, other_asgi_app=app)

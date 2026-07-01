@@ -7,11 +7,25 @@ import { useFeedStore } from "@/store/feedStore";
 import { ActivePool, FeedEvent } from "@/types";
 
 export function usePoolSocket(poolId?: string) {
-  const { updatePool, addPool } = usePoolStore();
+  const { updatePool, addPool, setPools } = usePoolStore();
   const { addEvent } = useFeedStore();
 
   useEffect(() => {
     const socket = getSocket();
+
+    // Fetch state on connect / reconnect
+    const fetchCurrentState = () => {
+      fetch("/api/pools/active")
+        .then((res) => res.json())
+        .then((pools) => {
+          if (Array.isArray(pools)) {
+            setPools(pools);
+          }
+        })
+        .catch((err) => console.error("Failed to re-fetch pools on reconnect:", err));
+    };
+
+    socket.on("connect", fetchCurrentState);
 
     // Global events
     socket.on("pool:update", (data: ActivePool) => {
@@ -64,6 +78,7 @@ export function usePoolSocket(poolId?: string) {
     }
 
     return () => {
+      socket.off("connect", fetchCurrentState);
       socket.off("pool:update");
       socket.off("pool:new");
       socket.off("feed:event");
@@ -73,5 +88,5 @@ export function usePoolSocket(poolId?: string) {
         socket.off(`pool:${poolId}:callback`);
       }
     };
-  }, [poolId, updatePool, addPool, addEvent]);
+  }, [poolId, updatePool, addPool, setPools, addEvent]);
 }

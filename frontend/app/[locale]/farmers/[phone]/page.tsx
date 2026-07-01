@@ -197,7 +197,7 @@ export default function FarmerProfilePage({ params }: PageProps) {
 
         {/* ROW 2: TRUST SCORE EXPLAINER */}
         <div className="w-full">
-          <TrustScoreExplainer />
+          <TrustScoreExplainer phone={phoneParam} />
         </div>
 
         {/* ROW 3: POOL HISTORY TIMELINE */}

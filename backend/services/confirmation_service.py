@@ -21,6 +21,10 @@ def confirm_farmer(db, data):
         PoolMember.farmer_phone == data.phone
     ).first()
 
+    if pool_member and getattr(data, "crop_quality_grade", None) is not None:
+        pool_member.crop_quality_grade = data.crop_quality_grade
+
+
     if data.accepted:
         farmer.trust_score = min(100, farmer.trust_score + 5)
         farmer.success_count += 1

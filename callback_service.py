@@ -55,3 +55,26 @@ def call_buyer_with_offer(phone_number: str, commodity: str, quantity_kg: float,
         "buyer_phone": phone_number,
         "counter_offer_price": counter_offer_price if success else None
     }
+
+
+async def call_farmer_for_confirmation(
+    farmer_phone: str,
+    buyer_name: str,
+    crop: str,
+    price_per_kg: float,
+    quantity_kg: float
+) -> dict:
+    """
+    PHASE 2 — Outbound confirmation call via Bulbul AI.
+    Calls the farmer after auction settlement to confirm acceptance.
+    Requires a Bulbul webhook endpoint to receive the farmer's spoken
+    response. Implement once webhook URL is configured in production.
+    """
+    # TODO PHASE 2: Configure BULBUL_WEBHOOK_URL in environment variables
+    # and implement the two-way call flow here.
+    logger.info(
+        f"[PHASE 2 STUB] Would call {farmer_phone} to confirm "
+        f"{quantity_kg}kg of {crop} at Rs{price_per_kg}/kg from {buyer_name}"
+    )
+    return {"status": "phase_2_pending", "farmer_phone": farmer_phone}
+

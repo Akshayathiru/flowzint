@@ -24,48 +24,9 @@ interface CallHistoryEntry {
   crop: string;
   district: string;
   bid: number | null;
-  result: "won" | "lost" | "no_answer";
+  result: "won" | "lost" | "no_answer" | "pending";
   lotQtyKg: number;
 }
-
-const mockHistory: CallHistoryEntry[] = [
-  {
-    poolId: "KAN-TOM-001",
-    date: "Today 09:46",
-    crop: "Tomatoes",
-    district: "Kanchipuram",
-    bid: 15,
-    result: "won",
-    lotQtyKg: 1020,
-  },
-  {
-    poolId: "VEL-ONI-002",
-    date: "Yesterday",
-    crop: "Onions",
-    district: "Vellore",
-    bid: 17,
-    result: "lost",
-    lotQtyKg: 640,
-  },
-  {
-    poolId: "KAN-TOM-008",
-    date: "3 days ago",
-    crop: "Tomatoes",
-    district: "Kanchipuram",
-    bid: 13,
-    result: "won",
-    lotQtyKg: 750,
-  },
-  {
-    poolId: "CHE-POT-003",
-    date: "5 days ago",
-    crop: "Potatoes",
-    district: "Chengalpattu",
-    bid: null,
-    result: "no_answer",
-    lotQtyKg: 880,
-  },
-];
 
 export default function BuyerCallHistoryModal({
   isOpen,
@@ -74,10 +35,33 @@ export default function BuyerCallHistoryModal({
   buyerId,
 }: BuyerCallHistoryModalProps) {
   const closeButtonRef = React.useRef<HTMLButtonElement>(null);
+  const [history, setHistory] = React.useState<CallHistoryEntry[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     if (isOpen) {
-      console.log("Fetching call history for buyer:", buyerId);
+      setIsLoading(true);
+      setError(null);
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001";
+      fetch(`${baseUrl}/buyers/${buyerId}/call-history`)
+        .then((res) => {
+          if (!res.ok) throw new Error("Failed to fetch");
+          return res.json();
+        })
+        .then((data) => {
+          if (Array.isArray(data)) {
+            setHistory(data);
+          } else {
+            throw new Error("Invalid data format");
+          }
+        })
+        .catch((err) => {
+          console.error("Failed to load call history:", err);
+          setError("Failed to load call history. Please try again.");
+        })
+        .finally(() => setIsLoading(false));
+
       setTimeout(() => {
         closeButtonRef.current?.focus();
       }, 50);
@@ -95,58 +79,80 @@ export default function BuyerCallHistoryModal({
 
         {/* Dialog Body */}
         <div className="my-4 max-h-[320px] overflow-y-auto pr-1 flex flex-col gap-1">
-          {mockHistory.map((entry, idx) => (
-            <div
-              key={idx}
-              className="flex justify-between items-start py-3 border-b border-gray-100 last:border-0"
-            >
-              {/* Left Details */}
-              <div className="flex flex-col">
-                <span className="font-mono text-xs text-gray-500 font-bold">
-                  {entry.poolId}
-                </span>
-                <span className="font-sans text-xs text-charcoal mt-0.5 font-medium">
-                  {entry.crop} &middot; {entry.district} ({entry.lotQtyKg}kg)
-                </span>
-                <span className="font-sans text-[10px] text-gray-500 mt-0.5">
-                  {entry.date}
-                </span>
-              </div>
-
-              {/* Right Result Actions */}
-              <div className="flex flex-col items-end gap-1.5 shrink-0 select-none">
-                {entry.result === "won" && (
-                  <>
-                    <span className="font-display font-bold text-sm text-field-green">
-                      ₹{entry.bid}/kg
-                    </span>
-                    <span className="bg-field-green/10 text-field-green text-[9px] font-bold rounded px-2 py-0.5 font-sans uppercase">
-                      Won
-                    </span>
-                  </>
-                )}
-
-                {entry.result === "lost" && (
-                  <>
-                    <span className="font-display font-medium text-xs text-gray-500">
-                      ₹{entry.bid}/kg
-                    </span>
-                    <span className="bg-gray-100 text-gray-455 text-[9px] font-bold rounded px-2 py-0.5 font-sans uppercase">
-                      Outbid
-                    </span>
-                  </>
-                )}
-
-                {entry.result === "no_answer" && (
-                  <div className="flex items-center gap-1 text-amber-500 font-sans text-xs font-semibold">
-                    <Clock className="w-3.5 h-3.5" />
-                    <span>No Answer</span>
-                  </div>
-                )}
-              </div>
+          {error ? (
+            <div className="text-center py-8 font-sans text-xs text-red-500 font-medium">
+              {error}
             </div>
-          ))}
+          ) : isLoading ? (
+            <div className="flex flex-col items-center justify-center py-8 text-gray-500 font-sans text-xs gap-2">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-900"></div>
+              <span>Loading call history...</span>
+            </div>
+          ) : history.length === 0 ? (
+            <div className="text-center py-8 font-sans text-xs text-gray-500">
+              No calls recorded for this buyer.
+            </div>
+          ) : (
+            history.map((entry, idx) => (
+              <div
+                key={idx}
+                className="flex justify-between items-start py-3 border-b border-gray-100 last:border-0"
+              >
+                {/* Left Details */}
+                <div className="flex flex-col">
+                  <span className="font-mono text-xs text-gray-500 font-bold">
+                    {entry.poolId}
+                  </span>
+                  <span className="font-sans text-xs text-charcoal mt-0.5 font-medium">
+                    {entry.crop} &middot; {entry.district} ({entry.lotQtyKg}kg)
+                  </span>
+                  <span className="font-sans text-[10px] text-gray-500 mt-0.5">
+                    {entry.date}
+                  </span>
+                </div>
+
+                {/* Right Result Actions */}
+                <div className="flex flex-col items-end gap-1.5 shrink-0 select-none">
+                  {entry.result === "won" && (
+                    <>
+                      <span className="font-display font-bold text-sm text-field-green">
+                        ₹{entry.bid}/kg
+                      </span>
+                      <span className="bg-field-green/10 text-field-green text-[9px] font-bold rounded px-2 py-0.5 font-sans uppercase">
+                        Won
+                      </span>
+                    </>
+                  )}
+
+                  {entry.result === "lost" && (
+                    <>
+                      <span className="font-display font-medium text-xs text-gray-500">
+                        ₹{entry.bid}/kg
+                      </span>
+                      <span className="bg-gray-100 text-gray-455 text-[9px] font-bold rounded px-2 py-0.5 font-sans uppercase">
+                        Outbid
+                      </span>
+                    </>
+                  )}
+
+                  {entry.result === "no_answer" && (
+                    <div className="flex items-center gap-1 text-amber-500 font-sans text-xs font-semibold">
+                      <Clock className="w-3.5 h-3.5" />
+                      <span>No Answer / No-Show</span>
+                    </div>
+                  )}
+
+                  {entry.result === "pending" && (
+                    <div className="bg-blue-50 text-blue-600 text-[9px] font-bold rounded px-2 py-0.5 font-sans uppercase">
+                      Pending Deal
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
         </div>
+
 
         {/* Dialog Footer */}
         <div className="flex justify-end mt-4 pt-3 border-t border-gray-100">

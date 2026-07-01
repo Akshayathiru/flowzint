@@ -10,6 +10,9 @@ class InboundCallResponse(BaseModel):
     raw_transcript: str
     language_detected: str
     confidence_flag: bool
+    session_id: Optional[str] = None
+    message_to_speak: Optional[str] = None
+
 
 
 class FarmerCallbackRequest(BaseModel):
@@ -37,3 +40,15 @@ class BuyerCallbackRequest(BaseModel):
 class BuyerCallbackResponse(BaseModel):
     buyer_phone: str
     counter_offer_price: Optional[float]
+
+
+class InboundConfirmRequest(BaseModel):
+    session_id: str
+    phone_number: str
+    dtmf: Optional[str] = None
+
+
+class InboundConfirmResponse(BaseModel):
+    status: str  # "confirmed", "cancelled", "ambiguous"
+    message_to_speak: str
+

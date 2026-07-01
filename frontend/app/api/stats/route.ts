@@ -1,14 +1,6 @@
 import { NextResponse } from "next/server";
 
-const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:8001";
-
-const mockStats = {
-  activePoolsCount: 3,
-  farmersCalledTodayCount: 47,
-  settlementsCount: 12,
-  avgPricePremiumPct: 22,
-  liveBuyerCallsCount: 1,
-};
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001";
 
 export async function GET() {
   try {
@@ -22,7 +14,8 @@ export async function GET() {
     return NextResponse.json(data);
   } catch (error) {
     console.error("Failed to fetch stats from backend:", error);
-    return NextResponse.json(mockStats);
+    return NextResponse.json({ error: "Failed to fetch stats" }, { status: 500 });
   }
 }
+
 

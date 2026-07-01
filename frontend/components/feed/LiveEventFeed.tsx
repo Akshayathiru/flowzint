@@ -41,12 +41,30 @@ const demoEvents: FeedEvent[] = [
   },
 ];
 
+import { useFeedStore } from "@/store/feedStore";
+import { usePoolSocket } from "@/hooks/usePoolSocket";
+
 export default function LiveEventFeed() {
+  // Activate the WebSocket subscription
+  usePoolSocket();
+
   const containerRef = useRef<HTMLDivElement>(null);
-  const [events, setEvents] = React.useState<FeedEvent[]>(demoEvents);
+  const { events } = useFeedStore();
   const [isPaused, setIsPaused] = React.useState(false);
 
+  const formatTime = (isoString: string) => {
+    if (!isoString) return "00:00";
+    try {
+      const d = new Date(isoString);
+      return d.toTimeString().substring(0, 5);
+    } catch {
+      return "00:00";
+    }
+  };
+
+
   const renderMessageWithLinks = (message: string) => {
+    if (!message) return "";
     const phoneRegex = /(\+91\s?\d+X+\s?\d*)/g;
     const parts = message.split(phoneRegex);
     return parts.map((part, index) => {
@@ -65,37 +83,14 @@ export default function LiveEventFeed() {
     });
   };
 
-  // Auto-scroll when events change (if not paused by hover)
+  // Auto-scroll when events change
   useEffect(() => {
     if (containerRef.current && !isPaused) {
       containerRef.current.scrollTop = containerRef.current.scrollHeight;
     }
   }, [events, isPaused]);
 
-  // Simulate incoming live events every 6s
-  useEffect(() => {
-    const mockLogs: FeedEvent[] = [
-      { time: "09:48", type: "farmer_call", message: "Farmer +91 94XXX called in — 120kg Tomatoes, Kanchipuram", lang: "hi" },
-      { time: "09:49", type: "buyer_bid", message: "Bulbul called Buyer B — ₹15/kg bid confirmed" },
-      { time: "09:50", type: "callback_sent", message: "Bulbul called +91 91XXX in Hindi — Confirmed ✅", lang: "hi" },
-      { time: "09:51", type: "settlement", message: "Pool KAN-TOM-001 settled — SMS Receipts sent to 6 farmers" }
-    ];
-    let idx = 0;
-
-    const timer = setInterval(() => {
-      if (idx < mockLogs.length) {
-        const currentLog = mockLogs[idx];
-        setEvents((prev) => [...prev, currentLog]);
-        idx++;
-      } else {
-        clearInterval(timer);
-      }
-    }, 6000);
-
-    return () => clearInterval(timer);
-  }, []);
-
-  const getDotColorClass = (type: FeedEvent["type"]) => {
+  const getDotColorClass = (type: any) => {
     switch (type) {
       case "farmer_call":
         return "bg-sky-blue";
@@ -134,14 +129,14 @@ export default function LiveEventFeed() {
         onMouseLeave={() => setIsPaused(false)}
         className="overflow-y-auto max-h-[220px] flex-1 divide-y divide-gray-100 pr-1 transition-all"
       >
-        {events.map((event, index) => (
+        {events.map((event: any, index: number) => (
           <div
             key={index}
             className="flex items-start gap-3 py-2.5 last:pb-0 first:pt-0"
           >
             {/* Time */}
             <span className="font-mono text-xs text-gray-500 w-10 shrink-0 select-none">
-              {event.time}
+              {formatTime(event.timestamp)}
             </span>
 
             {/* Icon Dot */}
@@ -157,9 +152,9 @@ export default function LiveEventFeed() {
             </span>
 
             {/* Language Tag */}
-            {event.lang && (
+            {(event.lang || event.meta?.language) && (
               <div className="ml-auto shrink-0">
-                <LanguageBadge code={event.lang} />
+                <LanguageBadge code={event.lang || event.meta?.language} />
               </div>
             )}
           </div>
@@ -168,3 +163,4 @@ export default function LiveEventFeed() {
     </div>
   );
 }
+

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, Boolean
 from database import Base
 from datetime import datetime
 from sqlalchemy import DateTime
@@ -11,6 +11,7 @@ class Farmer(Base):
     trust_score = Column(Integer, default=100)
     success_count = Column(Integer, default=0)
     no_show_count = Column(Integer, default=0)
+    transaction_count = Column(Integer, default=0)
 
 
 class Pool(Base):
@@ -21,8 +22,13 @@ class Pool(Base):
     location = Column(String)
     total_quantity = Column(Float, default=0)
     status = Column(String, default="OPEN")
+    created_at = Column(DateTime, default=datetime.utcnow)
+    extended = Column(Boolean, default=False)
+    current_highest_bid = Column(Float, default=0.0)
     auction_start_time = Column(DateTime, nullable=True)
     auction_end_time = Column(DateTime, nullable=True)
+    winning_price = Column(Float, nullable=True)
+    winning_buyer_id = Column(Integer, nullable=True)
     closed_at = Column(DateTime, nullable=True)
 
 
@@ -33,6 +39,8 @@ class PoolMember(Base):
     pool_id = Column(Integer, ForeignKey("pools.id"))
     farmer_phone = Column(String)
     quantity = Column(Float)
+    delivered = Column(String, default="PENDING")
+    crop_quality_grade = Column(String, nullable=True)
 
 
 class Buyer(Base):
@@ -44,6 +52,10 @@ class Buyer(Base):
     crop = Column(String)
     location = Column(String)
     min_quantity = Column(Float)
+    trust_score = Column(Integer, default=100)
+    transaction_count = Column(Integer, default=0)
+    no_show_count = Column(Integer, default=0)
+    suspended = Column(Boolean, default=False)
 
 
 class Offer(Base):
@@ -57,6 +69,8 @@ class Offer(Base):
     timestamp = Column(DateTime, default=datetime.utcnow)
     allocated_quantity = Column(Float, default=0.0)
     status = Column(String, default="PENDING")
+    binding_bid = Column(Boolean, default=True)
+
 
 class TrustScore(Base):
     __tablename__ = "trust_scores"
@@ -65,6 +79,7 @@ class TrustScore(Base):
     phone = Column(String, unique=True)
     score = Column(Float, default=100)
 
+
 class FarmerConfirmation(Base):
     __tablename__ = "farmer_confirmations"
 
@@ -72,3 +87,15 @@ class FarmerConfirmation(Base):
     pool_id = Column(Integer)
     phone = Column(String)
     accepted = Column(String)
+
+
+class PickupManifest(Base):
+    __tablename__ = "pickup_manifests"
+
+    id = Column(Integer, primary_key=True, index=True)
+    pool_id = Column(Integer)
+    buyer_id = Column(Integer)
+    buyer_name = Column(String)
+    allocated_quantity = Column(Float)
+    farmer_contacts = Column(String)
+    pickup_location = Column(String)

@@ -74,6 +74,22 @@ function LegendItem({ color, label }: { color: string; label: string }) {
   );
 }
 
+import { useState } from "react";
+
+function getGeoCenter(location: string): [number, number] {
+  const loc = location.toLowerCase();
+  if (loc.includes("vellore")) return [12.9165, 79.1325];
+  if (loc.includes("salem")) return [11.6643, 78.1460];
+  if (loc.includes("krishnagiri")) return [12.5186, 78.2138];
+  if (loc.includes("chengalpattu")) return [12.6841, 79.9836];
+  if (loc.includes("tiruvannamalai")) return [12.2280, 79.0667];
+  if (loc.includes("chittoor")) return [13.2161, 79.1003];
+  if (loc.includes("pune")) return [18.5204, 73.8567];
+  if (loc.includes("nashik")) return [19.9975, 73.7898];
+  if (loc.includes("bangalore")) return [12.9716, 77.5946];
+  return [12.8342, 79.7036]; // default Kanchipuram
+}
+
 export default function MandiMapInner({
   center = defaultCenter,
   radiusKm = defaultRadiusKm,
@@ -81,13 +97,74 @@ export default function MandiMapInner({
   buyerPins = defaultBuyerPins,
   onFarmerClick,
 }: Props) {
-  // TODO: replace hardcoded pins with farmerPins and buyerPins from usePool(poolId)
+  const [localFarmerPins, setLocalFarmerPins] = useState<FarmerPin[]>([]);
+  const [localBuyerPins, setLocalBuyerPins] = useState<BuyerPin[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const poolsRes = await fetch("/api/pools/active");
+        if (!poolsRes.ok) throw new Error("Failed to fetch active pools");
+        const pools = await poolsRes.json();
+
+        const fPins: FarmerPin[] = [];
+        for (const pool of pools) {
+          const poolCenter = getGeoCenter(pool.location);
+          const membersRes = await fetch(`/api/pools/${pool.poolId}/members`);
+          if (membersRes.ok) {
+            const members = await membersRes.json();
+            members.forEach((m: any, idx: number) => {
+              const angle = (idx * 2 * Math.PI) / (members.length || 1);
+              const offsetLat = Math.sin(angle) * 0.015;
+              const offsetLng = Math.cos(angle) * 0.015;
+              fPins.push({
+                phone: m.phone,
+                lat: poolCenter[0] + offsetLat,
+                lng: poolCenter[1] + offsetLng,
+                qtyKg: m.quantity,
+                trustScore: m.trustScore
+              });
+            });
+          }
+        }
+        setLocalFarmerPins(fPins);
+
+        const buyersRes = await fetch("/api/buyers");
+        if (buyersRes.ok) {
+          const buyers = await buyersRes.json();
+          const bPins = buyers.map((b: any, idx: number) => {
+            const bCenter = getGeoCenter(b.location);
+            const angle = (idx * 2 * Math.PI) / (buyers.length || 1);
+            const offsetLat = Math.sin(angle) * 0.01;
+            const offsetLng = Math.cos(angle) * 0.01;
+            return {
+              name: b.name,
+              lat: bCenter[0] + offsetLat,
+              lng: bCenter[1] + offsetLng
+            };
+          });
+          setLocalBuyerPins(bPins);
+        }
+      } catch (err) {
+        console.error("Error loading map pins:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadData();
+  }, []);
+
+  const isDefaultPins = farmerPins === defaultFarmerPins && buyerPins === defaultBuyerPins;
+  const activeFarmerPins = isDefaultPins ? localFarmerPins : farmerPins;
+  const activeBuyerPins = isDefaultPins ? localBuyerPins : buyerPins;
 
   const boundsPins = [
     center,
-    ...farmerPins.map((f) => [f.lat, f.lng] as [number, number]),
-    ...buyerPins.map((b) => [b.lat, b.lng] as [number, number]),
+    ...activeFarmerPins.map((f) => [f.lat, f.lng] as [number, number]),
+    ...activeBuyerPins.map((b) => [b.lat, b.lng] as [number, number]),
   ];
+
 
   return (
     <div className="w-full h-full relative z-10">
@@ -146,7 +223,7 @@ export default function MandiMapInner({
             });
           }}
         >
-          {farmerPins.map((f) => (
+          {activeFarmerPins.map((f) => (
             <CircleMarker
               key={f.phone}
               center={[f.lat, f.lng]}
@@ -184,7 +261,7 @@ export default function MandiMapInner({
         </ClusterGroup>
 
         {/* Buyer pins */}
-        {buyerPins.map((b) => (
+        {activeBuyerPins.map((b) => (
           <CircleMarker
             key={b.name}
             center={[b.lat, b.lng]}

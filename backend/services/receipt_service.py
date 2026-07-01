@@ -1,5 +1,6 @@
 from models import Pool, PoolMember, Buyer, Offer
 
+# TODO: Integrate real payment/escrow rails (Phase 2 implementation)
 def get_receipt(db, pool_id, phone):
     pool = db.query(Pool).filter(Pool.id == pool_id).first()
 

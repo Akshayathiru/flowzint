@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 SARVAM_API_KEY = os.getenv("SARVAM_API_KEY", "")
-MOCK_MODE = os.getenv("MOCK_MODE", "false").lower() == "true"
+MOCK_MODE = False
 SAARAS_URL = "https://api.sarvam.ai/speech-to-text-translate" # hypothetical saaras endpoint URL, modify as per actual docs
 BULBUL_URL = "https://api.sarvam.ai/text-to-speech" # hypothetical bulbul endpoint URL, modify as per actual docs
 
@@ -17,13 +17,6 @@ def transcribe_audio(audio_bytes: bytes, phone_number: str) -> dict:
     Sends audio bytes to Saaras API for Speech-to-Text.
     Returns a dict with 'transcript' and 'language_code'.
     """
-    if MOCK_MODE:
-        logger.info(f"[MOCK] Transcribing audio for {phone_number}")
-        return {
-            "transcript": "Naan tomato 200 kilo Krishnagiri-la vikaranom",
-            "language_code": "ta-IN"
-        }
-
     headers = {
         "api-subscription-key": SARVAM_API_KEY
     }
@@ -37,21 +30,15 @@ def transcribe_audio(audio_bytes: bytes, phone_number: str) -> dict:
         'model': 'saaras:v1'
     }
     
-    try:
-        response = requests.post(SAARAS_URL, headers=headers, files=files, data=data)
-        response.raise_for_status()
-        result = response.json()
-        return {
-            "transcript": result.get("transcript", ""),
-            "language_code": result.get("language_code", "hi-IN")
-        }
-    except Exception as e:
-        logger.error(f"Error calling Saaras API: {e}")
-        # fallback to partial extraction or raise
-        return {
-            "transcript": "",
-            "language_code": "unknown"
-        }
+    # LIVE — Sarvam Saaras STT (MOCK_MODE removed)
+    response = requests.post(SAARAS_URL, headers=headers, files=files, data=data)
+    response.raise_for_status()
+    result = response.json()
+    return {
+        "transcript": result.get("transcript", ""),
+        "language_code": result.get("language_code", "hi-IN")
+    }
+
 
 def trigger_outbound_call(phone_number: str, message: str, language: str) -> bool:
     """
