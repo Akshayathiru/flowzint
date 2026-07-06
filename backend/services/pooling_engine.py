@@ -1,5 +1,5 @@
 from models import Pool, PoolMember, Offer, Buyer, Farmer, PickupManifest
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from fastapi import HTTPException
 
 THRESHOLD = 250
@@ -94,7 +94,7 @@ def add_farmer_to_pool(db, farmer):
             location=norm_loc,
             total_quantity=0,
             status="OPEN",
-            created_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
             extended=False,
             current_highest_bid=0.0
         )
@@ -134,8 +134,8 @@ def add_farmer_to_pool(db, farmer):
 
     if pool.total_quantity >= THRESHOLD and pool.status == "OPEN":
         pool.status = "AUCTION"
-        pool.auction_start_time = datetime.utcnow()
-        pool.auction_end_time = datetime.utcnow() + timedelta(minutes=30)
+        pool.auction_start_time = datetime.now(timezone.utc)
+        pool.auction_end_time = datetime.now(timezone.utc) + timedelta(minutes=30)
 
     db.commit()
 
@@ -177,7 +177,7 @@ def handle_pool_timeout(db, pool_id):
     if not pool.extended:
         # Auto-extend once
         pool.extended = True
-        pool.created_at = datetime.utcnow()
+        pool.created_at = datetime.now(timezone.utc)
         db.commit()
 
         # Notify pooled farmers
@@ -219,8 +219,8 @@ def handle_pool_timeout(db, pool_id):
 
         pool.status = "AUCTION"
         pool.current_highest_bid = discounted_reserve
-        pool.auction_start_time = datetime.utcnow()
-        pool.auction_end_time = datetime.utcnow() + timedelta(minutes=30)
+        pool.auction_start_time = datetime.now(timezone.utc)
+        pool.auction_end_time = datetime.now(timezone.utc) + timedelta(minutes=30)
         db.commit()
 
         members_count = db.query(PoolMember).filter(PoolMember.pool_id == pool.id).count()

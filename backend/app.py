@@ -71,12 +71,24 @@ def ensure_pool_schema():
 
 
 
+from contextlib import asynccontextmanager
+from services.scheduler import scheduler
+
+@asynccontextmanager
+async def lifespan(app_instance: FastAPI):
+    if not scheduler.running:
+        scheduler.start()
+    yield
+    if scheduler.running:
+        scheduler.shutdown()
+
 Base.metadata.create_all(bind=engine)
 ensure_pool_schema()
 
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
+
 
 # Enable CORS
 app.add_middleware(
@@ -104,17 +116,6 @@ def home():
 from socket_manager import sio
 import socketio
 
-from services.scheduler import scheduler
-
-@app.on_event("startup")
-async def start_scheduler():
-    if not scheduler.running:
-        scheduler.start()
-
-@app.on_event("shutdown")
-async def stop_scheduler():
-    if scheduler.running:
-        scheduler.shutdown()
-
 # Wrap the FastAPI app with the socketio ASGIApp
-app = socketio.ASGIApp(sio, other_asgi_app=app)
+app = socketio.ASGIApp(sio, other_asgi_app=app)
+
