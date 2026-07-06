@@ -37,6 +37,7 @@ def list_farmers(db: Session = Depends(get_db)):
             farmer = db.query(Farmer).filter(Farmer.phone == m.farmer_phone).first()
             farmer_map[m.farmer_phone] = {
                 "phone": m.farmer_phone,
+                "name": farmer.name if (farmer and farmer.name) else "Unknown",
                 "trustScore": farmer.trust_score if farmer else 100,
                 "successCount": farmer.success_count if farmer else 0,
                 "noShowCount": farmer.no_show_count if farmer else 0,
@@ -68,12 +69,14 @@ def get_farmer(phone: str, db: Session = Depends(get_db)):
         })
     return {
         "phone": phone,
+        "name": farmer.name if (farmer and farmer.name) else "Unknown",
         "trustScore": farmer.trust_score if farmer else 100,
         "successCount": farmer.success_count if farmer else 0,
         "noShowCount": farmer.no_show_count if farmer else 0,
         "totalCalls": len(pools),
         "pools": pools,
     }
+
 
 
 @router.get("/farmers/{phone}/settlements")

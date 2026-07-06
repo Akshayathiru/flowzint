@@ -14,6 +14,7 @@ import LanguageBadge from "@/components/shared/LanguageBadge";
 
 interface FarmerRow {
   phone: string;
+  name?: string;
   qty: number;
   lang: string;
   trust: number;
@@ -26,15 +27,17 @@ interface FarmerRow {
 const demoFarmers: FarmerRow[] = [
   {
     phone: "+91 98XXX 10001",
+    name: "Ravi Kumar",
     qty: 200,
     lang: "ta",
-    trust: 4.2,
+    trust: 4.35, // 4.35 * 20 = 87
     confidence: 0.95,
     farmerResponse: "yes",
-    totalCalls: 12,
+    totalCalls: 23, // 23 transactions
   },
   {
     phone: "+91 97XXX 10002",
+    name: "Anil Kumar",
     qty: 150,
     lang: "te",
     trust: 3.8,
@@ -44,6 +47,7 @@ const demoFarmers: FarmerRow[] = [
   },
   {
     phone: "+91 96XXX 10003",
+    name: "Suresh Pillai",
     qty: 180,
     lang: "hi",
     trust: 4.5,
@@ -53,6 +57,7 @@ const demoFarmers: FarmerRow[] = [
   },
   {
     phone: "+91 95XXX 10004",
+    name: "M. K. Stalin",
     qty: 220,
     lang: "ta",
     trust: 2.9,
@@ -62,6 +67,7 @@ const demoFarmers: FarmerRow[] = [
   },
   {
     phone: "+91 94XXX 10005",
+    name: "Venkatesh Prasad",
     qty: 130,
     lang: "kn",
     trust: 3.1,
@@ -72,6 +78,7 @@ const demoFarmers: FarmerRow[] = [
   },
   {
     phone: "+91 93XXX 10006",
+    name: "Vijay Raghavan",
     qty: 140,
     lang: "te",
     trust: 4.0,
@@ -81,6 +88,7 @@ const demoFarmers: FarmerRow[] = [
   },
   {
     phone: "+91 92XXX 10007",
+    name: "Rajesh Sharma",
     qty: 110,
     lang: "hi",
     trust: 3.5,
@@ -90,6 +98,7 @@ const demoFarmers: FarmerRow[] = [
   },
   {
     phone: "+91 91XXX 10008",
+    name: "K. R. Narayanan",
     qty: 90,
     lang: "ta",
     trust: 4.1,
@@ -168,13 +177,16 @@ export default function FarmerTable() {
                   }`}
                 >
                   {/* Phone */}
-                  <td className="py-3 font-mono text-xs text-charcoal font-medium">
-                    <Link
-                      href={`/farmers/${encodeURIComponent(farmer.phone)}`}
-                      className="text-sky-blue hover:underline"
-                    >
-                      {farmer.phone}
-                    </Link>
+                  <td className="py-3 font-sans text-xs text-charcoal font-medium">
+                    <div className="flex flex-col">
+                      <Link
+                        href={`/farmers/${encodeURIComponent(farmer.phone)}`}
+                        className="text-sky-blue hover:underline font-semibold"
+                      >
+                        {farmer.name || farmer.phone}
+                      </Link>
+                      {farmer.name && <span className="text-[10px] text-gray-400 font-mono">{farmer.phone}</span>}
+                    </div>
                   </td>
 
                   {/* STT Confidence */}
@@ -217,7 +229,10 @@ export default function FarmerTable() {
                         New caller
                       </span>
                     ) : (
-                      <TrustBadge score={farmer.trust} />
+                      <div className="flex flex-col font-sans text-xs text-charcoal">
+                        <span className="font-semibold text-charcoal">Score: {Math.round(farmer.trust * 20)}</span>
+                        <span className="text-[10px] text-gray-450">({farmer.totalCalls} transactions)</span>
+                      </div>
                     )}
                   </td>
 

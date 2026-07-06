@@ -65,22 +65,16 @@ export default function AuctionPoolCard({
     return "text-charcoal";
   };
 
+  const percent = pool.target_qty_kg > 0 ? (pool.current_qty_kg / pool.target_qty_kg) * 100 : 0;
   const percentage = Math.min(
-    Math.round((pool.current_qty_kg / pool.target_qty_kg) * 100),
+    Math.round(percent),
     100
   );
 
   const getBarColorClass = () => {
-    switch (pool.status) {
-      case "filling":
-        return "bg-sky-blue";
-      case "auctioning":
-        return "bg-harvest-gold";
-      case "settled":
-        return "bg-field-green";
-      default:
-        return "bg-gray-400";
-    }
+    if (percent >= 80) return "bg-green-500";
+    if (percent >= 50) return "bg-yellow-500";
+    return "bg-red-500";
   };
 
   const getBorderColorClass = () => {
@@ -177,8 +171,7 @@ export default function AuctionPoolCard({
       {/* Progress bar */}
       <div className="mt-4">
         <div className="flex justify-between text-xs text-gray-450 font-sans mb-1.5">
-          <span>{pool.current_qty_kg}kg pooled</span>
-          <span>Target: {pool.target_qty_kg}kg</span>
+          <span>{pool.current_qty_kg}kg / {pool.target_qty_kg}kg ({Math.round(percent)}%)</span>
         </div>
         <div
           role="progressbar"

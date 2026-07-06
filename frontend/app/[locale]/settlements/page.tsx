@@ -656,13 +656,16 @@ export default function SettlementsArchivePage() {
                                         const farmerGrade = selectedGrades[`${s.poolId}_${f.phone}`] || "A";
                                         return (
                                           <tr key={idx} className="align-middle">
-                                            <td className="py-2.5 font-mono text-[10px] text-sky-blue font-medium">
-                                              <Link
-                                                href={`/farmers/${encodeURIComponent(f.phone)}`}
-                                                className="hover:underline"
-                                              >
-                                                {f.phone}
-                                              </Link>
+                                            <td className="py-2.5 font-sans text-xs text-sky-blue font-medium">
+                                              <div className="flex flex-col">
+                                                <Link
+                                                  href={`/farmers/${encodeURIComponent(f.phone)}`}
+                                                  className="hover:underline font-semibold text-sky-blue"
+                                                >
+                                                  {f.name || f.phone}
+                                                </Link>
+                                                {f.name && <span className="text-[9px] text-gray-400 font-mono">{f.phone}</span>}
+                                              </div>
                                             </td>
                                             <td className="py-2.5 text-[10px] text-charcoal font-medium">
                                               {f.quantity} kg
@@ -671,8 +674,9 @@ export default function SettlementsArchivePage() {
                                               {s.winningPrice !== null ? `₹${f.quantity * s.winningPrice}` : "₹0"}
                                             </td>
                                             <td className="py-2.5 font-sans font-medium text-[10px] text-charcoal">
-                                              {f.trustScore} / 100 ({f.transactionCount} tx)
+                                              Score: {f.trustScore} ({f.transactionCount} transactions)
                                             </td>
+
                                             <td className="py-2.5">
                                               {f.delivered === "PENDING" ? (
                                                 <select

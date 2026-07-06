@@ -8,10 +8,12 @@ class Farmer(Base):
     __tablename__ = "farmers"
 
     phone = Column(String, primary_key=True)
+    name = Column(String, nullable=True)
     trust_score = Column(Integer, default=100)
     success_count = Column(Integer, default=0)
     no_show_count = Column(Integer, default=0)
     transaction_count = Column(Integer, default=0)
+
 
 
 class Pool(Base):
@@ -98,4 +100,18 @@ class PickupManifest(Base):
     buyer_name = Column(String)
     allocated_quantity = Column(Float)
     farmer_contacts = Column(String)
-    pickup_location = Column(String)
+    pickup_location = Column(String)
+
+
+class Allocation(Base):
+    __tablename__ = "allocations"
+
+    id = Column(Integer, primary_key=True, index=True)
+    pool_id = Column(Integer)
+    farmer_phone = Column(String)
+    farmer_name = Column(String, nullable=True)
+    buyer_id = Column(Integer)
+    buyer_name = Column(String)
+    quantity = Column(Float)
+    price_per_kg = Column(Float)
+

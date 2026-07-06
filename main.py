@@ -1,7 +1,8 @@
 # pyrefly: ignore [missing-import]
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Request, Response
 # pyrefly: ignore [missing-import]
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
+from twilio.twiml.voice_response import VoiceResponse
 import logging
 import requests  # type: ignore
 import os
@@ -15,7 +16,7 @@ from models import (
     InboundConfirmRequest,
     InboundConfirmResponse
 )
-from sarvam_client import transcribe_audio, MOCK_MODE
+from sarvam_client import sarvam_client, MOCK_MODE
 from transcript_parser import parse_transcript
 from callback_service import call_farmer_with_price, call_buyer_with_offer
 
@@ -25,82 +26,124 @@ logger = logging.getLogger(__name__)
 app = FastAPI(title="Voice & Language Layer API")
 
 MEMBER2_ENDPOINT = os.getenv("MEMBER2_ENDPOINT", "http://localhost:8000/add_farmer")
+BASE_URL = os.getenv("BASE_URL", "https://your-ngrok-url.ngrok.io")
 
 # Session cache to store pending pledges before confirmation
 PENDING_PLEDGES = {}
+CONVERSATION_HISTORY = {}
 
-@app.post("/inbound-call", response_model=InboundCallResponse)
-async def handle_inbound_call(
-    phone_number: str = Form(...),
-    audio: UploadFile = File(...),
-    crop: str = Form(None),
-    quantity: float = Form(None),
-    location: str = Form(None),
-    language: str = Form(None)
-):
-    """
-    Accepts raw audio and phone number, transcribes via Saaras, extracts fields, 
-    and caches the pending pledge, returning a session_id and playback confirmation.
-    """
+SYSTEM_PROMPT = """
+You are Mandi Mitra, a friendly voice assistant for Indian farmers.
+Collect these four things through natural conversation:
+1. Farmer name
+2. Crop name
+3. Quantity in kilograms
+4. Village or district location
+
+Rules:
+- Speak in whatever language the farmer uses
+  (Hindi, Tamil, Telugu, English)
+- Ask one question at a time naturally
+- Never list all questions at once
+- Once you have all four, confirm back in their language
+- If farmer confirms, respond ONLY with:
+  CONFIRMED:{name}:{crop}:{quantity}:{location}
+- If unclear, ask a simple follow-up
+- Keep responses short - this is a phone call
+"""
+
+async def add_farmer(payload: dict):
+    res = requests.post(MEMBER2_ENDPOINT, json={
+        "crop": payload["crop"],
+        "quantity": payload["quantity"],
+        "location": payload["location"],
+        "phone": payload["phone"],
+        "name": payload["name"]
+    }, timeout=10)
+    res.raise_for_status()
+    return res.json()
+
+@app.post("/inbound-call")
+async def inbound_call(request: Request):
     try:
-        audio_bytes = await audio.read()
+        form = await request.form()
+        phone = form.get("From")
+        audio_url = form.get("RecordingUrl")
+
+        # Step 1 - Sarvam STT
+        transcript = await sarvam_client.transcribe_audio(audio_url)
+
+        # Step 2 - Maintain conversation per farmer phone
+        history = CONVERSATION_HISTORY.get(phone, [])
+        history.append({"role": "user", "content": transcript})
+
+        # Step 3 - Sarvam LLM understands naturally
+        response = await sarvam_client.chat(
+            system=SYSTEM_PROMPT,
+            messages=history
+        )
+        reply_text = response["reply"]
+        history.append({"role": "assistant", "content": reply_text})
+        CONVERSATION_HISTORY[phone] = history
+
+        # Step 4 - Check if all details collected and confirmed
+        if reply_text.startswith("CONFIRMED:"):
+            parts = reply_text.split(":")
+            name = parts[1].strip()
+            crop = parts[2].strip()
+            quantity = float(parts[3].strip())
+            location = parts[4].strip()
+
+            await add_farmer({
+                "name": name,
+                "crop": crop,
+                "quantity": quantity,
+                "location": location,
+                "phone": phone
+            })
+
+            reply_text = (
+                "Thank you! Your produce has been registered. "
+                "We will call you when a buyer is found."
+            )
+            CONVERSATION_HISTORY.pop(phone, None)
+
+        # Step 5 - Sarvam TTS speaks reply back to farmer
+        audio_bytes = await sarvam_client.text_to_speech(reply_text)
+        os.makedirs("/tmp", exist_ok=True)
+        audio_path = f"/tmp/{phone}_reply.wav"
+        with open(audio_path, "wb") as f:
+            f.write(audio_bytes)
+
+        twiml = VoiceResponse()
+        twiml.play(f"{BASE_URL}/audio/{phone}_reply.wav")
+        twiml.record(
+            action="/inbound-call",
+            max_length=10,
+            play_beep=True
+        )
+        return Response(
+            content=str(twiml),
+            media_type="application/xml"
+        )
     except Exception as e:
-        raise HTTPException(status_code=400, detail="Invalid audio file")
+        logger.error(f"Sarvam API failed after retries: {e}")
+        fallback = VoiceResponse()
+        fallback.say(
+            "Sorry, we are facing a technical issue. "
+            "Please call back in a few minutes.",
+            language="hi-IN"
+        )
+        return Response(
+            content=str(fallback),
+            media_type="application/xml"
+        )
 
-    logger.info(f"Received inbound call from {phone_number}, MOCK_MODE={MOCK_MODE}")
+@app.get("/audio/{filename}")
+async def serve_audio(filename: str):
+    return FileResponse(f"/tmp/{filename}",
+                        media_type="audio/wav")
 
-    # 1. Transcribe audio
-    stt_result = transcribe_audio(audio_bytes, phone_number)
-    transcript = stt_result["transcript"]
-    language_code = stt_result["language_code"]
-
-    # 2. Parse transcript
-    parsed_data = parse_transcript(transcript)
-
-    # Override parsed values if optional explicit Form fields are provided
-    if crop:
-        parsed_data["commodity"] = crop.lower()
-    if quantity:
-        parsed_data["quantity_kg"] = quantity
-    if location:
-        parsed_data["location"] = location.lower()
-    if language:
-        language_code = language
-
-    # Recalculate confidence if we forced the data
-    if crop or quantity or location:
-        parsed_data["confidence_flag"] = bool(parsed_data["commodity"] and parsed_data["quantity_kg"] and parsed_data["location"])
-
-    # Generate a unique session ID and cache the pending pledge
-    session_id = f"sess_{phone_number}"
-    PENDING_PLEDGES[session_id] = {
-        "phone_number": phone_number,
-        "commodity": parsed_data["commodity"],
-        "quantity_kg": parsed_data["quantity_kg"],
-        "location": parsed_data["location"],
-        "language_detected": language_code
-    }
-
-    commodity_name = parsed_data["commodity"] or "crop"
-    qty_val = parsed_data["quantity_kg"] or 0
-    loc_val = parsed_data["location"] or "your location"
-    
-    # Text confirmation to play back to the farmer
-    message_to_speak = f"You said {qty_val} kg of {commodity_name} in {loc_val}. Is that correct? Say Yes to confirm or No to cancel."
-
-    response_data = InboundCallResponse(
-        commodity=parsed_data["commodity"],
-        quantity_kg=parsed_data["quantity_kg"],
-        location=parsed_data["location"],
-        phone_number=phone_number,
-        raw_transcript=transcript,
-        language_detected=language_code,
-        confidence_flag=parsed_data["confidence_flag"],
-        session_id=session_id,
-        message_to_speak=message_to_speak
-    )
-
-    return response_data
 
 
 @app.post("/inbound-confirm", response_model=InboundConfirmResponse)

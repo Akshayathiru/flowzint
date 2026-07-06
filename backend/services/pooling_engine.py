@@ -103,6 +103,24 @@ def add_farmer_to_pool(db, farmer):
         db.refresh(pool)
         is_new = True
 
+    # Ensure Farmer record exists and save name
+    farmer_db = db.query(Farmer).filter(Farmer.phone == farmer.phone).first()
+    if not farmer_db:
+        farmer_db = Farmer(
+            phone=farmer.phone,
+            name=getattr(farmer, "name", None),
+            trust_score=100,
+            success_count=0,
+            no_show_count=0,
+            transaction_count=0
+        )
+        db.add(farmer_db)
+        db.commit()
+    else:
+        if getattr(farmer, "name", None):
+            farmer_db.name = farmer.name
+            db.commit()
+
     member = PoolMember(
         pool_id=pool.id,
         farmer_phone=farmer.phone,
@@ -110,6 +128,7 @@ def add_farmer_to_pool(db, farmer):
         delivered="PENDING"
     )
     db.add(member)
+
 
     pool.total_quantity += farmer.quantity
 
@@ -145,120 +164,9 @@ def add_farmer_to_pool(db, farmer):
 
 
 def close_pool(db, pool_id):
-    pool = db.query(Pool).filter(Pool.id == pool_id).first()
+    from services.auction_service import allocate_pool
+    return allocate_pool(db, pool_id)
 
-    if pool is None:
-        return {"message": "Pool not found"}
-
-    # Sort by Offer.price DESC, then Offer.timestamp ASC (earliest bid wins tie-breaker)
-    offers = db.query(Offer).filter(
-        Offer.pool_id == pool_id
-    ).order_by(
-        Offer.price.desc(),
-        Offer.timestamp.asc()
-    ).all()
-
-    if not offers:
-        pool.status = "CLOSED"
-        pool.closed_at = datetime.utcnow()
-        db.commit()
-        emit_pool_settled(str(pool.id), 0.0, [])
-        return {"message": "No offers available"}
-
-    remaining_qty = pool.total_quantity
-    winning_buyers = []
-    best_winning_price = 0.0
-
-    for offer in offers:
-        if remaining_qty <= 0:
-            offer.status = "LOST"
-            offer.allocated_quantity = 0.0
-            continue
-        
-        # Allocate quantity to this buyer
-        allocated = min(remaining_qty, offer.quantity)
-        offer.allocated_quantity = allocated
-        offer.status = "WON"
-        remaining_qty -= allocated
-        
-        if offer.price > best_winning_price:
-            best_winning_price = offer.price
-
-        buyer = db.query(Buyer).filter(Buyer.id == offer.buyer_id).first()
-        buyer_name = buyer.name if buyer else "Unknown"
-        
-        winning_buyers.append({
-            "buyer_id": offer.buyer_id,
-            "buyer_name": buyer_name,
-            "allocated_quantity": allocated,
-            "price": offer.price
-        })
-
-    pool.status = "SETTLED"
-    pool.closed_at = datetime.utcnow()
-    pool.winning_price = best_winning_price
-    
-    # Record highest bid buyer ID
-    if offers:
-        pool.winning_buyer_id = offers[0].buyer_id
-
-    # Generate PickupManifest
-    members = db.query(PoolMember).filter(PoolMember.pool_id == pool.id).all()
-    farmer_contacts = ", ".join([m.farmer_phone for m in members])
-    
-    settlement_ids = []
-    for win in winning_buyers:
-        manifest = PickupManifest(
-            pool_id=pool.id,
-            buyer_id=win["buyer_id"],
-            buyer_name=win["buyer_name"],
-            allocated_quantity=win["allocated_quantity"],
-            farmer_contacts=farmer_contacts,
-            pickup_location=pool.location
-        )
-        db.add(manifest)
-        db.flush()
-        settlement_ids.append(str(manifest.id))
-        
-        # Trigger outbound farmer confirmation call (Phase 2 Stub)
-        for m in members:
-            try:
-                import sys
-                import os
-                import asyncio
-                root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-                if root_path not in sys.path:
-                    sys.path.append(root_path)
-                from callback_service import call_farmer_for_confirmation
-                
-                coro = call_farmer_for_confirmation(
-                    farmer_phone=m.farmer_phone,
-                    buyer_name=win["buyer_name"],
-                    crop=pool.crop,
-                    price_per_kg=win["price"],
-                    quantity_kg=m.quantity
-                )
-                try:
-                    loop = asyncio.get_running_loop()
-                    loop.create_task(coro)
-                except RuntimeError:
-                    asyncio.run(coro)
-            except Exception as e:
-                logger.error(f"Error calling farmer confirmation stub: {e}")
-
-    db.commit()
-
-    emit_pool_settled(
-        pool_id=str(pool.id),
-        winning_price_per_kg=best_winning_price,
-        settlement_ids=settlement_ids
-    )
-
-    return {
-        "pool_id": pool.id,
-        "status": pool.status,
-        "allocations": winning_buyers
-    }
 
 
 def handle_pool_timeout(db, pool_id):

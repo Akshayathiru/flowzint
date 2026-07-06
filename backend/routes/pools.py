@@ -111,10 +111,12 @@ def get_pool_members(
         farmer = db.query(Farmer).filter(Farmer.phone == m.farmer_phone).first()
         res.append({
             "phone": m.farmer_phone,
+            "name": farmer.name if (farmer and farmer.name) else "Unknown",
             "quantity": m.quantity,
             "trustScore": farmer.trust_score if farmer else 100,
             "transactionCount": farmer.transaction_count if farmer else 0,
             "delivered": m.delivered if hasattr(m, "delivered") else "PENDING",
             "crop_quality_grade": m.crop_quality_grade if hasattr(m, "crop_quality_grade") else None
         })
-    return res
+    return res
+

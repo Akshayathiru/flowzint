@@ -7,6 +7,8 @@ class FarmerCreate(BaseModel):
     quantity: float
     location: str
     phone: str
+    name: Optional[str] = None
+
 
 class OfferCreate(BaseModel):
     buyer_id: int

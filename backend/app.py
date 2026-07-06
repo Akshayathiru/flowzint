@@ -34,7 +34,7 @@ def ensure_pool_schema():
             if "closed_at" not in columns:
                 connection.execute(text("ALTER TABLE pools ADD COLUMN closed_at DATETIME"))
             if "created_at" not in columns:
-                connection.execute(text("ALTER TABLE pools ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP"))
+                connection.execute(text("ALTER TABLE pools ADD COLUMN created_at DATETIME"))
             if "extended" not in columns:
                 connection.execute(text("ALTER TABLE pools ADD COLUMN extended BOOLEAN DEFAULT 0"))
             if "current_highest_bid" not in columns:
