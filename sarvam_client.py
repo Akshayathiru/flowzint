@@ -2,6 +2,7 @@ import os
 import requests
 import logging
 import time
+from typing import Callable, TypeVar
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -13,7 +14,11 @@ BULBUL_URL = "https://api.sarvam.ai/text-to-speech"
 
 logger = logging.getLogger(__name__)
 
-def with_retry(fn, retries=3):
+T = TypeVar('T')
+
+def with_retry(fn: Callable[[], T], retries: int = 3) -> T:
+    if retries <= 0:
+        raise ValueError("retries must be greater than 0")
     for attempt in range(retries):
         try:
             return fn()
@@ -27,6 +32,7 @@ def with_retry(fn, retries=3):
                 time.sleep(wait)
             else:
                 raise
+    raise RuntimeError("Unexpected end of retry loop")
 
 class SarvamClient:
     async def transcribe_audio(self, audio_url: str) -> str:

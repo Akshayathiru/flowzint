@@ -2,7 +2,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from database import SessionLocal
 from models import Pool
 from services.pooling_engine import close_pool, handle_pool_timeout
-from datetime import datetime
+from datetime import datetime, timezone
 import logging
 import os
 
@@ -12,7 +12,7 @@ def check_expired_auctions():
     """Find pools in AUCTION state whose end time has passed and close them."""
     db = SessionLocal()
     try:
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc).replace(tzinfo=None)
         expired_auctions = db.query(Pool).filter(
             Pool.status == "AUCTION",
             Pool.auction_end_time <= now
@@ -31,7 +31,7 @@ def check_expired_pools():
     db = SessionLocal()
     try:
         max_wait_hours = float(os.getenv("MAX_WAIT_HOURS", "48.0"))
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc).replace(tzinfo=None)
         expired_open_pools = db.query(Pool).filter(
             Pool.status == "OPEN"
         ).all()

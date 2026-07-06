@@ -1,5 +1,5 @@
 from models import Offer, Buyer, Pool, PoolMember, Farmer, PickupManifest, Allocation
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import logging
 
 logger = logging.getLogger(__name__)
@@ -11,6 +11,7 @@ try:
     root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
     if root_path not in sys.path:
         sys.path.append(root_path)
+    # pyrefly: ignore [missing-import]
     from callback_service import call_farmer_for_confirmation
 except Exception:
     pass
@@ -31,7 +32,7 @@ def save_offer(db, offer_data):
         return {"error": "Pool not found"}
     if pool.status != "AUCTION":
         return {"error": "Pool is not open for bidding"}
-    if pool.auction_end_time and datetime.utcnow() > pool.auction_end_time:
+    if pool.auction_end_time and datetime.now(timezone.utc).replace(tzinfo=None) > pool.auction_end_time:
         return {"error": "Auction has already closed"}
 
     # 3. Atomic check in DB: bid must be higher than current highest bid
@@ -45,7 +46,7 @@ def save_offer(db, offer_data):
         return {"error": "Bid must be higher than the current highest bid"}
 
     # 4. Soft-close anti-sniping: extend auction end time by 60s if bid is placed in the final 60s
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
     extended = False
     if pool.auction_end_time:
         time_left = (pool.auction_end_time - now).total_seconds()
@@ -269,6 +270,7 @@ def schedule_bulbul_confirmation(db, alloc):
         root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
         if root_path not in sys.path:
             sys.path.append(root_path)
+        # pyrefly: ignore [missing-import]
         from callback_service import call_farmer_for_confirmation
         
         coro = call_farmer_for_confirmation(
@@ -298,8 +300,8 @@ def open_mini_auction(db, pool_id, quantity, discount_rate, farmers):
 
     pool.status = "AUCTION"
     pool.current_highest_bid = discounted_reserve
-    pool.auction_start_time = datetime.utcnow()
-    pool.auction_end_time = datetime.utcnow() + timedelta(minutes=30)
+    pool.auction_start_time = datetime.now(timezone.utc).replace(tzinfo=None)
+    pool.auction_end_time = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(minutes=30)
     db.commit()
 
     from socket_manager import emit_pool_update
@@ -465,7 +467,7 @@ def allocate_pool(db, pool_id: int):
                 notify_farmer_released_bulbul(farmer)
 
     pool.status = "SETTLED"
-    pool.closed_at = datetime.utcnow()
+    pool.closed_at = datetime.now(timezone.utc).replace(tzinfo=None)
     
     # Calculate highest price from winning allocations
     winning_prices = [alloc["price_per_kg"] for alloc in allocations]

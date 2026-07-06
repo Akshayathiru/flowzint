@@ -1,7 +1,11 @@
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, Boolean
 from database import Base
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy import DateTime
+
+
+def utcnow_naive():
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
 class Farmer(Base):
@@ -24,7 +28,7 @@ class Pool(Base):
     location = Column(String)
     total_quantity = Column(Float, default=0)
     status = Column(String, default="OPEN")
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utcnow_naive)
     extended = Column(Boolean, default=False)
     current_highest_bid = Column(Float, default=0.0)
     auction_start_time = Column(DateTime, nullable=True)
@@ -68,7 +72,7 @@ class Offer(Base):
     pool_id = Column(Integer)
     price = Column(Float)
     quantity = Column(Float, default=0.0)
-    timestamp = Column(DateTime, default=datetime.utcnow)
+    timestamp = Column(DateTime, default=utcnow_naive)
     allocated_quantity = Column(Float, default=0.0)
     status = Column(String, default="PENDING")
     binding_bid = Column(Boolean, default=True)
