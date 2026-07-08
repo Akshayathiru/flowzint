@@ -1,0 +1,9 @@
+{
+  "/api/stats/route": "app/api/stats/route.js",
+  "/api/auth/me/route": "app/api/auth/me/route.js",
+  "/api/pools/active/route": "app/api/pools/active/route.js",
+  "/[locale]/login/page": "app/[locale]/login/page.js",
+  "/[locale]/dashboard/pool/[poolId]/page": "app/[locale]/dashboard/pool/[poolId]/page.js",
+  "/[locale]/page": "app/[locale]/page.js",
+  "/[locale]/dashboard/page": "app/[locale]/dashboard/page.js"
+}
