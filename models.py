@@ -5,6 +5,7 @@ from typing import Optional
 class InboundCallResponse(BaseModel):
     commodity: Optional[str]
     quantity_kg: Optional[float]
+    expected_price: Optional[float]
     location: Optional[str]
     phone_number: str
     raw_transcript: str
