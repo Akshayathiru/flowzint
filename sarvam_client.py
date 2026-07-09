@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 SARVAM_API_KEY = os.getenv("SARVAM_API_KEY", "")
-MOCK_MODE = False
+MOCK_MODE = os.getenv("MOCK_MODE", "false").lower() == "true"
 SAARAS_URL = "https://api.sarvam.ai/speech-to-text-translate"
 BULBUL_URL = "https://api.sarvam.ai/text-to-speech"
 
@@ -36,6 +36,10 @@ def with_retry(fn: Callable[[], T], retries: int = 3) -> T:
 
 class SarvamClient:
     async def transcribe_audio(self, audio_url: str) -> str:
+        if MOCK_MODE:
+            logger.info(f"[MOCK] Transcribing audio from {audio_url}")
+            return "I am a farmer from kanchipuram named test farmer with 200 kg tomato."
+            
         def _call():
             logger.info(f"Downloading audio from Twilio: {audio_url}")
             audio_response = requests.get(audio_url)
@@ -50,7 +54,7 @@ class SarvamClient:
             }
             data = {
                 'language_code': 'hi-IN',
-                'model': 'saaras:v1'
+                'model': 'saaras:v2.5'
             }
             response = requests.post(SAARAS_URL, headers=headers, files=files, data=data)
             response.raise_for_status()
@@ -60,6 +64,10 @@ class SarvamClient:
         return with_retry(_call)
 
     async def chat(self, system: str, messages: list) -> dict:
+        if MOCK_MODE:
+            logger.info("[MOCK] Chatting with Sarvam LLM")
+            return {"reply": "CONFIRMED:test farmer:tomato:200:kanchipuram"}
+            
         def _call():
             response = requests.post(
                 "https://api.sarvam.ai/v1/chat",
@@ -78,6 +86,10 @@ class SarvamClient:
         return with_retry(_call)
 
     async def text_to_speech(self, text: str, language: str = "hi-IN") -> bytes:
+        if MOCK_MODE:
+            logger.info(f"[MOCK] TTS for text: {text}")
+            return b"dummy audio content"
+            
         def _call():
             response = requests.post(
                 "https://api.sarvam.ai/text-to-speech",
@@ -106,10 +118,12 @@ def transcribe_audio(audio_bytes: bytes, phone_number: str) -> dict:
     }
     data = {
         'language_code': 'hi-IN',
-        'model': 'saaras:v1'
+        'model': 'saaras:v2.5'
     }
     def _call():
         response = requests.post(SAARAS_URL, headers=headers, files=files, data=data)
+        if not response.ok:
+            logger.error(f"Sarvam STT API Error: {response.text}")
         response.raise_for_status()
         result = response.json()
         return {
@@ -131,18 +145,18 @@ def trigger_outbound_call(phone_number: str, message: str, language: str) -> boo
     payload = {
         "inputs": [message],
         "target_language_code": language,
-        "speaker": "meera",
-        "pitch": 0,
+        "speaker": "ritu", # updated from anushka to a valid v3 speaker
         "pace": 1.0,
-        "loudness": 1.5,
         "speech_sample_rate": 8000,
         "enable_preprocessing": True,
-        "model": "bulbul:v1"
+        "model": "bulbul:v3"
     }
     
     try:
         def _call():
             response = requests.post(BULBUL_URL, headers=headers, json=payload)
+            if not response.ok:
+                logger.error(f"Sarvam API Error: {response.text}")
             response.raise_for_status()
             return True
         return with_retry(_call)

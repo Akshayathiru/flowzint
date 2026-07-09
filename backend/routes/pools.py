@@ -22,7 +22,7 @@ def get_db():
 @router.get("/active")
 @router.get("/pools/active")
 def get_active_pools(db: Session = Depends(get_db)):
-    pools = db.query(Pool).filter(Pool.status.in_(["OPEN", "CLOSED"])).all()
+    pools = db.query(Pool).filter(Pool.status.in_(["OPEN", "AUCTION", "CLOSED"])).all()
     result = []
     for pool in pools:
         members = db.query(PoolMember).filter(PoolMember.pool_id == pool.id).all()

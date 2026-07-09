@@ -11,21 +11,32 @@ FARMER_TEMPLATES = {
     "en-IN": "Hello, your {commodity} pool is closed. You will get {price} rupees per kilo."
 }
 
+import os
+from twilio.rest import Client
+
 def call_farmer_with_price(phone_number: str, language: str, commodity: str, quantity_kg: float, final_price_per_kg: float) -> dict:
     """
-    Constructs the localized message and calls Bulbul to notify the farmer.
+    Constructs the localized message and calls the farmer via Twilio.
     """
-    lang_key = language if language in FARMER_TEMPLATES else "hi-IN"
+    account_sid = os.getenv("TWILIO_ACCOUNT_SID")
+    auth_token = os.getenv("TWILIO_AUTH_TOKEN")
+    from_phone = os.getenv("TWILIO_PHONE_NUMBER")
+    base_url = os.getenv("BASE_URL")
     
-    template = FARMER_TEMPLATES[lang_key]
-    message = template.format(commodity=commodity, price=final_price_per_kg)
+    if not all([account_sid, auth_token, from_phone, base_url]):
+        logger.error("Missing Twilio credentials or BASE_URL for outbound call.")
+        return {"status": "failure", "message_used": "Missing Twilio config"}
+        
+    client = Client(account_sid, auth_token)
+    twiml_url = f"{base_url}/twilio/outbound-confirm-twiml?commodity={commodity}&price={final_price_per_kg}&language={language}"
     
-    success = trigger_outbound_call(phone_number, message, lang_key)
-    
-    return {
-        "status": "success" if success else "failure",
-        "message_used": message
-    }
+    try:
+        call = client.calls.create(to=phone_number, from_=from_phone, url=twiml_url)
+        logger.info(f"Triggered outbound call to {phone_number}. SID: {call.sid}")
+        return {"status": "success", "message_used": twiml_url}
+    except Exception as e:
+        logger.error(f"Failed to place outbound Twilio call: {e}")
+        return {"status": "failure", "message_used": str(e)}
 
 
 def call_buyer_with_offer(phone_number: str, commodity: str, quantity_kg: float, mandi_rate: float, location: str, ask_for_counteroffer: bool) -> dict:
@@ -78,3 +89,19 @@ async def call_farmer_for_confirmation(
     )
     return {"status": "phase_2_pending", "farmer_phone": farmer_phone}
 
+
+def call_farmer_rejection_options(phone_number: str, language: str) -> dict:
+    """
+    Calls the farmer to give them options after buyer rejects.
+    """
+    message = "Your deal was rejected by the buyer. Would you like to sell in the open market or stay in the pool?"
+    lang_key = language if language in FARMER_TEMPLATES else "hi-IN"
+    if lang_key == "hi-IN":
+        message = "खरीदार ने आपका सौदा रद्द कर दिया है। क्या आप खुले बाजार में बेचना चाहेंगे या पूल में रहना चाहेंगे?"
+    elif lang_key == "te-IN":
+        message = "కొనుగోలుదారు మీ ఒప్పందాన్ని తిరస్కరించారు. మీరు బహిరంగ మార్కెట్లో విక్రయించాలనుకుంటున్నారా లేదా పూల్ లో ఉండాలనుకుంటున్నారా?"
+    elif lang_key == "ta-IN":
+        message = "வாங்குபவர் உங்கள் ஒப்பந்தத்தை நிராகரித்துவிட்டார். நீங்கள் திறந்த சந்தையில் விற்க விரும்புகிறீர்களா அல்லது பூலில் இருக்க விரும்புகிறீர்களா?"
+    
+    success = trigger_outbound_call(phone_number, message, lang_key)
+    return {"status": "success" if success else "failure"}

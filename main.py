@@ -16,7 +16,7 @@ from models import (
     InboundConfirmRequest,
     InboundConfirmResponse
 )
-from sarvam_client import sarvam_client, MOCK_MODE
+from sarvam_client import sarvam_client, MOCK_MODE, transcribe_audio
 from transcript_parser import parse_transcript
 from callback_service import call_farmer_with_price, call_buyer_with_offer
 
@@ -285,4 +285,3 @@ async def notify_user(
     from sarvam_client import trigger_outbound_call
     success = trigger_outbound_call(phone_number, message, language)
     return {"success": success}
-
