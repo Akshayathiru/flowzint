@@ -3,5 +3,8 @@ frontend/.next/
 backend/__pycache__/
 __pycache__/
 *.py[cod]
+*.pyc
 *.db
 .env
+ngrok.exe
+

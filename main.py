@@ -2,7 +2,7 @@
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Request, Response
 # pyrefly: ignore [missing-import]
 from fastapi.responses import JSONResponse, FileResponse
-from twilio.twiml.voice_response import VoiceResponse
+from twilio.twiml.voice_response import VoiceResponse, Gather
 import logging
 import requests  # type: ignore
 import os
@@ -17,13 +17,87 @@ from models import (
     InboundConfirmResponse
 )
 from sarvam_client import sarvam_client, MOCK_MODE, transcribe_audio
-from transcript_parser import parse_transcript
-from callback_service import call_farmer_with_price, call_buyer_with_offer
+from transcript_parser import parse_transcript, parse_intent, parse_bid, parse_rejection_choice
+from callback_service import call_farmer_with_price, call_buyer_with_offer, call_farmer_rejection_options
+import pooling_engine
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Voice & Language Layer API")
+
+@app.get("/api/pools/active")
+async def get_active_pools():
+    """
+    Returns the in-memory pools in the format expected by the Next.js frontend.
+    """
+    active_pools = []
+    for commodity, pool in pooling_engine.pools.items():
+        status_map = {
+            "collecting": "filling",
+            "farmer_confirming": "auctioning",
+            "buyer_bidding": "auctioning"
+        }
+        
+        frontend_pool = {
+            "poolId": commodity,
+            "crop": commodity.capitalize(),
+            "location": "Various Locations",
+            "currentQtyKg": pool["total_kg"],
+            "targetQtyKg": pool.get("threshold_kg", 50.0),
+            "farmersCount": len(pool.get("farmers", [])),
+            "minutesRemaining": 60,
+            "status": status_map.get(pool.get("status", "collecting"), "filling"),
+            "geoCenter": [20.5937, 78.9629]
+        }
+        active_pools.append(frontend_pool)
+    
+    return active_pools
+
+@app.get("/api/pools/{pool_id}")
+async def get_pool_details(pool_id: str):
+    pool = pooling_engine.pools.get(pool_id.lower())
+    if not pool:
+        raise HTTPException(status_code=404, detail="Pool not found")
+        
+    status_map = {
+        "collecting": "filling",
+        "farmer_confirming": "auctioning",
+        "buyer_bidding": "auctioning"
+    }
+    
+    return {
+        "poolId": pool_id,
+        "crop": pool_id.capitalize(),
+        "location": "Various Locations",
+        "currentQtyKg": pool["total_kg"],
+        "targetQtyKg": pool.get("threshold_kg", 50.0),
+        "farmersCount": len(pool.get("farmers", [])),
+        "minutesRemaining": 60,
+        "status": status_map.get(pool.get("status", "collecting"), "filling"),
+        "geoCenter": [20.5937, 78.9629]
+    }
+
+@app.get("/api/pools/{pool_id}/members")
+async def get_pool_members(pool_id: str):
+    pool = pooling_engine.pools.get(pool_id.lower())
+    if not pool:
+        return []
+        
+    members = []
+    for f in pool.get("farmers", []):
+        members.append({
+            "phone": f.get("phone", "Unknown"),
+            "qtyKg": f.get("kg", 0.0),
+            "language": f.get("language", "hi-IN"),
+            "calledAt": "2024-05-18T10:00:00Z",
+            "trustScore": 85,
+            "confidence": 0.9,
+            "isFirstCall": True,
+            "callbackStatus": f.get("status", "pending"),
+            "farmerResponse": "yes" if f.get("status") == "confirmed" else "no" if f.get("status") == "declined" else "pending"
+        })
+    return members
 
 MEMBER2_ENDPOINT = os.getenv("MEMBER2_ENDPOINT", "http://localhost:8000/add_farmer")
 BASE_URL = os.getenv("BASE_URL", "https://your-ngrok-url.ngrok.io")
@@ -31,6 +105,211 @@ BASE_URL = os.getenv("BASE_URL", "https://your-ngrok-url.ngrok.io")
 # Session cache to store pending pledges before confirmation
 PENDING_PLEDGES = {}
 CONVERSATION_HISTORY = {}
+
+async def fetch_twilio_audio(recording_url: str) -> bytes:
+    if not recording_url:
+        return None
+    try:
+        TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID", "")
+        TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN", "")
+        auth = (TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN) if TWILIO_ACCOUNT_SID else None
+        resp = requests.get(recording_url + ".wav", auth=auth)
+        if resp.status_code == 200:
+            return resp.content
+        else:
+            logger.error(f"Failed to fetch Twilio recording: {resp.status_code}")
+    except Exception as e:
+        logger.error(f"Error fetching Twilio recording: {e}")
+    return None
+
+@app.post("/twilio/incoming")
+async def twilio_incoming(request: Request):
+    """Stage 1: Ask for language"""
+    form_data = await request.form()
+    phone_number = form_data.get("From", "unknown")
+    logger.info(f"Incoming call from {phone_number}")
+
+    # Determine base url dynamically to prevent ngrok tunnel change mismatches
+    base_url = str(request.base_url).rstrip("/")
+
+    response = VoiceResponse()
+    gather = Gather(num_digits=1, action=f"{base_url}/twilio/language-selected", method="POST")
+    gather.say("Welcome to Mandi Mitra.", language="en-IN")
+    gather.say("Tamil-ku, ondrai azhuthavum.", language="en-IN")
+    gather.say("Telugu kosam, rendu nok-kandi.", language="en-IN")
+    gather.say("Hindi ke liye, teen dabayen.", language="en-IN")
+    gather.say("For English, press 4.", language="en-IN")
+    response.append(gather)
+    return Response(content=str(response), media_type="text/xml")
+
+@app.post("/twilio/language-selected")
+async def twilio_language_selected(request: Request):
+    """Stage 2: Save language and ask for details"""
+    form_data = await request.form()
+    phone_number = form_data.get("From", "unknown")
+    digits = form_data.get("Digits", "3")
+    
+    lang_map = {"1": "ta-IN", "2": "te-IN", "3": "hi-IN", "4": "en-IN"}
+    lang = lang_map.get(digits, "hi-IN")
+    pooling_engine.set_user_language(phone_number, lang)
+    
+    # Determine base url dynamically to prevent ngrok tunnel change mismatches
+    base_url = str(request.base_url).rstrip("/")
+
+    response = VoiceResponse()
+    
+    if lang == "ta-IN":
+        prompt = "Beep sathathirku piragu, ungal maavattam, vilaiporul, alavu, matrum oru kilo-vukkaana edhir-paarkum vilai-yai kooravum."
+    elif lang == "te-IN":
+        prompt = "Beep taruvata, mee zilla, panta, parimanam mariyu oka kilo ku aashinche dharanu cheppandi."
+    elif lang == "hi-IN":
+        prompt = "Beep ke baad, apna zila, fasal, matra aur prati kilo ummeed ki gayi keemat batayein."
+    else:
+        prompt = "Please state your district, commodity, quantity, and expected price per kilogram after the beep."
+        
+    response.say(prompt, language="en-IN")
+    response.record(action=f"{base_url}/twilio/recording?commodity=unknown", method="POST", max_length=15, play_beep=True)
+    return Response(content=str(response), media_type="text/xml")
+
+@app.post("/twilio/recording")
+async def twilio_recording(request: Request):
+    """Stage 3: Parse inbound details and check threshold"""
+    try:
+        form_data = await request.form()
+        phone_number = form_data.get("From", "unknown")
+        recording_url = form_data.get("RecordingUrl")
+        
+        logger.info(f"Recording received for {phone_number}. URL: {recording_url}")
+        
+        audio_bytes = await fetch_twilio_audio(recording_url)
+        if audio_bytes:
+            stt_result = transcribe_audio(audio_bytes, phone_number)
+            transcript = stt_result["transcript"]
+            logger.info(f"Transcript for {phone_number}: {transcript}")
+            
+            parsed_data = parse_transcript(transcript)
+            commodity = parsed_data.get("commodity")
+            
+            valid_produce = {"tomato", "onion", "potato", "apple", "banana", "mango", "carrot", "cabbage", "orange", "grapes", "spinach", "garlic", "ginger", "lemon", "brinjal", "ladies finger", "chilli"}
+            
+            if not commodity or commodity.lower() not in valid_produce:
+                logger.warning(f"Invalid commodity: {commodity}")
+                error_resp = VoiceResponse()
+                error_resp.say("Sorry, we only accept fruits and vegetables, or we did not understand the item. Please try again.", language="en-IN")
+                return Response(content=str(error_resp), media_type="text/xml")
+                
+            quantity = parsed_data.get("quantity_kg")
+            price = parsed_data.get("expected_price")
+            
+            if not quantity or not price:
+                logger.warning("Missing quantity or price.")
+                error_resp = VoiceResponse()
+                error_resp.say("Sorry, we did not understand the quantity or price clearly. Please try again.", language="en-IN")
+                return Response(content=str(error_resp), media_type="text/xml")
+
+            lang = pooling_engine.get_user_language(phone_number)
+            
+            logger.info(f"Parsed: commodity={commodity}, qty={quantity}, price={price}, lang={lang}")
+            
+            pooling_engine.add_farmer_to_pool(commodity, phone_number, quantity, price, lang)
+            # Check threshold
+            min_price = pooling_engine.check_threshold(commodity)
+            if min_price is not None:
+                pool = pooling_engine.get_pool(commodity)
+                for farmer in pool["farmers"]:
+                    call_farmer_with_price(
+                        farmer["phone"], farmer["language"], commodity, farmer["kg"], min_price
+                    )
+        else:
+            logger.warning(f"No audio bytes received for {phone_number}. RecordingUrl: {recording_url}")
+
+        response = VoiceResponse()
+        response.say("Thank you. Your details have been recorded. We will call you back when the pool is ready.", language="en-IN")
+        return Response(content=str(response), media_type="text/xml")
+
+    except Exception as e:
+        logger.error(f"CRASH in /twilio/recording: {e}", exc_info=True)
+        response = VoiceResponse()
+        response.say("Thank you for calling Mandi Mitra. Your details have been noted.", language="en-IN")
+        return Response(content=str(response), media_type="text/xml")
+
+@app.post("/twilio/farmer-confirm-recording")
+async def twilio_farmer_confirm_recording(request: Request):
+    """Stage 4: Farmer says yes/no to average price"""
+    form_data = await request.form()
+    phone_number = form_data.get("From", "unknown")
+    recording_url = form_data.get("RecordingUrl")
+    
+    audio_bytes = await fetch_twilio_audio(recording_url)
+    if audio_bytes:
+        transcript = transcribe_audio(audio_bytes, phone_number)["transcript"]
+        intent = parse_intent(transcript)
+        logger.info(f"Farmer {phone_number} confirmation: {intent} (Transcript: {transcript})")
+        
+        # Hardcoding tomato for demo simplicity
+        commodity = "tomato" 
+        if intent == "yes":
+            pooling_engine.update_farmer_status(commodity, phone_number, "confirmed")
+            
+            if pooling_engine.all_farmers_confirmed(commodity):
+                pool = pooling_engine.get_pool(commodity)
+                # Call buyer (hardcoding buyer number for demo)
+                buyer_phone = "+19999999999" # Need to replace in real testing
+                call_buyer_with_offer(
+                    buyer_phone, commodity, pool["total_kg"], pool["minimum_price"], "Multiple Districts", ask_for_counteroffer=True
+                )
+        else:
+            pooling_engine.update_farmer_status(commodity, phone_number, "rejected")
+
+    return Response(content="<Response><Say>Thank you.</Say></Response>", media_type="text/xml")
+
+@app.post("/twilio/buyer-bid-recording")
+async def twilio_buyer_bid_recording(request: Request):
+    """Stage 5: Buyer states bid"""
+    form_data = await request.form()
+    recording_url = form_data.get("RecordingUrl")
+    phone_number = form_data.get("From", "unknown")
+    
+    audio_bytes = await fetch_twilio_audio(recording_url)
+    if audio_bytes:
+        transcript = transcribe_audio(audio_bytes, phone_number)["transcript"]
+        bid = parse_bid(transcript)
+        logger.info(f"Buyer bid: {bid} (Transcript: {transcript})")
+        
+        commodity = "tomato"
+        pool = pooling_engine.get_pool(commodity)
+        if pool and bid >= pool["minimum_price"]:
+            logger.info("Deal successful!")
+            # In real system, trigger success call/SMS here
+        elif pool:
+            logger.info("Deal rejected. Calling farmers with options.")
+            for farmer in pool["farmers"]:
+                call_farmer_rejection_options(farmer["phone"], farmer["language"])
+
+    return Response(content="<Response><Say>Thank you for your bid.</Say></Response>", media_type="text/xml")
+
+@app.post("/twilio/farmer-reject-recording")
+async def twilio_farmer_reject_recording(request: Request):
+    """Stage 6: Farmer chooses market or pool"""
+    form_data = await request.form()
+    phone_number = form_data.get("From", "unknown")
+    recording_url = form_data.get("RecordingUrl")
+    
+    audio_bytes = await fetch_twilio_audio(recording_url)
+    if audio_bytes:
+        transcript = transcribe_audio(audio_bytes, phone_number)["transcript"]
+        choice = parse_rejection_choice(transcript)
+        logger.info(f"Farmer {phone_number} choice: {choice} (Transcript: {transcript})")
+        
+    return Response(content="<Response><Say>Thank you, your preference is noted.</Say></Response>", media_type="text/xml")
+
+@app.get("/pools")
+async def get_all_pools():
+    """
+    Frontend endpoint to fetch the live status of all commodity pools.
+    Returns the current dictionary state from the pooling engine.
+    """
+    return JSONResponse(content=pooling_engine.pools)
 
 SYSTEM_PROMPT = """
 You are Mandi Mitra, a friendly voice assistant for Indian farmers.
@@ -69,6 +348,17 @@ async def inbound_call(request: Request):
         form = await request.form()
         phone = form.get("From")
         audio_url = form.get("RecordingUrl")
+
+        if not audio_url:
+            # Initial call, no recording yet
+            welcome_twiml = VoiceResponse()
+            welcome_twiml.say("Welcome to Mandi Mitra. Please tell me your name, crop, quantity, and location after the beep.", language="en-IN")
+            welcome_twiml.record(
+                action="/inbound-call",
+                max_length=15,
+                play_beep=True
+            )
+            return Response(content=str(welcome_twiml), media_type="application/xml")
 
         # Step 1 - Sarvam STT
         transcript = await sarvam_client.transcribe_audio(audio_url)
@@ -115,8 +405,10 @@ async def inbound_call(request: Request):
         with open(audio_path, "wb") as f:
             f.write(audio_bytes)
 
+        # Determine base url dynamically to prevent ngrok tunnel change mismatches
+        base_url = str(request.base_url).rstrip("/")
         twiml = VoiceResponse()
-        twiml.play(f"{BASE_URL}/audio/{phone}_reply.wav")
+        twiml.play(f"{base_url}/audio/{phone}_reply.wav")
         twiml.record(
             action="/inbound-call",
             max_length=10,
@@ -285,3 +577,31 @@ async def notify_user(
     from sarvam_client import trigger_outbound_call
     success = trigger_outbound_call(phone_number, message, language)
     return {"success": success}
+
+
+@app.post("/twilio/outbound-confirm-twiml")
+async def twilio_outbound_confirm_twiml(request: Request):
+    """
+    Returns the initial TwiML for an outbound farmer confirmation call in their chosen language.
+    """
+    base_url = str(request.base_url).rstrip("/")
+    params = request.query_params
+    commodity = params.get("commodity", "tomato")
+    price = params.get("price", "20")
+    language = params.get("language", "hi-IN")
+    
+    templates = {
+        "ta-IN": "Vannakkam. Ungal {commodity} pool mudinthathu. Oru kilo-vukku {price} rubaai kidaikkum. Urudhi-padutha aam ena sollungal, rathu seyya illai ena sollungal.",
+        "te-IN": "Namaskaram. Mee {commodity} pool poorthaindi. Kilo ku {price} roopayalu labhistundi. Nirdharinchadaniki avunu ani cheppandi, raddhu cheyadaniki vaddu ani cheppandi.",
+        "hi-IN": "Namaste. Aapka {commodity} pool poora ho gaya hai. Aapko prati kilo {price} rupaye milenge. Pushti karne ke liye haan kahein, ya radd karne ke liye nahi kahein.",
+        "en-IN": "Welcome back from Mandi Mitra. The pool for {commodity} is complete. The average price is {price} rupees per kilogram. Please say yes to confirm your entry, or say no to cancel, after the beep."
+    }
+    
+    lang_key = language if language in templates else "hi-IN"
+    message = templates[lang_key].format(commodity=commodity, price=price)
+    
+    response = VoiceResponse()
+    # Always use en-IN voice so it can read the transliterated text reliably
+    response.say(message, language="en-IN")
+    response.record(action=f"{base_url}/twilio/farmer-confirm-recording", method="POST", max_length=10, play_beep=True)
+    return Response(content=str(response), media_type="text/xml")
