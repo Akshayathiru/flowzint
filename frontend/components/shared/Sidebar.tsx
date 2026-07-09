@@ -29,7 +29,6 @@ export default function Sidebar() {
     { label: t("farmers"), key: "farmers", href: "/farmers", icon: Users },
     { label: t("buyers"), key: "buyers", href: "/buyers", icon: Building2 },
     { label: t("settlements"), key: "settlements", href: "/settlements", icon: CheckCircle },
-    { label: t("demo"), key: "demo", href: "/demo", icon: Play },
     { label: t("settings"), key: "settings", href: "/admin/settings", icon: Settings },
   ];
 
@@ -41,7 +40,7 @@ export default function Sidebar() {
           MANDI MITRA
         </span>
         <p className="font-sans text-[10px] text-gray-500 mt-0.5 font-semibold">
-          Operator Dashboard
+          Admin Dashboard
         </p>
       </div>
 

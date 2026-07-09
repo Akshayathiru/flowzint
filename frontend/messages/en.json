@@ -4,7 +4,7 @@
     "headline1": "FPO-level bargaining power.",
     "headline2": "One call. Ninety minutes.",
     "subheadline": "Smallholder farmers call in their crop and quantity. Our system pools them, auctions the lot to registered bulk buyers, and calls every farmer back with a verified price — all without an app, a membership, or literacy.",
-    "cta_primary": "Open Operator Dashboard",
+    "cta_primary": "Admin Dashboard",
     "cta_buyer": "I'm a Buyer",
     "cta_secondary": "Watch Demo Flow",
     "stats_pools": "Active Pools",
@@ -41,7 +41,7 @@
     "sign_out": "Sign out"
   },
   "auth": {
-    "title": "Operator Access",
+    "title": "Admin Access",
     "signin_heading": "Sign in to your account",
     "email_label": "Email address",
     "password_label": "Password",

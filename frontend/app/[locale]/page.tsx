@@ -118,26 +118,35 @@ export default function Home() {
         </p>
 
         {/* CTA Row */}
-        <div className="flex items-center gap-4 justify-center mt-10 flex-wrap">
-          <Link
-            href="/dashboard"
-            className="inline-flex items-center gap-2 bg-charcoal text-white px-6 py-3 rounded-lg font-sans font-medium text-sm hover:bg-gray-800 transition-colors whitespace-nowrap"
-          >
-            {t("cta_primary")}
-            <ArrowRight size={14} strokeWidth={2} />
-          </Link>
-          <Link
-            href="/login?role=buyer"
-            className="inline-flex items-center justify-center gap-2 border border-harvest-gold text-harvest-gold hover:bg-harvest-gold/5 px-6 py-3 rounded-lg font-sans font-medium text-sm transition-colors whitespace-nowrap"
-          >
-            {t("cta_buyer")} &rarr;
-          </Link>
-          <Link
-            href="/demo"
-            className="inline-flex items-center justify-center gap-2 border border-gray-300 text-gray-600 px-6 py-3 rounded-lg font-sans font-medium text-sm hover:bg-gray-50 transition-colors whitespace-nowrap"
-          >
-            {t("cta_secondary")}
-          </Link>
+        <div className="mt-10 w-full">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto mb-6">
+            <Link
+              href="/login?role=farmer"
+              className="inline-flex items-center justify-center border border-field-green text-field-green rounded-lg px-6 py-3 hover:bg-field-green/5 transition-colors font-sans font-semibold text-sm whitespace-nowrap"
+            >
+              I'm a Farmer
+            </Link>
+            <Link
+              href="/login?role=admin"
+              className="inline-flex items-center justify-center bg-charcoal text-white rounded-lg px-6 py-3 hover:bg-gray-800 transition-colors font-sans font-semibold text-sm whitespace-nowrap"
+            >
+              Admin Dashboard
+            </Link>
+            <Link
+              href="/login?role=buyer"
+              className="inline-flex items-center justify-center border border-harvest-gold text-harvest-gold rounded-lg px-6 py-3 hover:bg-harvest-gold/5 transition-colors font-sans font-semibold text-sm whitespace-nowrap"
+            >
+              I'm a Buyer
+            </Link>
+          </div>
+          <div className="text-center">
+            <Link
+              href="/demo"
+              className="font-sans text-sm text-gray-400 hover:text-charcoal underline font-semibold transition-colors"
+            >
+              Watch Demo Flow
+            </Link>
+          </div>
         </div>
       </section>
 

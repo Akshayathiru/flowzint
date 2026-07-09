@@ -9,7 +9,13 @@ import { useTokenRefresh } from "@/hooks/useTokenRefresh";
 
 function isLandingOrLoginPage(pathname: string): boolean {
   const cleanPath = pathname.replace(/^\/(en|hi|ta|te|kn|mr)(\/|$)/, "/");
-  return cleanPath === "/" || cleanPath === "/login";
+  return (
+    cleanPath === "/" ||
+    cleanPath === "/login" ||
+    cleanPath.startsWith("/login/") ||
+    cleanPath === "/buyer/register" ||
+    cleanPath === "/farmer/register"
+  );
 }
 
 export function ConditionalContentWrapper({

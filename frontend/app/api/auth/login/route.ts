@@ -13,7 +13,7 @@ const DEMO_USERS = [
     userId: "u2",
     email: "operator@mandimitra.in",
     password: "demo2024",
-    role: "operator" as const,
+    role: "admin" as const,
     orgId: "org1",
   },
   {

@@ -7,6 +7,7 @@ import StatusBadge from "@/components/shared/StatusBadge";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { useBuyerSessionStore } from "@/store/buyerSessionStore";
+import { Link } from "@/lib/navigation";
 
 interface AuctionPoolCardProps {
   pool: AuctionPool;
@@ -147,7 +148,7 @@ export default function AuctionPoolCard({
     >
       {/* Top row */}
       <div className="flex justify-between items-start">
-        <div>
+        <Link href={`/buyer/pool/${pool.pool_id}`} className="hover:opacity-85 transition-opacity block">
           <span className="font-sans text-[10px] text-gray-400 font-mono">
             Pool #{pool.pool_id}
           </span>
@@ -157,7 +158,7 @@ export default function AuctionPoolCard({
           <p className="font-sans text-xs text-gray-450 capitalize">
             {pool.location}
           </p>
-        </div>
+        </Link>
         <div className="flex flex-col items-end gap-1.5">
           <StatusBadge status={pool.status as "filling" | "closed" | "auctioning" | "settled" | "expired"} />
           {pool.status === "auctioning" && (

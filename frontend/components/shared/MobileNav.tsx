@@ -11,6 +11,8 @@ import {
   Menu,
   Gavel,
   FileText,
+  User,
+  Play,
 } from "lucide-react";
 
 export default function MobileNav() {
@@ -18,8 +20,9 @@ export default function MobileNav() {
   const t = useTranslations("nav");
 
   const isBuyerRoute = pathname.includes("/buyer");
+  const isFarmerRoute = pathname.includes("/farmer");
 
-  const operatorItems = [
+  const adminItems = [
     { label: t("dashboard"), key: "dashboard", href: "/dashboard", icon: LayoutDashboard },
     { label: t("farmers"), key: "farmers", href: "/farmers", icon: Users },
     { label: t("buyers"), key: "buyers", href: "/buyers", icon: Building2 },
@@ -30,9 +33,23 @@ export default function MobileNav() {
   const buyerItems = [
     { label: "Auctions", key: "auctions", href: "/buyer/auctions", icon: Gavel },
     { label: "My Bids", key: "bids", href: "/buyer/bids", icon: FileText },
+    { label: "Profile", key: "profile", href: "/buyer/profile", icon: User },
+    { label: "Farmers", key: "farmers", href: "/buyer/farmers", icon: Users },
+    { label: "Settlements", key: "settlements", href: "/buyer/settlements", icon: CheckCircle },
+    { label: "Demo", key: "demo", href: "/demo", icon: Play },
   ];
 
-  const mobileItems = isBuyerRoute ? buyerItems : operatorItems;
+  const farmerItems = [
+    { label: "Dashboard", key: "dashboard", href: "/farmer/dashboard", icon: LayoutDashboard },
+    { label: "Profile", key: "profile", href: "/farmer/profile", icon: User },
+    { label: "Demo", key: "demo", href: "/demo", icon: Play },
+  ];
+
+  const mobileItems = isBuyerRoute
+    ? buyerItems
+    : isFarmerRoute
+    ? farmerItems
+    : adminItems;
 
   return (
     <nav

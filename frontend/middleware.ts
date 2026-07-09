@@ -3,9 +3,9 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { verifyToken } from "@/lib/auth";
 
-const PUBLIC_PATHS = ["", "/", "/login"];
 const ADMIN_ONLY_PATHS = ["/admin/settings"];
 const VIEWER_BLOCKED_PATHS = ["/demo", "/buyers/register"];
+const PROTECTED_ROUTES = ["/dashboard", "/farmers", "/buyers", "/settlements", "/admin"];
 
 const intlMiddleware = createNextIntlMiddleware({
   locales: ["en", "hi", "ta", "te", "kn", "mr"],
@@ -18,7 +18,9 @@ export async function middleware(request: NextRequest) {
   const pathWithoutLocale =
     pathname.replace(/^\/(en|hi|ta|te|kn|mr)\b/, "") || "/";
 
-  const isPublic = PUBLIC_PATHS.includes(pathWithoutLocale) || pathWithoutLocale.startsWith("/buyer");
+  const isProtected = PROTECTED_ROUTES.some(
+    (p) => pathWithoutLocale === p || pathWithoutLocale.startsWith(p + "/")
+  );
   const token = request.cookies.get("mm_auth")?.value;
 
   const match = pathname.match(/^\/(en|hi|ta|te|kn|mr)\b/);
@@ -26,7 +28,7 @@ export async function middleware(request: NextRequest) {
   const loginPath = locale ? `/${locale}/login` : "/login";
   const dashboardPath = locale ? `/${locale}/dashboard` : "/dashboard";
 
-  if (!isPublic) {
+  if (isProtected) {
     if (!token) {
       return NextResponse.redirect(new URL(loginPath, request.url));
     }
