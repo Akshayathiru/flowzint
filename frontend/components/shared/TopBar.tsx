@@ -12,7 +12,7 @@ export default function TopBar() {
         </span>
         <div className="border-r border-gray-200 mx-4 h-4" />
         <span className="font-sans text-xs text-gray-500 font-medium">
-          Operator Dashboard
+          Admin Dashboard
         </span>
       </div>
       <div className="flex items-center gap-3">

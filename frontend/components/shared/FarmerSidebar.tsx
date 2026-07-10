@@ -2,30 +2,27 @@
 
 import React from "react";
 import { Link, usePathname, useRouter } from "@/lib/navigation";
-import { Gavel, FileText, User, Users, CheckCircle, Play } from "lucide-react";
+import { LayoutDashboard, User, Play } from "lucide-react";
 import { usePoolStore } from "@/store/poolStore";
 import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
-import { useBuyerSessionStore } from "@/store/buyerSessionStore";
+import { useFarmerSessionStore } from "@/store/farmerSessionStore";
 
-export default function BuyerSidebar() {
+export default function FarmerSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { pools } = usePoolStore();
-  const { currentBuyer, setCurrentBuyer } = useBuyerSessionStore();
+  const { phone, clearSession } = useFarmerSessionStore();
 
   const activePoolsCount = pools.length || 3;
 
-  const buyerNavItems = [
-    { label: "Live Auctions", href: "/buyer/auctions", icon: Gavel },
-    { label: "My Bids", href: "/buyer/bids", icon: FileText },
-    { label: "My Profile", href: "/buyer/profile", icon: User },
-    { label: "Farmers", href: "/buyer/farmers", icon: Users },
-    { label: "Settlements", href: "/buyer/settlements", icon: CheckCircle },
+  const farmerNavItems = [
+    { label: "My Dashboard", href: "/farmer/dashboard", icon: LayoutDashboard },
+    { label: "My Profile", href: "/farmer/profile", icon: User },
     { label: "Demo Panel", href: "/demo", icon: Play },
   ];
 
   const handleSignOut = () => {
-    setCurrentBuyer(null);
+    clearSession();
     router.push("/login");
   };
 
@@ -36,14 +33,14 @@ export default function BuyerSidebar() {
         <span className="font-display font-bold text-sm tracking-widest uppercase text-soil-brown">
           MANDI MITRA
         </span>
-        <p className="font-sans text-[10px] text-gray-500 mt-0.5 font-semibold">
-          Buyer Portal
+        <p className="font-sans text-[10px] text-gray-400 mt-0.5 font-semibold">
+          Farmer Portal
         </p>
       </div>
 
       {/* NAVIGATION LINKS */}
       <nav className="px-3 pt-4 flex flex-col gap-1 overflow-y-auto pr-1">
-        {buyerNavItems.map((item) => {
+        {farmerNavItems.map((item) => {
           const isActive = pathname.startsWith(item.href);
 
           return (
@@ -71,19 +68,16 @@ export default function BuyerSidebar() {
       {/* Spacer */}
       <div className="flex-1" />
 
-      {/* BUYER IDENTITY & SIGN OUT */}
-      {currentBuyer && (
+      {/* FARMER IDENTITY & SIGN OUT */}
+      {phone && (
         <div className="px-4 py-4 border-t border-gray-100 shrink-0 bg-white flex flex-col gap-1.5">
           <div className="flex flex-col min-w-0">
-            <span className="font-sans font-semibold text-xs text-charcoal truncate" title={currentBuyer.name}>
-              {currentBuyer.name}
-            </span>
-            <span className="font-mono text-[10px] text-gray-400 mt-0.5">
-              {currentBuyer.phone}
+            <span className="font-sans font-semibold text-xs text-charcoal truncate font-mono">
+              {phone}
             </span>
             <div className="flex items-center gap-1.5 mt-2">
-              <span className="border border-harvest-gold rounded px-2 py-0.5 text-[9px] text-harvest-gold font-bold tracking-wider uppercase select-none bg-harvest-gold/5">
-                BUYER
+              <span className="border border-field-green text-field-green text-[9px] uppercase tracking-wider rounded px-2 py-0.5 font-bold select-none bg-field-green/5">
+                FARMER
               </span>
             </div>
           </div>

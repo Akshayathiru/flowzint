@@ -6,10 +6,11 @@ import { Link } from "@/lib/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Eye, EyeOff, Loader2, LayoutDashboard, Gavel } from "lucide-react";
+import { Eye, EyeOff, Loader2, LayoutDashboard, Gavel, Sprout, Shield } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { buyerApi } from "@/lib/buyerApi";
 import { useBuyerSessionStore } from "@/store/buyerSessionStore";
+import { useFarmerSessionStore } from "@/store/farmerSessionStore";
 import { BuyerProfile } from "@/types";
 import { toast } from "sonner";
 import OfflineBanner from "@/components/shared/OfflineBanner";
@@ -38,10 +39,14 @@ export default function LoginPage() {
   const t = useTranslations("auth");
   const router = useRouter();
   const { setCurrentBuyer } = useBuyerSessionStore();
+  const { setPhone: setFarmerPhone } = useFarmerSessionStore();
 
-  const [selectedRole, setSelectedRole] = useState<"operator" | "buyer" | null>(null);
+  const [selectedRole, setSelectedRole] = useState<"farmer" | "admin" | "buyer" | null>(null);
 
-  // Operator Form states
+  // Farmer Form states
+  const [phoneInput, setPhoneInput] = useState("");
+
+  // Admin Form states
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -58,8 +63,10 @@ export default function LoginPage() {
       const roleParam = params.get("role");
       if (roleParam === "buyer") {
         setSelectedRole("buyer");
-      } else if (roleParam === "operator") {
-        setSelectedRole("operator");
+      } else if (roleParam === "operator" || roleParam === "admin") {
+        setSelectedRole("admin");
+      } else if (roleParam === "farmer") {
+        setSelectedRole("farmer");
       }
     }
   }, []);
@@ -121,9 +128,20 @@ export default function LoginPage() {
     router.push("/buyer/auctions");
   };
 
+  const handleFarmerSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!phoneInput || phoneInput.length < 10) {
+      toast.error("Please enter a valid 10-digit phone number");
+      return;
+    }
+    setFarmerPhone(phoneInput);
+    toast.success(`Logged in as Farmer (${phoneInput})`);
+    router.push("/farmer/dashboard");
+  };
+
   return (
     <div className="min-h-screen bg-[#FBF7F0] flex items-center justify-center px-4 py-8">
-      <div className="w-full max-w-md bg-white rounded-xl border border-gray-200 p-8 shadow-sm">
+      <div className="w-full max-w-xl bg-white rounded-xl border border-gray-200 p-8 shadow-sm">
         <div className="text-center mb-8">
           <div
             className="font-bold text-sm tracking-widest uppercase text-[#6B4226]"
@@ -159,19 +177,35 @@ export default function LoginPage() {
               Choose your portal access role
             </p>
 
-            <div className="grid grid-cols-2 gap-4 w-full">
-              {/* Operator Card */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
+              {/* Farmer Card */}
               <button
-                onClick={() => setSelectedRole("operator")}
-                className="bg-white rounded-xl border border-gray-200 p-5 cursor-pointer hover:border-[#6B4226] hover:shadow-sm transition-all text-center flex flex-col items-center focus:outline-none focus:ring-1 focus:ring-[#6B4226]"
+                onClick={() => setSelectedRole("farmer")}
+                className="bg-white rounded-xl border border-gray-200 p-5 cursor-pointer hover:border-field-green hover:shadow-sm hover:bg-field-green/5 transition-all text-center flex flex-col items-center focus:outline-none focus:ring-1 focus:ring-field-green"
               >
-                <div className="w-12 h-12 rounded-full bg-[#6B4226]/5 flex items-center justify-center text-[#6B4226] shrink-0">
-                  <LayoutDashboard className="w-6 h-6" />
+                <div className="w-12 h-12 rounded-full bg-field-green/5 flex items-center justify-center text-field-green shrink-0">
+                  <Sprout className="w-8 h-8" />
                 </div>
-                <h3 className="font-display font-semibold text-sm text-charcoal mt-3">
-                  Operator
+                <h3 className="font-display font-semibold text-base text-charcoal mt-3" style={{ fontFamily: "Mukta, sans-serif" }}>
+                  Farmer
                 </h3>
-                <p className="font-sans text-[10px] text-gray-400 mt-1 leading-normal font-medium">
+                <p className="font-sans text-xs text-gray-400 mt-1 leading-normal">
+                  View your pools and track your crops
+                </p>
+              </button>
+
+              {/* Admin Card */}
+              <button
+                onClick={() => setSelectedRole("admin")}
+                className="bg-white rounded-xl border border-gray-200 p-5 cursor-pointer hover:border-soil-brown hover:shadow-sm hover:bg-soil-brown/5 transition-all text-center flex flex-col items-center focus:outline-none focus:ring-1 focus:ring-soil-brown"
+              >
+                <div className="w-12 h-12 rounded-full bg-soil-brown/5 flex items-center justify-center text-soil-brown shrink-0">
+                  <Shield className="w-8 h-8" />
+                </div>
+                <h3 className="font-display font-semibold text-base text-charcoal mt-3" style={{ fontFamily: "Mukta, sans-serif" }}>
+                  Admin
+                </h3>
+                <p className="font-sans text-xs text-gray-400 mt-1 leading-normal">
                   Manage pools, farmers, and settlements
                 </p>
               </button>
@@ -179,15 +213,15 @@ export default function LoginPage() {
               {/* Buyer Card */}
               <button
                 onClick={() => setSelectedRole("buyer")}
-                className="bg-white rounded-xl border border-gray-200 p-5 cursor-pointer hover:border-[#E6A817] hover:shadow-sm transition-all text-center flex flex-col items-center focus:outline-none focus:ring-1 focus:ring-[#E6A817]"
+                className="bg-white rounded-xl border border-gray-200 p-5 cursor-pointer hover:border-harvest-gold hover:shadow-sm hover:bg-harvest-gold/5 transition-all text-center flex flex-col items-center focus:outline-none focus:ring-1 focus:ring-harvest-gold"
               >
-                <div className="w-12 h-12 rounded-full bg-[#E6A817]/5 flex items-center justify-center text-[#E6A817] shrink-0">
-                  <Gavel className="w-6 h-6" />
+                <div className="w-12 h-12 rounded-full bg-harvest-gold/5 flex items-center justify-center text-harvest-gold shrink-0">
+                  <Gavel className="w-8 h-8" />
                 </div>
-                <h3 className="font-display font-semibold text-sm text-charcoal mt-3">
+                <h3 className="font-display font-semibold text-base text-charcoal mt-3" style={{ fontFamily: "Mukta, sans-serif" }}>
                   Buyer / Wholesaler
                 </h3>
-                <p className="font-sans text-[10px] text-gray-400 mt-1 leading-normal font-medium">
+                <p className="font-sans text-xs text-gray-400 mt-1 leading-normal">
                   View live auctions and place bids
                 </p>
               </button>
@@ -195,9 +229,67 @@ export default function LoginPage() {
           </div>
         )}
 
-        {/* STEP 2A: OPERATOR LOGIN FORM */}
-        {selectedRole === "operator" && (
-          <div className="flex flex-col">
+        {/* STEP 2A: FARMER LOGIN FORM */}
+        {selectedRole === "farmer" && (
+          <div className="flex flex-col max-w-md mx-auto w-full">
+            <button
+              onClick={() => setSelectedRole(null)}
+              className="text-xs text-gray-400 hover:text-charcoal font-semibold mb-4 text-left cursor-pointer transition-colors"
+            >
+              &larr; Back to role selection
+            </button>
+
+            <h2
+              className="text-xl font-bold text-charcoal text-center mb-1"
+              style={{ fontFamily: "Mukta, sans-serif" }}
+            >
+              Farmer Login
+            </h2>
+            <p
+              className="text-sm text-gray-400 text-center mb-6"
+              style={{ fontFamily: "Inter, sans-serif" }}
+            >
+              Enter the phone number you call from
+            </p>
+
+            <form onSubmit={handleFarmerSubmit} className="flex flex-col gap-4">
+              <div>
+                <label
+                  htmlFor="phone-input"
+                  className="text-xs font-semibold text-gray-655 block mb-1"
+                  style={{ fontFamily: "Inter, sans-serif" }}
+                >
+                  Phone Number
+                </label>
+                <input
+                  id="phone-input"
+                  type="text"
+                  required
+                  placeholder="9876543210"
+                  value={phoneInput}
+                  onChange={(e) => setPhoneInput(e.target.value)}
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-field-green/20 focus:border-field-green bg-white text-charcoal font-mono"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full bg-field-green text-white rounded-lg py-3 text-sm font-semibold hover:bg-emerald-800 transition-colors shadow-sm cursor-pointer"
+                style={{ fontFamily: "Inter, sans-serif" }}
+              >
+                Sign In
+              </button>
+            </form>
+
+            <div className="text-xs text-gray-400 text-center mt-4">
+              Demo: use any phone from the farmer registry
+            </div>
+          </div>
+        )}
+
+        {/* STEP 2B: ADMIN LOGIN FORM */}
+        {selectedRole === "admin" && (
+          <div className="flex flex-col max-w-md mx-auto w-full">
             <button
               onClick={() => setSelectedRole(null)}
               className="text-xs text-gray-400 hover:text-charcoal font-semibold mb-4 text-left cursor-pointer transition-colors"
@@ -263,7 +355,7 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword((v) => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-505 hover:text-charcoal focus:outline-none cursor-pointer"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-550 hover:text-charcoal focus:outline-none cursor-pointer"
                     aria-label={showPassword ? "Hide password" : "Show password"}
                   >
                     {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
@@ -315,45 +407,24 @@ export default function LoginPage() {
               >
                 Demo credentials
               </div>
-              {[
-                {
-                  role: "Admin",
-                  email: "admin@mandimitra.in",
-                  password: "admin2024",
-                },
-                {
-                  role: "Operator",
-                  email: "operator@mandimitra.in",
-                  password: "demo2024",
-                },
-                {
-                  role: "Viewer",
-                  email: "viewer@mandimitra.in",
-                  password: "view2024",
-                },
-              ].map((c) => (
-                <div
-                  key={c.role}
-                  className="flex justify-between items-center py-1.5 border-b border-gray-100 last:border-0"
+              <div className="flex justify-between items-center py-1.5">
+                <span
+                  className="text-[10px] font-semibold text-gray-505"
+                  style={{ fontFamily: "Inter, sans-serif" }}
                 >
-                  <span
-                    className="text-[10px] font-semibold text-gray-505"
-                    style={{ fontFamily: "Inter, sans-serif" }}
-                  >
-                    {c.role}
-                  </span>
-                  <span className="font-mono text-[10px] text-gray-505">
-                    {c.email} / {c.password}
-                  </span>
-                </div>
-              ))}
+                  Admin
+                </span>
+                <span className="font-mono text-[10px] text-gray-550">
+                  admin@mandimitra.in / admin2024
+                </span>
+              </div>
             </div>
           </div>
         )}
 
-        {/* STEP 2B: BUYER PROFILE SELECTION FLOW */}
+        {/* STEP 2C: BUYER PROFILE SELECTION FLOW */}
         {selectedRole === "buyer" && (
-          <div className="flex flex-col">
+          <div className="flex flex-col max-w-md mx-auto w-full">
             <button
               onClick={() => setSelectedRole(null)}
               className="text-xs text-gray-400 hover:text-charcoal font-semibold mb-4 text-left cursor-pointer transition-colors"
@@ -432,7 +503,7 @@ export default function LoginPage() {
                         <p className="font-sans text-[11px] text-gray-400 font-mono mt-0.5">
                           {buyer.phone}
                         </p>
-                        <p className="font-sans text-[11px] text-gray-500 mt-1.5 font-medium">
+                        <p className="font-sans text-[11px] text-gray-505 mt-1.5 font-medium">
                           {buyer.crop} &middot; {buyer.location}
                         </p>
                         <p className="font-sans text-[9px] text-gray-400 mt-1 font-semibold">
