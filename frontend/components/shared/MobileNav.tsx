@@ -19,8 +19,8 @@ export default function MobileNav() {
   const pathname = usePathname();
   const t = useTranslations("nav");
 
-  const isBuyerRoute = pathname.includes("/buyer");
-  const isFarmerRoute = pathname.includes("/farmer");
+  const isBuyerRoute = pathname === "/buyer" || pathname.startsWith("/buyer/");
+  const isFarmerRoute = pathname === "/farmer" || pathname.startsWith("/farmer/");
 
   const adminItems = [
     { label: t("dashboard"), key: "dashboard", href: "/dashboard", icon: LayoutDashboard },

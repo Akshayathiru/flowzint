@@ -7,24 +7,30 @@ import BuyerSidebar from "./BuyerSidebar";
 import FarmerSidebar from "./FarmerSidebar";
 import MobileNav from "./MobileNav";
 
+// Strip locale prefix (e.g. /en/farmer/dashboard → /farmer/dashboard)
+function stripLocale(pathname: string): string {
+  const match = pathname.match(/^\/[a-z]{2}(\/.*)$/)
+  return match ? match[1] : pathname
+}
+
 export function ConditionalSidebar() {
-  const pathname = usePathname();
+  const rawPathname = usePathname();
+  const pathname = stripLocale(rawPathname);
 
   // Don't show any sidebar on login, landing, or registration pages
   const noSidebarRoutes = ["/login", "/buyer/register", "/farmer/register"];
-  const isLanding = pathname === "/" || pathname.match(/^\/[a-z]{2}(\/|$)/); // locale root
+  const isLanding = pathname === "/";
   const isNoSidebar =
-    noSidebarRoutes.some((r) => pathname.includes(r)) || !!isLanding;
+    noSidebarRoutes.some((r) => pathname === r || pathname.startsWith(r + "/")) || isLanding;
 
   if (isNoSidebar) return null;
 
-  // Show buyer sidebar for all /buyer/* routes
-  const isBuyerRoute = pathname.includes("/buyer");
-  if (isBuyerRoute) {
+  // Show farmer sidebar for exact /farmer or /farmer/*
+  if (pathname === "/farmer" || pathname.startsWith("/farmer/")) {
     return (
       <>
         <div className="hidden lg:block">
-          <BuyerSidebar />
+          <FarmerSidebar />
         </div>
         <div className="block lg:hidden">
           <MobileNav />
@@ -33,13 +39,12 @@ export function ConditionalSidebar() {
     );
   }
 
-  // Show farmer sidebar for all /farmer/* routes
-  const isFarmerRoute = pathname.includes("/farmer");
-  if (isFarmerRoute) {
+  // Show buyer sidebar for exact /buyer or /buyer/*
+  if (pathname === "/buyer" || pathname.startsWith("/buyer/")) {
     return (
       <>
         <div className="hidden lg:block">
-          <FarmerSidebar />
+          <BuyerSidebar />
         </div>
         <div className="block lg:hidden">
           <MobileNav />

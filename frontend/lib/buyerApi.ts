@@ -161,4 +161,13 @@ export const buyerApi = {
       };
     }
   },
+
+  getPoolFarmers: async (poolId: number) => {
+    try {
+      const data = await request<any[]>(`/pool/${poolId}/farmers`)
+      return { data, offline: false }
+    } catch {
+      return { data: [], offline: true }
+    }
+  },
 };

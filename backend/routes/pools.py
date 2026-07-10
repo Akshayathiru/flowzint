@@ -119,4 +119,27 @@ def get_pool_members(
             "crop_quality_grade": m.crop_quality_grade if hasattr(m, "crop_quality_grade") else None
         })
     return res
+
+
+@router.get("/pool/{pool_id}/farmers")
+def get_pool_farmers_v2(pool_id: int, db: Session = Depends(get_db)):
+    members = db.query(PoolMember).filter(PoolMember.pool_id == pool_id).all()
+    result = []
+    for m in members:
+        farmer = db.query(Farmer).filter(Farmer.phone == m.farmer_phone).first()
+        
+        db_trust = farmer.trust_score if farmer else 100
+        trust_score = round(db_trust / 20.0, 1)
+        
+        pool = db.query(Pool).filter(Pool.id == pool_id).first()
+        call_time = pool.created_at.isoformat() + "Z" if (pool and pool.created_at) else datetime.now().isoformat() + "Z"
+        
+        result.append({
+            "phone": m.farmer_phone,
+            "quantity_kg": m.quantity,
+            "trust_score": trust_score,
+            "call_time": call_time,
+            "language": "tamil"
+        })
+    return result
 
