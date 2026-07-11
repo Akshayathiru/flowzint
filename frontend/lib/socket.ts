@@ -4,7 +4,11 @@ let socket: Socket | null = null;
 
 export function getSocket(): Socket {
   if (!socket) {
-    socket = io(process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8000", {
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+    const defaultWsUrl = backendUrl.replace(/^http/, "ws");
+    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || defaultWsUrl;
+
+    socket = io(wsUrl, {
       transports: ["websocket"],
       autoConnect: true,
       reconnectionAttempts: 5,
@@ -23,7 +27,7 @@ export function getSocket(): Socket {
       console.error("[Mandi Mitra] WebSocket error:", err.message);
     });
   }
-  return socket;
+  return socket!;
 }
 
 export function disconnectSocket() {
