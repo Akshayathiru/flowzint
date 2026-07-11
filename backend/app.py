@@ -113,6 +113,11 @@ app.include_router(stats.router)
 def home():
     return {"message": "Welcome"}
 
+@app.get("/healthz")
+def health():
+    return {"status": "ok"}
+
+
 from socket_manager import sio
 import socketio
 
