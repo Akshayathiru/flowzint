@@ -2,11 +2,10 @@
 
 import React, { useEffect, useState } from "react";
 import { Link, useRouter } from "@/lib/navigation";
-import { ChevronLeft, Loader2, Users, Calendar, Compass, Shield } from "lucide-react";
+import { ChevronLeft, Loader2, Users, Calendar, Compass, Shield, AlertCircle } from "lucide-react";
 import PageHeader from "@/components/shared/PageHeader";
 import StatusBadge from "@/components/shared/StatusBadge";
 import { useBuyerSessionStore } from "@/store/buyerSessionStore";
-import { MOCK_AUCTION_POOLS } from "@/lib/buyerMockData";
 import { buyerApi } from "@/lib/buyerApi";
 import { toast } from "sonner";
 import LanguageBadge from "@/components/shared/LanguageBadge";
@@ -18,21 +17,19 @@ interface PageProps {
   };
 }
 
-// Mock farmers list for pools
-const MOCK_POOL_FARMERS = [
-  { phone: "+91 98XXX 10001", quantity: 80, time: "09:47", language: "ta", trust: 4.2 },
-  { phone: "+91 97XXX 10002", quantity: 350, time: "09:44", language: "te", trust: 3.8 },
-  { phone: "+91 95XXX 10004", quantity: 220, time: "08:30", language: "ta", trust: 2.9 },
-  { phone: "+91 94XXX 10005", quantity: 60, time: "07:15", language: "ta", trust: 1.8 },
-  { phone: "+91 91XXX 10008", quantity: 90, time: "Yesterday", language: "hi", trust: 2.3 },
-];
-
 export default function BuyerPoolDetailPage({ params }: PageProps) {
   const router = useRouter();
   const poolId = parseInt(params.poolId);
   const { isLoggedIn, currentBuyer, addBid, bidHistory } = useBuyerSessionStore();
 
-  const [pool, setPool] = useState<typeof MOCK_AUCTION_POOLS[0] | null>(null);
+  const [pool, setPool] = useState<any | null>(null);
+  const [poolLoading, setPoolLoading] = useState(true);
+  const [poolError, setPoolError] = useState<string | null>(null);
+
+  const [farmers, setFarmers] = useState<any[]>([]);
+  const [farmersLoading, setFarmersLoading] = useState(true);
+  const [farmersError, setFarmersError] = useState(false);
+
   const [price, setPrice] = useState("");
   const [quantity, setQuantity] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -46,12 +43,57 @@ export default function BuyerPoolDetailPage({ params }: PageProps) {
   }, [isLoggedIn, router]);
 
   // Load pool data
+  const fetchPoolData = () => {
+    setPoolLoading(true);
+    setPoolError(null);
+    buyerApi.getActivePools()
+      .then(({ data, offline }) => {
+        if (offline) {
+          throw new Error("Could not connect to real backend API");
+        }
+        const foundPool = data.find((p) => p.pool_id === poolId);
+        if (foundPool) {
+          setPool(foundPool);
+        } else {
+          setPoolError("Pool not found");
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to load pool detail:", err);
+        setPoolError(err.message || "Could not load pool details");
+      })
+      .finally(() => {
+        setPoolLoading(false);
+      });
+  };
+
   useEffect(() => {
-    const foundPool = MOCK_AUCTION_POOLS.find((p) => p.pool_id === poolId);
-    if (foundPool) {
-      setPool(foundPool);
+    if (isLoggedIn) {
+      fetchPoolData();
     }
-  }, [poolId]);
+  }, [poolId, isLoggedIn]);
+
+  // Load pool farmers list
+  useEffect(() => {
+    if (isLoggedIn) {
+      setFarmersLoading(true);
+      setFarmersError(false);
+      buyerApi.getPoolFarmers(poolId)
+        .then(({ data, offline }) => {
+          if (offline) {
+            throw new Error("Could not connect to real backend API");
+          }
+          setFarmers(data || []);
+        })
+        .catch((err) => {
+          console.error("Failed to load pool farmers:", err);
+          setFarmersError(true);
+        })
+        .finally(() => {
+          setFarmersLoading(false);
+        });
+    }
+  }, [poolId, isLoggedIn]);
 
   // Timer logic
   useEffect(() => {
@@ -75,7 +117,29 @@ export default function BuyerPoolDetailPage({ params }: PageProps) {
     return null;
   }
 
-  if (!pool) {
+  if (poolError) {
+    return (
+      <div className="min-h-screen bg-warm-cream flex flex-col items-center justify-center font-sans p-6">
+        <div className="flex flex-col items-center justify-center p-8 bg-red-50 border border-red-200 rounded-xl max-w-md mx-auto text-center shadow-sm">
+          <AlertCircle className="w-8 h-8 text-alert-red mb-3" />
+          <h3 className="font-sans font-semibold text-sm text-red-600">
+            Could not load pool details
+          </h3>
+          <p className="font-sans text-xs text-gray-400 mt-1">
+            Make sure the backend is running
+          </p>
+          <button
+            onClick={fetchPoolData}
+            className="border border-gray-200 rounded-lg px-4 py-2 mt-4 bg-white text-xs font-semibold text-charcoal hover:bg-gray-50 transition-colors shadow-sm cursor-pointer"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (poolLoading || !pool) {
     return (
       <div className="min-h-screen bg-warm-cream flex items-center justify-center font-sans">
         <Loader2 className="w-8 h-8 animate-spin text-soil-brown" />
@@ -115,7 +179,6 @@ export default function BuyerPoolDetailPage({ params }: PageProps) {
 
     setIsSubmitting(true);
     try {
-      // TODO: replace with API call
       await buyerApi.submitBid({
         buyer_id: currentBuyer.buyer_id,
         pool_id: pool.pool_id,
@@ -158,7 +221,7 @@ export default function BuyerPoolDetailPage({ params }: PageProps) {
               <span>Auctions</span>
             </Link>
             <span className="text-gray-300">/</span>
-            <span className="font-semibold text-base text-charcoal">
+            <span className="font-semibold text-base text-charcoal font-mono">
               Pool #{pool.pool_id}
             </span>
           </div>
@@ -204,7 +267,7 @@ export default function BuyerPoolDetailPage({ params }: PageProps) {
               <div className="flex items-center gap-2">
                 <Users className="w-4 h-4 text-gray-400" />
                 <div>
-                  <span className="text-[9px] text-gray-450 block font-bold uppercase">Farmers</span>
+                  <span className="text-[9px] text-gray-455 block font-bold uppercase">Farmers</span>
                   <span className="text-xs font-semibold text-charcoal">{pool.farmers_count}</span>
                 </div>
               </div>
@@ -316,7 +379,7 @@ export default function BuyerPoolDetailPage({ params }: PageProps) {
               </span>
               <div className="flex flex-col gap-2 max-h-32 overflow-y-auto pr-1">
                 {poolBids.map((bid, idx) => (
-                  <div key={idx} className="flex items-center justify-between py-1 border-b border-gray-50 last:border-0">
+                  <div key={idx} className="flex items-center justify-between py-1 border-b border-gray-55 last:border-0">
                     <span className="font-sans text-xs text-gray-655 font-semibold">
                       ₹{bid.price.toFixed(2)}/kg for {bid.quantity}kg
                     </span>
@@ -341,32 +404,60 @@ export default function BuyerPoolDetailPage({ params }: PageProps) {
             Farmers in this Pool
           </h3>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs font-sans">
-              <thead>
-                <tr className="border-b border-gray-200 bg-gray-50 text-gray-500 font-bold">
-                  <th scope="col" className="px-4 py-2.5">Phone Number</th>
-                  <th scope="col" className="px-4 py-2.5">Quantity (kg)</th>
-                  <th scope="col" className="px-4 py-2.5">Call Time</th>
-                  <th scope="col" className="px-4 py-2.5">Language</th>
-                  <th scope="col" className="px-4 py-2.5">Trust Score</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 text-gray-655">
-                {MOCK_POOL_FARMERS.map((farmer, idx) => (
-                  <tr key={idx} className="hover:bg-gray-50/50">
-                    <td className="px-4 py-3 font-mono text-charcoal">{farmer.phone}</td>
-                    <td className="px-4 py-3 font-semibold text-charcoal">{farmer.quantity} kg</td>
-                    <td className="px-4 py-3 font-mono text-gray-400">{farmer.time}</td>
-                    <td className="px-4 py-3">
-                      <LanguageBadge code={farmer.language} />
-                    </td>
-                    <td className="px-4 py-3 font-semibold font-display text-soil-brown">{farmer.trust.toFixed(1)}</td>
+          {farmersLoading ? (
+            <div className="flex items-center justify-center py-8 text-xs text-gray-400 gap-2 font-sans">
+              <Loader2 className="w-4 h-4 animate-spin text-soil-brown" />
+              <span>Loading farmers...</span>
+            </div>
+          ) : farmersError ? (
+            <div className="py-6 text-center text-xs text-alert-red font-sans">
+              Could not load farmer details
+            </div>
+          ) : farmers.length === 0 ? (
+            <div className="py-6 text-center text-xs text-gray-400 font-sans italic">
+              No farmers found in this pool.
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse text-xs font-sans">
+                <thead>
+                  <tr className="border-b border-gray-200 bg-gray-50 text-gray-500 font-bold">
+                    <th scope="col" className="px-4 py-2.5">Phone Number</th>
+                    <th scope="col" className="px-4 py-2.5">Quantity (kg)</th>
+                    <th scope="col" className="px-4 py-2.5">Call Time</th>
+                    <th scope="col" className="px-4 py-2.5">Language</th>
+                    <th scope="col" className="px-4 py-2.5">Trust Score</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-gray-100 text-gray-655">
+                  {farmers.map((farmer, idx) => {
+                    const scoreColor = farmer.trust_score >= 3.5
+                      ? "text-field-green"
+                      : farmer.trust_score >= 2.0
+                      ? "text-harvest-gold"
+                      : "text-alert-red";
+
+                    const dateObj = new Date(farmer.call_time);
+                    const formattedTime = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    const isToday = dateObj.toDateString() === new Date().toDateString();
+                    const callTimeDisplay = isToday ? `Today ${formattedTime}` : dateObj.toLocaleDateString([], { month: "short", day: "numeric" });
+
+                    return (
+                      <tr key={idx} className="hover:bg-gray-50/50">
+                        <td className="px-4 py-3 font-mono text-charcoal">{farmer.phone}</td>
+                        <td className="px-4 py-3 font-semibold text-charcoal">{farmer.quantity_kg} kg</td>
+                        <td className="px-4 py-3 font-mono text-gray-400">{callTimeDisplay}</td>
+                        <td className="px-4 py-3">
+                          <LanguageBadge code={farmer.language} />
+                        </td>
+                        <td className={`px-4 py-3 font-semibold font-display ${scoreColor}`}>★ {farmer.trust_score.toFixed(1)}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </main>
     </div>

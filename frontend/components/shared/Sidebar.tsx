@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import {
   LayoutDashboard,
   Users,
-  Building2,
+  Store,
   CheckCircle,
   Play,
   Settings,
@@ -27,7 +27,7 @@ export default function Sidebar() {
   const navItems = [
     { label: t("dashboard"), key: "dashboard", href: "/dashboard", icon: LayoutDashboard },
     { label: t("farmers"), key: "farmers", href: "/farmers", icon: Users },
-    { label: t("buyers"), key: "buyers", href: "/buyers", icon: Building2 },
+    { label: t("buyers"), key: "buyers", href: "/buyers", icon: Store },
     { label: t("settlements"), key: "settlements", href: "/settlements", icon: CheckCircle },
     { label: t("settings"), key: "settings", href: "/admin/settings", icon: Settings },
   ];

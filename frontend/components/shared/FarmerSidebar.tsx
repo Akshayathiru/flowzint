@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Link, usePathname, useRouter } from "@/lib/navigation";
-import { LayoutDashboard, User, Play } from "lucide-react";
+import { LayoutDashboard, User, CheckCircle, Store, Play } from "lucide-react";
 import { usePoolStore } from "@/store/poolStore";
 import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
 import { useFarmerSessionStore } from "@/store/farmerSessionStore";
@@ -18,6 +18,8 @@ export default function FarmerSidebar() {
   const farmerNavItems = [
     { label: "My Dashboard", href: "/farmer/dashboard", icon: LayoutDashboard },
     { label: "My Profile", href: "/farmer/profile", icon: User },
+    { label: "Settlements", href: "/farmer/settlements", icon: CheckCircle },
+    { label: "Buyers", href: "/farmer/buyers", icon: Store },
     { label: "Demo Panel", href: "/demo", icon: Play },
   ];
 

@@ -7,8 +7,13 @@ import { useConnectionStatus } from "@/hooks/useConnectionStatus";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { useTokenRefresh } from "@/hooks/useTokenRefresh";
 
+function stripLocale(pathname: string): string {
+  const match = pathname.match(/^\/[a-z]{2}(\/.*)$/)
+  return match ? match[1] : pathname
+}
+
 function isLandingOrLoginPage(pathname: string): boolean {
-  const cleanPath = pathname.replace(/^\/(en|hi|ta|te|kn|mr)(\/|$)/, "/");
+  const cleanPath = stripLocale(pathname);
   return (
     cleanPath === "/" ||
     cleanPath === "/login" ||
