@@ -100,7 +100,9 @@ async def get_pool_members(pool_id: str):
     return members
 
 MEMBER2_ENDPOINT = os.getenv("MEMBER2_ENDPOINT", "http://localhost:8000/add_farmer")
-BASE_URL = os.getenv("BASE_URL", "https://your-ngrok-url.ngrok.io")
+if not MEMBER2_ENDPOINT.endswith("/add_farmer"):
+    MEMBER2_ENDPOINT = MEMBER2_ENDPOINT.rstrip("/") + "/add_farmer"
+BASE_URL = os.getenv("BASE_URL") or os.getenv("PUBLIC_URL") or "https://your-ngrok-url.ngrok.io"
 
 # Session cache to store pending pledges before confirmation
 PENDING_PLEDGES = {}

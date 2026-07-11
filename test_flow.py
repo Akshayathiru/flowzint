@@ -18,19 +18,25 @@ def run_test_flow():
             f.write(b"dummy audio content")
 
     logger.info("=== STEP 1: Inbound Call ===")
-    with open(dummy_audio_path, "rb") as f:
-        files = {"audio": ("sample_ta.wav", f, "audio/wav")}
-        data = {"phone_number": "+919876543210"}
-        
-        try:
-            resp = requests.post(f"{BASE_URL}/inbound-call", files=files, data=data)
-            resp.raise_for_status()
+    data = {
+        "From": "+919876543210",
+        "RecordingUrl": "http://api.twilio.com/2010-04-01/Accounts/ACxxx/Recordings/RExxx"
+    }
+    
+    try:
+        resp = requests.post(f"{BASE_URL}/inbound-call", data=data)
+        resp.raise_for_status()
+        content_type = resp.headers.get("content-type", "")
+        if "xml" in content_type:
+            logger.info("Inbound Call TwiML Response:")
+            logger.info(resp.text)
+        else:
             inbound_result = resp.json()
             logger.info("Inbound Call Response:")
             logger.info(json.dumps(inbound_result, indent=2))
-        except Exception as e:
-            logger.error(f"Inbound call failed: {e}")
-            return
+    except Exception as e:
+        logger.error(f"Inbound call failed: {e}")
+        return
 
     time.sleep(1)
 

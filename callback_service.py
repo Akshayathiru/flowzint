@@ -21,15 +21,19 @@ def call_farmer_with_price(phone_number: str, language: str, commodity: str, qua
     account_sid = os.getenv("TWILIO_ACCOUNT_SID")
     auth_token = os.getenv("TWILIO_AUTH_TOKEN")
     from_phone = os.getenv("TWILIO_PHONE_NUMBER")
-    base_url = os.getenv("BASE_URL")
+    base_url = os.getenv("BASE_URL") or os.getenv("PUBLIC_URL")
     
     if not all([account_sid, auth_token, from_phone, base_url]):
         logger.error("Missing Twilio credentials or BASE_URL for outbound call.")
         return {"status": "failure", "message_used": "Missing Twilio config"}
         
-    client = Client(account_sid, auth_token)
     twiml_url = f"{base_url}/twilio/outbound-confirm-twiml?commodity={commodity}&price={final_price_per_kg}&language={language}"
     
+    if MOCK_MODE or account_sid == "mock" or auth_token == "mock":
+        logger.info(f"[MOCK] Triggered outbound call to {phone_number} via Twilio URL: {twiml_url}")
+        return {"status": "success", "message_used": twiml_url}
+
+    client = Client(account_sid, auth_token)
     try:
         call = client.calls.create(to=phone_number, from_=from_phone, url=twiml_url)
         logger.info(f"Triggered outbound call to {phone_number}. SID: {call.sid}")
