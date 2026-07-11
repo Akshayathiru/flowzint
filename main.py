@@ -26,6 +26,11 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Voice & Language Layer API")
 
+@app.get("/healthz")
+def health():
+    return {"status": "ok"}
+
+
 @app.get("/api/pools/active")
 async def get_active_pools():
     """
