@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-const VOICE_LAYER_URL = process.env.VOICE_LAYER_URL || "http://localhost:8000";
+const VOICE_LAYER_URL = process.env.NEXT_PUBLIC_BACKEND_URL || process.env.VOICE_LAYER_URL || "http://localhost:8000";
 
 export async function POST(req: Request) {
   try {

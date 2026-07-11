@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from fastapi import FastAPI
 from sqlalchemy import inspect, text
 from database import engine
@@ -10,6 +14,7 @@ from routes import confirmation
 from routes import receipt
 from routes import mandi
 from routes import stats
+from main import router as voice_router
 
 
 def ensure_pool_schema():
@@ -108,6 +113,7 @@ app.include_router(confirmation.router)
 app.include_router(receipt.router)
 app.include_router(mandi.router)
 app.include_router(stats.router)
+app.include_router(voice_router)
 
 @app.get("/")
 def home():

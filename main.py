@@ -1,5 +1,5 @@
 # pyrefly: ignore [missing-import]
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Request, Response
+from fastapi import FastAPI, APIRouter, UploadFile, File, Form, HTTPException, Request, Response
 # pyrefly: ignore [missing-import]
 from fastapi.responses import JSONResponse, FileResponse
 from twilio.twiml.voice_response import VoiceResponse, Gather
@@ -7,7 +7,7 @@ import logging
 import requests  # type: ignore
 import os
 
-from models import (
+from voice_models import (
     InboundCallResponse, 
     FarmerCallbackRequest, 
     FarmerCallbackResponse,
@@ -25,13 +25,14 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Voice & Language Layer API")
+router = APIRouter()
 
 @app.get("/healthz")
 def health():
     return {"status": "ok"}
 
 
-@app.get("/api/pools/active")
+@router.get("/api/pools/active")
 async def get_active_pools():
     """
     Returns the in-memory pools in the format expected by the Next.js frontend.
@@ -59,7 +60,7 @@ async def get_active_pools():
     
     return active_pools
 
-@app.get("/api/pools/{pool_id}")
+@router.get("/api/pools/{pool_id}")
 async def get_pool_details(pool_id: str):
     pool = pooling_engine.pools.get(pool_id.lower())
     if not pool:
@@ -83,7 +84,7 @@ async def get_pool_details(pool_id: str):
         "geoCenter": [20.5937, 78.9629]
     }
 
-@app.get("/api/pools/{pool_id}/members")
+@router.get("/api/pools/{pool_id}/members")
 async def get_pool_members(pool_id: str):
     pool = pooling_engine.pools.get(pool_id.lower())
     if not pool:
@@ -129,7 +130,7 @@ async def fetch_twilio_audio(recording_url: str) -> bytes:
         logger.error(f"Error fetching Twilio recording: {e}")
     return None
 
-@app.post("/twilio/incoming")
+@router.post("/twilio/incoming")
 async def twilio_incoming(request: Request):
     """Stage 1: Ask for language"""
     form_data = await request.form()
@@ -149,7 +150,7 @@ async def twilio_incoming(request: Request):
     response.append(gather)
     return Response(content=str(response), media_type="text/xml")
 
-@app.post("/twilio/language-selected")
+@router.post("/twilio/language-selected")
 async def twilio_language_selected(request: Request):
     """Stage 2: Save language and ask for details"""
     form_data = await request.form()
@@ -178,7 +179,7 @@ async def twilio_language_selected(request: Request):
     response.record(action=f"{base_url}/twilio/recording?commodity=unknown", method="POST", max_length=15, play_beep=True)
     return Response(content=str(response), media_type="text/xml")
 
-@app.post("/twilio/recording")
+@router.post("/twilio/recording")
 async def twilio_recording(request: Request):
     """Stage 3: Parse inbound details and check threshold"""
     try:
@@ -240,7 +241,7 @@ async def twilio_recording(request: Request):
         response.say("Thank you for calling Mandi Mitra. Your details have been noted.", language="en-IN")
         return Response(content=str(response), media_type="text/xml")
 
-@app.post("/twilio/farmer-confirm-recording")
+@router.post("/twilio/farmer-confirm-recording")
 async def twilio_farmer_confirm_recording(request: Request):
     """Stage 4: Farmer says yes/no to average price"""
     form_data = await request.form()
@@ -270,7 +271,7 @@ async def twilio_farmer_confirm_recording(request: Request):
 
     return Response(content="<Response><Say>Thank you.</Say></Response>", media_type="text/xml")
 
-@app.post("/twilio/buyer-bid-recording")
+@router.post("/twilio/buyer-bid-recording")
 async def twilio_buyer_bid_recording(request: Request):
     """Stage 5: Buyer states bid"""
     form_data = await request.form()
@@ -295,7 +296,7 @@ async def twilio_buyer_bid_recording(request: Request):
 
     return Response(content="<Response><Say>Thank you for your bid.</Say></Response>", media_type="text/xml")
 
-@app.post("/twilio/farmer-reject-recording")
+@router.post("/twilio/farmer-reject-recording")
 async def twilio_farmer_reject_recording(request: Request):
     """Stage 6: Farmer chooses market or pool"""
     form_data = await request.form()
@@ -310,7 +311,7 @@ async def twilio_farmer_reject_recording(request: Request):
         
     return Response(content="<Response><Say>Thank you, your preference is noted.</Say></Response>", media_type="text/xml")
 
-@app.get("/pools")
+@router.get("/pools")
 async def get_all_pools():
     """
     Frontend endpoint to fetch the live status of all commodity pools.
@@ -349,7 +350,7 @@ async def add_farmer(payload: dict):
     res.raise_for_status()
     return res.json()
 
-@app.post("/inbound-call")
+@router.post("/inbound-call")
 async def inbound_call(request: Request):
     try:
         form = await request.form()
@@ -438,14 +439,14 @@ async def inbound_call(request: Request):
             media_type="application/xml"
         )
 
-@app.get("/audio/{filename}")
+@router.get("/audio/{filename}")
 async def serve_audio(filename: str):
     return FileResponse(f"/tmp/{filename}",
                         media_type="audio/wav")
 
 
 
-@app.post("/inbound-confirm", response_model=InboundConfirmResponse)
+@router.post("/inbound-confirm", response_model=InboundConfirmResponse)
 async def handle_inbound_confirm(
     session_id: str = Form(...),
     phone_number: str = Form(...),
@@ -532,7 +533,7 @@ async def handle_inbound_confirm(
 
 
 
-@app.post("/callback/farmer", response_model=FarmerCallbackResponse)
+@router.post("/callback/farmer", response_model=FarmerCallbackResponse)
 async def callback_farmer(request: FarmerCallbackRequest):
     """
     Triggers an outbound call to the farmer in their native language with the final price.
@@ -551,7 +552,7 @@ async def callback_farmer(request: FarmerCallbackRequest):
     return FarmerCallbackResponse(status=result["status"], message_used=result["message_used"])
 
 
-@app.post("/callback/buyer", response_model=BuyerCallbackResponse)
+@router.post("/callback/buyer", response_model=BuyerCallbackResponse)
 async def callback_buyer(request: BuyerCallbackRequest):
     """
     Calls buyer with an offer and optionally asks for counter-offer.
@@ -571,7 +572,7 @@ async def callback_buyer(request: BuyerCallbackRequest):
     )
 
 
-@app.post("/notify")
+@router.post("/notify")
 async def notify_user(
     phone_number: str = Form(...),
     message: str = Form(...),
@@ -586,7 +587,7 @@ async def notify_user(
     return {"success": success}
 
 
-@app.post("/twilio/outbound-confirm-twiml")
+@router.post("/twilio/outbound-confirm-twiml")
 async def twilio_outbound_confirm_twiml(request: Request):
     """
     Returns the initial TwiML for an outbound farmer confirmation call in their chosen language.
@@ -612,3 +613,6 @@ async def twilio_outbound_confirm_twiml(request: Request):
     response.say(message, language="en-IN")
     response.record(action=f"{base_url}/twilio/farmer-confirm-recording", method="POST", max_length=10, play_beep=True)
     return Response(content=str(response), media_type="text/xml")
+
+
+app.include_router(router)

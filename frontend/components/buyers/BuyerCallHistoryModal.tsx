@@ -43,7 +43,7 @@ export default function BuyerCallHistoryModal({
     if (isOpen) {
       setIsLoading(true);
       setError(null);
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001";
+      const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001";
       fetch(`${baseUrl}/buyers/${buyerId}/call-history`)
         .then((res) => {
           if (!res.ok) throw new Error("Failed to fetch");

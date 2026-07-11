@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 
-const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:8001";
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || process.env.BACKEND_URL || "http://localhost:8001";
 // Override for hackathon demo to point to Voice Engine directly
-const VOICE_LAYER_URL = "http://127.0.0.1:5000";
+const VOICE_LAYER_URL = process.env.NEXT_PUBLIC_BACKEND_URL || process.env.VOICE_LAYER_URL || "http://localhost:8000";
 
 export const dynamic = "force-dynamic";
 
