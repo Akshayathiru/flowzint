@@ -60,9 +60,20 @@ export const buyerApi = {
 
   getActivePools: async (): Promise<{ data: AuctionPool[]; offline: boolean }> => {
     try {
-      const data = await request<AuctionPool[]>("/active");
+      const data = await request<any[]>("/active");
+      const mappedData: AuctionPool[] = data.map((p: any) => ({
+        pool_id: p.pool_id !== undefined ? p.pool_id : parseInt(p.poolId),
+        crop: p.crop,
+        location: p.location,
+        current_qty_kg: p.current_qty_kg !== undefined ? p.current_qty_kg : p.currentQtyKg,
+        target_qty_kg: p.target_qty_kg !== undefined ? p.target_qty_kg : p.targetQtyKg,
+        farmers_count: p.farmers_count !== undefined ? p.farmers_count : p.farmersCount,
+        status: p.status,
+        auctionEndTime: p.auctionEndTime,
+        auctionClosed: p.auctionClosed,
+      }));
       _isOffline = false;
-      return { data, offline: false };
+      return { data: mappedData, offline: false };
     } catch {
       _isOffline = true;
       return { data: MOCK_AUCTION_POOLS, offline: true };
