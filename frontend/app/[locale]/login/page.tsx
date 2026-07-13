@@ -45,6 +45,11 @@ function SessionExpiredBanner() {
 
 export default function LoginPage() {
   const t = useTranslations("auth");
+  const tRoles = useTranslations("roles");
+  const tFarmer = useTranslations("farmerAuth");
+  const tBuyer = useTranslations("buyerAuth");
+  const tAdmin = useTranslations("adminAuth");
+  const tBrand = useTranslations("brand");
   const router = useRouter();
   const { setCurrentBuyer } = useBuyerSessionStore();
   const { setPhone: setFarmerPhone } = useFarmerSessionStore();
@@ -91,7 +96,7 @@ export default function LoginPage() {
           setOffline(offline);
         })
         .catch((err) => {
-          setBuyerError(err.message || "Could not reach the backend server");
+          setBuyerError(err.message || tBuyer("backend_error"));
         })
         .finally(() => {
           setIsLoadingBuyers(false);
@@ -132,19 +137,19 @@ export default function LoginPage() {
 
   const handleSelectBuyer = (buyer: BuyerProfile) => {
     setCurrentBuyer(buyer);
-    toast.success(`Logged in as ${buyer.name}`);
+    toast.success(tBuyer("login_success", { name: buyer.name }));
     router.push("/buyer/auctions");
   };
 
   const handleFarmerSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!phoneInput || phoneInput.length < 10) {
-      toast.error("Please enter a valid 10-digit phone number");
+      toast.error(tFarmer("invalid_phone"));
       return;
     }
     const normalized = normalizePhone(phoneInput);
     setFarmerPhone(normalized);
-    toast.success(`Logged in as Farmer (${normalized})`);
+    toast.success(tFarmer("login_success", { phone: normalized }));
     router.push("/farmer/dashboard");
   };
 
@@ -156,13 +161,13 @@ export default function LoginPage() {
             className="font-bold text-sm tracking-widest uppercase text-[#6B4226]"
             style={{ fontFamily: "Mukta, sans-serif" }}
           >
-            MANDI MITRA
+            {tBrand("name")}
           </div>
           <div
             className="text-xs text-gray-500 mt-1 font-semibold"
             style={{ fontFamily: "Inter, sans-serif" }}
           >
-            Smart Agriculture Market Pooler
+            {tBrand("tagline")}
           </div>
         </div>
 
@@ -177,13 +182,13 @@ export default function LoginPage() {
               className="text-lg font-bold text-charcoal text-center mb-2"
               style={{ fontFamily: "Mukta, sans-serif" }}
             >
-              Sign in to Mandi Mitra
+              {tRoles("signin_heading")}
             </h2>
             <p
               className="text-xs text-gray-400 text-center mb-6 font-medium"
               style={{ fontFamily: "Inter, sans-serif" }}
             >
-              Choose your portal access role
+              {tRoles("choose_role")}
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
@@ -196,10 +201,10 @@ export default function LoginPage() {
                   <Sprout className="w-9 h-9" />
                 </div>
                 <h3 className="font-display font-semibold text-base text-charcoal mt-3" style={{ fontFamily: "Mukta, sans-serif" }}>
-                  Farmer
+                  {tRoles("farmer")}
                 </h3>
                 <p className="font-sans text-xs text-gray-400 mt-1 leading-normal">
-                  View your pools and track your crops
+                  {tRoles("farmer_desc")}
                 </p>
               </button>
 
@@ -212,10 +217,10 @@ export default function LoginPage() {
                   <Shield className="w-9 h-9" />
                 </div>
                 <h3 className="font-display font-semibold text-base text-charcoal mt-3" style={{ fontFamily: "Mukta, sans-serif" }}>
-                  Admin
+                  {tRoles("admin")}
                 </h3>
                 <p className="font-sans text-xs text-gray-400 mt-1 leading-normal">
-                  Manage pools, farmers, and settlements
+                  {tRoles("admin_desc")}
                 </p>
               </button>
 
@@ -228,10 +233,10 @@ export default function LoginPage() {
                   <Gavel className="w-9 h-9" />
                 </div>
                 <h3 className="font-display font-semibold text-base text-charcoal mt-3" style={{ fontFamily: "Mukta, sans-serif" }}>
-                  Buyer / Wholesaler
+                  {tRoles("buyer")}
                 </h3>
                 <p className="font-sans text-xs text-gray-400 mt-1 leading-normal">
-                  View live auctions and place bids
+                  {tRoles("buyer_desc")}
                 </p>
               </button>
             </div>
@@ -245,20 +250,20 @@ export default function LoginPage() {
               onClick={() => setSelectedRole(null)}
               className="text-xs text-gray-400 hover:text-charcoal font-semibold mb-4 text-left cursor-pointer transition-colors"
             >
-              &larr; Back to role selection
+              {tRoles("back_to_roles")}
             </button>
 
             <h2
               className="text-xl font-bold text-charcoal text-center mb-1"
               style={{ fontFamily: "Mukta, sans-serif" }}
             >
-              Farmer Login
+              {tFarmer("title")}
             </h2>
             <p
               className="text-sm text-gray-400 text-center mb-6"
               style={{ fontFamily: "Inter, sans-serif" }}
             >
-              Enter the phone number you call from
+              {tFarmer("subtitle")}
             </p>
 
             <form onSubmit={handleFarmerSubmit} className="flex flex-col gap-4">
@@ -268,7 +273,7 @@ export default function LoginPage() {
                   className="text-xs font-semibold text-gray-655 block mb-1"
                   style={{ fontFamily: "Inter, sans-serif" }}
                 >
-                  Phone Number
+                  {tFarmer("phone_label")}
                 </label>
                 <input
                   id="phone-input"
@@ -280,7 +285,7 @@ export default function LoginPage() {
                   className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-field-green/20 focus:border-field-green bg-white text-charcoal font-mono"
                 />
                 <p className="text-[11px] text-gray-400 mt-1">
-                  Enter your 10-digit phone number (the one you call from)
+                  {tFarmer("phone_helper")}
                 </p>
               </div>
 
@@ -289,12 +294,12 @@ export default function LoginPage() {
                 className="w-full bg-field-green text-white rounded-lg py-3 text-sm font-semibold hover:brightness-90 active:scale-[0.98] transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 shadow-sm cursor-pointer"
                 style={{ fontFamily: "Inter, sans-serif" }}
               >
-                Sign In
+                {tFarmer("signin")}
               </button>
             </form>
 
             <div className="text-xs text-gray-400 text-center mt-4">
-              Demo: use any phone from the farmer registry
+              {tFarmer("demo_hint")}
             </div>
           </div>
         )}
@@ -306,7 +311,7 @@ export default function LoginPage() {
               onClick={() => setSelectedRole(null)}
               className="text-xs text-gray-400 hover:text-charcoal font-semibold mb-4 text-left cursor-pointer transition-colors"
             >
-              &larr; Back to role selection
+              {tRoles("back_to_roles")}
             </button>
 
             <div
@@ -404,7 +409,7 @@ export default function LoginPage() {
               >
                 {isLoading ? (
                   <>
-                    <Loader2 size={14} className="animate-spin" /> Signing in...
+                    <Loader2 size={14} className="animate-spin" /> {tFarmer("signing_in")}
                   </>
                 ) : (
                   t("signin_button")
@@ -417,14 +422,14 @@ export default function LoginPage() {
                 className="text-[10px] text-gray-505 text-center mb-2 uppercase tracking-wider font-semibold"
                 style={{ fontFamily: "Inter, sans-serif" }}
               >
-                Demo credentials
+                {tAdmin("demo_credentials")}
               </div>
               <div className="flex justify-between items-center py-1.5">
                 <span
                   className="text-[10px] font-semibold text-gray-505"
                   style={{ fontFamily: "Inter, sans-serif" }}
                 >
-                  Admin
+                  {tRoles("admin")}
                 </span>
                 <span className="font-mono text-[10px] text-gray-550">
                   admin@mandimitra.in / admin2024
@@ -441,20 +446,20 @@ export default function LoginPage() {
               onClick={() => setSelectedRole(null)}
               className="text-xs text-gray-400 hover:text-charcoal font-semibold mb-4 text-left cursor-pointer transition-colors"
             >
-              &larr; Back to role selection
+              {tRoles("back_to_roles")}
             </button>
 
             <h2
               className="text-lg font-bold text-charcoal text-center mb-1"
               style={{ fontFamily: "Mukta, sans-serif" }}
             >
-              Buyer Portal
+              {tBuyer("title")}
             </h2>
             <p
               className="text-xs text-gray-500 text-center mb-6 font-medium"
               style={{ fontFamily: "Inter, sans-serif" }}
             >
-              Select your buyer profile to access live auctions
+              {tBuyer("subtitle")}
             </p>
 
             {/* SKELETON LOADERS */}
@@ -477,10 +482,10 @@ export default function LoginPage() {
             {buyerError && !isLoadingBuyers && (
               <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-center">
                 <p className="text-sm font-semibold text-alert-red">
-                  Could not reach the backend server
+                  {tBuyer("backend_error")}
                 </p>
                 <p className="text-[11px] text-gray-450 font-medium mt-1 leading-normal font-mono">
-                  Make sure the backend is running at {process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000"}
+                  {tBuyer("backend_hint", { url: process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000" })}
                 </p>
               </div>
             )}
@@ -492,13 +497,13 @@ export default function LoginPage() {
                 {buyers.length === 0 ? (
                   <div className="text-center py-8 bg-gray-50 border border-gray-200 rounded-xl">
                     <p className="text-xs text-gray-400 font-semibold mb-4">
-                      No buyers registered yet
+                      {tBuyer("no_buyers")}
                     </p>
                     <Link
                       href="/buyer/register"
                       className="inline-flex items-center justify-center bg-charcoal text-white rounded-lg px-4 py-2 font-sans font-semibold text-xs hover:brightness-90 active:scale-[0.98] transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 shadow-sm cursor-pointer"
                     >
-                      Register as Buyer &rarr;
+                      {tBuyer("register_cta")}
                     </Link>
                   </div>
                 ) : (
@@ -519,7 +524,7 @@ export default function LoginPage() {
                           {buyer.crop} &middot; {buyer.location}
                         </p>
                         <p className="font-sans text-[9px] text-gray-400 mt-1 font-semibold">
-                          Min lot: {buyer.min_quantity}kg
+                          {tBuyer("min_lot", { quantity: buyer.min_quantity })}
                         </p>
                       </button>
                     ))}
@@ -527,12 +532,12 @@ export default function LoginPage() {
                 )}
 
                 <div className="border-t border-gray-200 mt-6 pt-4 flex items-center justify-between text-xs font-semibold">
-                  <span className="text-gray-400 font-medium">Not registered yet?</span>
+                  <span className="text-gray-400 font-medium">{tBuyer("not_registered")}</span>
                   <Link
                     href="/buyer/register"
                     className="text-sky-blue hover:underline"
                   >
-                    Register as Buyer &rarr;
+                    {tBuyer("register_cta")}
                   </Link>
                 </div>
               </>

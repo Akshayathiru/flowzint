@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, usePathname, useRouter } from "@/lib/navigation";
 import { LayoutDashboard, User, CheckCircle, Store, Play } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
 import { useFarmerSessionStore } from "@/store/farmerSessionStore";
 
@@ -10,6 +11,8 @@ export default function FarmerSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { phone, clearSession } = useFarmerSessionStore();
+  const t = useTranslations("sidebar");
+  const tn = useTranslations("farmerNav");
 
   const [poolCount, setPoolCount] = useState<number | null>(null);
 
@@ -23,11 +26,11 @@ export default function FarmerSidebar() {
   }, []);
 
   const farmerNavItems = [
-    { label: "My Dashboard", href: "/farmer/dashboard", icon: LayoutDashboard },
-    { label: "My Profile", href: "/farmer/profile", icon: User },
-    { label: "Settlements", href: "/farmer/settlements", icon: CheckCircle },
-    { label: "Buyers", href: "/farmer/buyers", icon: Store },
-    { label: "Demo Panel", href: "/demo", icon: Play },
+    { label: tn("dashboard"), href: "/farmer/dashboard", icon: LayoutDashboard },
+    { label: tn("profile"), href: "/farmer/profile", icon: User },
+    { label: tn("settlements"), href: "/farmer/settlements", icon: CheckCircle },
+    { label: tn("buyers"), href: "/farmer/buyers", icon: Store },
+    { label: tn("demo"), href: "/demo", icon: Play },
   ];
 
   const handleSignOut = () => {
@@ -40,10 +43,10 @@ export default function FarmerSidebar() {
       {/* TOP SECTION */}
       <div className="px-4 pt-5 pb-4 border-b border-gray-100 shrink-0">
         <span className="font-display font-bold text-sm tracking-widest uppercase text-soil-brown">
-          MANDI MITRA
+          {t("brand")}
         </span>
         <p className="font-sans text-[10px] text-gray-400 mt-0.5 font-semibold">
-          Farmer Portal
+          {t("farmer_portal")}
         </p>
       </div>
 
@@ -83,7 +86,7 @@ export default function FarmerSidebar() {
             </span>
             <div className="flex items-center gap-1.5 mt-2">
               <span className="border border-field-green text-field-green text-[10px] uppercase tracking-wider rounded px-2.5 py-1 font-bold select-none bg-field-green/10">
-                FARMER
+                {t("farmer_badge")}
               </span>
             </div>
           </div>
@@ -91,7 +94,7 @@ export default function FarmerSidebar() {
             onClick={handleSignOut}
             className="text-left font-sans text-xs font-semibold text-alert-red hover:underline mt-1 cursor-pointer select-none"
           >
-            Sign Out
+            {t("sign_out")}
           </button>
         </div>
       )}
@@ -99,7 +102,7 @@ export default function FarmerSidebar() {
       {/* LANGUAGE SWITCHER */}
       <div className="px-4 py-4 border-t border-gray-100 shrink-0 bg-white">
         <span className="font-sans text-[10px] uppercase tracking-wider text-gray-500 font-bold block mb-2">
-          Language
+          {t("language")}
         </span>
         <LanguageSwitcher />
       </div>
@@ -112,13 +115,13 @@ export default function FarmerSidebar() {
             <span className="relative inline-flex rounded-full h-2 w-2 bg-field-green animate-pulse"></span>
           </span>
           <span className="font-sans text-xs text-gray-455 font-bold">
-            System Live
+            {t("system_live")}
           </span>
         </div>
         <p className="font-sans text-[10px] text-gray-500 mt-1 font-semibold">
           {poolCount !== null
-            ? `${poolCount} active pool${poolCount !== 1 ? "s" : ""}`
-            : "System Live"}
+            ? t("active_pools", { count: poolCount })
+            : t("system_live")}
         </p>
       </div>
     </aside>

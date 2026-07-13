@@ -9,6 +9,7 @@ import { useBuyerSessionStore } from "@/store/buyerSessionStore";
 import { buyerApi } from "@/lib/buyerApi";
 import { toast } from "sonner";
 import LanguageBadge from "@/components/shared/LanguageBadge";
+import { useTranslations } from "next-intl";
 
 interface PageProps {
   params: {
@@ -21,6 +22,9 @@ export default function BuyerPoolDetailPage({ params }: PageProps) {
   const router = useRouter();
   const poolId = parseInt(params.poolId);
   const { isLoggedIn, currentBuyer, addBid, bidHistory, hasHydrated } = useBuyerSessionStore();
+  const t = useTranslations("poolDetail");
+  const tAuc = useTranslations("buyerAuctions");
+  const tDash = useTranslations("farmerDashboard");
 
   const [pool, setPool] = useState<any | null>(null);
   const [poolLoading, setPoolLoading] = useState(true);
@@ -123,7 +127,7 @@ export default function BuyerPoolDetailPage({ params }: PageProps) {
         <div className="flex flex-col items-center justify-center p-8 bg-red-50 border border-red-200 rounded-xl max-w-md mx-auto text-center shadow-sm">
           <AlertCircle className="w-8 h-8 text-alert-red mb-3" />
           <h3 className="font-sans font-semibold text-sm text-red-600">
-            Could not load pool details
+            {t("error_title")}
           </h3>
           <p className="font-sans text-xs text-gray-400 mt-1">
             Make sure the backend is running
@@ -132,7 +136,7 @@ export default function BuyerPoolDetailPage({ params }: PageProps) {
             onClick={fetchPoolData}
             className="border border-gray-200 rounded-lg px-4 py-2 mt-4 bg-white text-xs font-semibold text-charcoal hover:bg-gray-50 active:bg-gray-100 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 shadow-sm cursor-pointer"
           >
-            Retry
+            {t("retry")}
           </button>
         </div>
       </div>
@@ -159,11 +163,11 @@ export default function BuyerPoolDetailPage({ params }: PageProps) {
   };
 
   const formatTime = (ms: number) => {
-    if (ms <= 0) return "Auction Closed";
+    if (ms <= 0) return tAuc("auction_closed");
     const totalSecs = Math.floor(ms / 1000);
     const mins = Math.floor(totalSecs / 60);
     const secs = totalSecs % 60;
-    return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")} remaining`;
+    return tAuc("remaining", { time: `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}` });
   };
 
   const percent = pool.target_qty_kg > 0 ? (pool.current_qty_kg / pool.target_qty_kg) * 100 : 0;
@@ -203,11 +207,11 @@ export default function BuyerPoolDetailPage({ params }: PageProps) {
         location: pool.location,
       });
 
-      toast.success(`Bid placed — ₹${parsedPrice}/kg for ${parsedQty}kg`);
+      toast.success(tAuc("bid_success", { price: parsedPrice, quantity: parsedQty }));
       setPrice("");
       setQuantity("");
     } catch (err: any) {
-      toast.error(err.message || "Failed to place bid");
+      toast.error(err.message || tAuc("bid_error"));
     } finally {
       setIsSubmitting(false);
     }
@@ -226,11 +230,11 @@ export default function BuyerPoolDetailPage({ params }: PageProps) {
               className="flex items-center gap-1 text-gray-500 hover:text-charcoal font-sans text-sm transition-colors font-medium"
             >
               <ChevronLeft size={16} />
-              <span>Auctions</span>
+              <span>{t("back_to_auctions")}</span>
             </Link>
             <span className="text-gray-300">/</span>
             <span className="font-semibold text-base text-charcoal font-mono">
-              Pool #{pool.pool_id}
+              {t("pool_number", { id: pool.pool_id })}
             </span>
           </div>
         }
@@ -265,7 +269,7 @@ export default function BuyerPoolDetailPage({ params }: PageProps) {
                 </div>
                 <div className="flex justify-between text-[10px] text-gray-400 mt-1">
                   <span>{percentage}% complete</span>
-                  <span>{pool.farmers_count} farmers pooled</span>
+                  <span>{tAuc("farmers_pooled", { count: pool.farmers_count })}</span>
                 </div>
               </div>
             </div>
@@ -275,29 +279,29 @@ export default function BuyerPoolDetailPage({ params }: PageProps) {
               <div className="flex items-center gap-2">
                 <Users className="w-4 h-4 text-gray-400" />
                 <div>
-                  <span className="text-[9px] text-gray-455 block font-bold uppercase">Farmers</span>
+                  <span className="text-[9px] text-gray-455 block font-bold uppercase">{t("quick_stats_farmers")}</span>
                   <span className="text-xs font-semibold text-charcoal">{pool.farmers_count}</span>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-gray-400" />
                 <div>
-                  <span className="text-[9px] text-gray-455 block font-bold uppercase">Timeline</span>
-                  <span className="text-xs font-semibold text-charcoal">90 Minutes</span>
+                  <span className="text-[9px] text-gray-455 block font-bold uppercase">{t("quick_stats_timeline")}</span>
+                  <span className="text-xs font-semibold text-charcoal">{t("timeline_value")}</span>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <Compass className="w-4 h-4 text-gray-400" />
                 <div>
-                  <span className="text-[9px] text-gray-450 block font-bold uppercase">District</span>
+                  <span className="text-[9px] text-gray-450 block font-bold uppercase">{t("quick_stats_district")}</span>
                   <span className="text-xs font-semibold text-charcoal capitalize">{pool.location}</span>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <Shield className="w-4 h-4 text-gray-400" />
                 <div>
-                  <span className="text-[9px] text-gray-455 block font-bold uppercase">Assurance</span>
-                  <span className="text-xs font-semibold text-charcoal">FPO Quality</span>
+                  <span className="text-[9px] text-gray-455 block font-bold uppercase">{t("quick_stats_assurance")}</span>
+                  <span className="text-xs font-semibold text-charcoal">{t("assurance_value")}</span>
                 </div>
               </div>
             </div>
@@ -307,7 +311,7 @@ export default function BuyerPoolDetailPage({ params }: PageProps) {
         {/* BID SECTION */}
         <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
           <h3 className="font-display font-semibold text-base text-charcoal mb-4">
-            Auction Bidding
+            {t("auction_bidding")}
           </h3>
 
           {isBiddingDisabled ? (
@@ -315,12 +319,12 @@ export default function BuyerPoolDetailPage({ params }: PageProps) {
               {pool.status === "settled" ? (
                 <div>
                   <span className="font-bold text-field-green not-italic block text-sm mb-1">
-                    Auction Settled Successfully
+                    {t("settled_info")}
                   </span>
                   Allocated to winning bidder at <span className="font-bold text-charcoal">₹12.00/kg</span> for <span className="font-bold text-charcoal">500kg</span> lot.
                 </div>
               ) : (
-                "Bidding is currently closed for this pool."
+                tAuc("bidding_closed")
               )}
             </div>
           ) : (
@@ -337,11 +341,11 @@ export default function BuyerPoolDetailPage({ params }: PageProps) {
                     required
                     value={price}
                     onChange={(e) => setPrice(e.target.value)}
-                    placeholder="Price per kg"
+                    placeholder={tAuc("price_placeholder")}
                     className="w-full pl-6 pr-8 border border-gray-200 rounded-lg py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-gray-300 font-sans bg-white text-charcoal"
                   />
                   <span className="absolute inset-y-0 right-0 pr-2 flex items-center text-gray-400 font-sans text-xs">
-                    /kg
+                    {tAuc("per_kg")}
                   </span>
                 </div>
 
@@ -353,11 +357,11 @@ export default function BuyerPoolDetailPage({ params }: PageProps) {
                     required
                     value={quantity}
                     onChange={(e) => setQuantity(e.target.value)}
-                    placeholder="Quantity"
+                    placeholder={tAuc("qty_placeholder")}
                     className="w-full pr-8 pl-3 border border-gray-200 rounded-lg py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-gray-300 font-sans bg-white text-charcoal"
                   />
                   <span className="absolute inset-y-0 right-0 pr-2 flex items-center text-gray-400 font-sans text-xs">
-                    kg
+                    {tAuc("kg")}
                   </span>
                 </div>
 
@@ -369,10 +373,10 @@ export default function BuyerPoolDetailPage({ params }: PageProps) {
                   {isSubmitting ? (
                     <>
                       <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
-                      Submitting Bid...
+                      {tAuc("placing")}
                     </>
                   ) : (
-                    "Submit Live Bid"
+                    tAuc("place_bid")
                   )}
                 </button>
               </div>
@@ -383,7 +387,7 @@ export default function BuyerPoolDetailPage({ params }: PageProps) {
           {poolBids.length > 0 && (
             <div className="mt-6 pt-4 border-t border-dashed border-gray-200">
               <span className="font-sans text-[10px] uppercase tracking-widest text-gray-400 font-bold block mb-3">
-                Your Bids for this Pool
+                {tAuc("your_bids")}
               </span>
               <div className="flex flex-col gap-2 max-h-32 overflow-y-auto pr-1">
                 {poolBids.map((bid, idx) => (
@@ -396,7 +400,7 @@ export default function BuyerPoolDetailPage({ params }: PageProps) {
                         {new Date(bid.timestamp).toLocaleTimeString()}
                       </span>
                       <span className="bg-sky-blue/10 text-sky-blue text-[9px] font-bold rounded px-1.5 py-0.5 uppercase tracking-wide">
-                        Received
+                        {tAuc("submitted")}
                       </span>
                     </div>
                   </div>
@@ -409,17 +413,17 @@ export default function BuyerPoolDetailPage({ params }: PageProps) {
         {/* FARMERS IN THIS POOL */}
         <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
           <h3 className="font-display font-semibold text-base text-charcoal mb-4">
-            Farmers in this Pool
+            {t("farmers_in_pool")}
           </h3>
 
           {farmersLoading ? (
             <div className="flex items-center justify-center py-8 text-xs text-gray-400 gap-2 font-sans">
               <Loader2 className="w-4 h-4 animate-spin text-soil-brown" />
-              <span>Loading farmers...</span>
+              <span>{tDash("loading_farmers")}</span>
             </div>
           ) : farmersError ? (
             <div className="py-6 text-center text-xs text-alert-red font-sans">
-              Could not load farmer details
+              {t("no_farmers")}
             </div>
           ) : farmers.length === 0 ? (
             <div className="py-6 text-center text-xs text-gray-400 font-sans italic">
@@ -430,11 +434,11 @@ export default function BuyerPoolDetailPage({ params }: PageProps) {
               <table className="w-full text-left border-collapse text-xs font-sans">
                 <thead>
                   <tr className="bg-gray-50/50 text-gray-400 font-medium uppercase tracking-widest text-[10px]">
-                    <th scope="col" className="px-4 py-3">Phone Number</th>
-                    <th scope="col" className="px-4 py-3">Quantity (kg)</th>
-                    <th scope="col" className="px-4 py-3">Call Time</th>
-                    <th scope="col" className="px-4 py-3">Language</th>
-                    <th scope="col" className="px-4 py-3">Trust Score</th>
+                    <th scope="col" className="px-4 py-3">{t("phone")}</th>
+                    <th scope="col" className="px-4 py-3">{t("quantity")} (kg)</th>
+                    <th scope="col" className="px-4 py-3">{t("call_time")}</th>
+                    <th scope="col" className="px-4 py-3">{t("language")}</th>
+                    <th scope="col" className="px-4 py-3">{t("trust_score")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 text-gray-655">

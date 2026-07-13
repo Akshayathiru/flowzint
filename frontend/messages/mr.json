@@ -5,6 +5,7 @@
     "headline2": "एक कॉल. नव्वद मिनिटे.",
     "subheadline": "अल्पभूधारक शेतकरी त्यांचे पीक आणि प्रमाण सांगण्यासाठी कॉल करतात. आमची प्रणाली त्यांना एकत्रित करते, नोंदणीकृत घाऊक खरेदीदारांना लॉटचा लिलाव करते आणि सत्यापित किंमतीसह प्रत्येक शेतकऱ्याला परत कॉल करते - कोणत्याही ॲप, सदस्यत्व किंवा साक्षरतेशिवाय.",
     "cta_primary": "ऑपरेटर डॅशबोर्ड उघडा",
+    "cta_buyer": "मी खरेदीदार आहे",
     "cta_secondary": "डेमो प्रवाह पहा",
     "stats_pools": "सक्रिय गट",
     "stats_farmers": "आज कॉल केलेले शेतकरी",
@@ -27,7 +28,13 @@
     "trust2_stat": "6 भाषा",
     "trust2_label": "तमिळ, तेलगू, हिंदी, कन्नड, मराठी, बंगाली",
     "trust3_stat": "< 90 मिनिटे",
-    "trust3_label": "पहिल्या कॉलपासून ते व्यवहाराच्या पुष्टीकरणापर्यंत"
+    "trust3_label": "पहिल्या कॉलपासून ते व्यवहाराच्या पुष्टीकरणापर्यंत",
+    "cta_farmer": "मी शेतकरी आहे",
+    "cta_demo": "Demo प्रवाह पहा",
+    "how_it_works": "हे कसे कार्य करते",
+    "how_it_works_sub": "पाच पायऱ्या. एक कॉल.",
+    "trust2_sub": "स्थानिक भाषेत पूर्णपणे संवादात्मक कॉल्स",
+    "trust3_sub": "सत्यापित घाऊक लिलाव किमतींसह त्वरित कॉलबॅक"
   },
   "nav": {
     "dashboard": "डॅशबोर्ड",
@@ -189,5 +196,298 @@
     "date": "तारीख",
     "today": "आज",
     "yesterday": "काल"
+  },
+
+  "brand": {
+    "name": "MANDI MITRA",
+    "tagline": "स्मार्ट कृषी बाजार पूलिंग प्रणाली"
+  },
+
+  "roles": {
+    "farmer": "शेतकरी",
+    "admin": "ॲडमिन",
+    "buyer": "खरेदीदार / घाऊक व्यापारी",
+    "farmer_desc": "तुमचे गट पहा आणि तुमच्या पिकांचा मागोवा घ्या",
+    "admin_desc": "गट, शेतकरी आणि देयके व्यवस्थापित करा",
+    "buyer_desc": "लाइव्ह लिलाव पहा आणि बोली लावा",
+    "choose_role": "तुमची पोर्टल प्रवेश भूमिका निवडा",
+    "signin_heading": "मंडी मित्रमध्ये साइन इन करा",
+    "back_to_roles": "← भूमिका निवडीकडे परत जा"
+  },
+
+  "farmerAuth": {
+    "title": "शेतकरी लॉगिन",
+    "subtitle": "तुम्ही कॉल करता तो फोन नंबर टाका",
+    "phone_label": "फोन नंबर",
+    "phone_helper": "तुमचा 10-अंकी फोन नंबर टाका (ज्यावरून तुम्ही कॉल करता)",
+    "signin": "साइन इन करा",
+    "signing_in": "साइन इन होत आहे...",
+    "demo_hint": "Demo: शेतकरी नोंदणीमधील कोणताही फोन नंबर वापरा",
+    "invalid_phone": "कृपया वैध 10-अंकी फोन नंबर टाका",
+    "login_success": "शेतकरी म्हणून लॉगिन केले ({phone})"
+  },
+
+  "buyerAuth": {
+    "title": "खरेदीदार पोर्टल",
+    "subtitle": "लाइव्ह लिलावात प्रवेश करण्यासाठी तुमची खरेदीदार प्रोफाइल निवडा",
+    "no_buyers": "अद्याप कोणतेही खरेदीदार नोंदणीकृत नाहीत",
+    "register_cta": "खरेदीदार म्हणून नोंदणी करा →",
+    "not_registered": "अजून नोंदणी केली नाही?",
+    "min_lot": "किमान लॉट: {quantity}किलो",
+    "login_success": "{name} म्हणून लॉगिन केले",
+    "backend_error": "बॅकएंड सर्व्हरपर्यंत पोहोचता आले नाही",
+    "backend_hint": "बॅकएंड {url} वर सुरू असल्याची खात्री करा"
+  },
+
+  "adminAuth": {
+    "demo_credentials": "Demo क्रेडेन्शियल्स"
+  },
+
+  "farmerDashboard": {
+    "title": "माझा Dashboard",
+    "subtitle": "तुमचे सक्रिय गट आणि अलीकडील क्रियाकलाप",
+    "welcome": "स्वागत आहे, {name}",
+    "cta_title": "विकण्यासाठी पीक आहे का?",
+    "cta_subtitle": "पुढील गटात सामील होण्यासाठी आमच्या आयव्हीआरला कॉल करा",
+    "cta_phone": "1800-120-MITRA",
+    "stat_active_pools": "सक्रिय गट",
+    "stat_total_qty": "एकूण योगदान प्रमाण",
+    "stat_total_earnings": "एकूण कमाई",
+    "stat_trust_score": "विश्वासार्हता स्कोअर",
+    "my_pools": "माझे गट",
+    "no_pools": "तुम्ही अद्याप कोणत्याही गटाचा भाग नाही",
+    "no_pools_hint": "जवळच्या शेतकऱ्यांसोबत एकत्र येण्यासाठी आयव्हीआर नंबरवर कॉल करा",
+    "your_contribution": "तुमचे योगदान",
+    "settled_price": "निपटलेली किंमत",
+    "mandi_avg": "मंडी सरासरी: ₹{rate}/किलो · {premium}% अधिक",
+    "view_details": "तपशील पहा",
+    "recent_activity": "अलीकडील क्रियाकलाप",
+    "no_activity": "अलीकडील क्रियाकलाप नाही",
+    "pool_details": "गट तपशील",
+    "pool_number": "गट #{id}",
+    "status": "स्थिती",
+    "total_qty_pooled": "एकूण एकत्रित प्रमाण",
+    "target_qty": "लक्ष्य प्रमाण",
+    "farmers_participated": "सहभागी शेतकरी",
+    "farmers_in_pool": "या गटातील शेतकरी",
+    "loading_farmers": "शेतकरी लोड होत आहेत...",
+    "no_farmers_data": "शेतकरी तपशील लोड करता आले नाहीत",
+    "phone": "फोन",
+    "quantity": "प्रमाण",
+    "trust_score": "विश्वासार्हता स्कोअर",
+    "language": "भाषा",
+    "close": "बंद करा",
+    "error_title": "तुमचा डेटा लोड करता आला नाही",
+    "error_hint": "बॅकएंड सुरू असल्याची खात्री करा",
+    "retry": "पुन्हा प्रयत्न करा"
+  },
+
+  "farmerProfile": {
+    "title": "माझी प्रोफाइल",
+    "farmer_name": "शेतकऱ्याचे नाव",
+    "phone_number": "फोन नंबर",
+    "primary_location": "मुख्य ठिकाण",
+    "primary_crop": "मुख्य पीक",
+    "member_since": "सदस्यत्व तारीख",
+    "trust_score": "विश्वासार्हता स्कोअर",
+    "total_calls": "एकूण कॉल",
+    "pools_joined": "सामील गट",
+    "total_earnings": "एकूण कमाई",
+    "call_history": "कॉल इतिहास",
+    "no_calls": "कॉल इतिहास उपलब्ध नाही",
+    "settlement_history": "देयक इतिहास",
+    "no_settlements": "अद्याप कोणतेही देयक नाही",
+    "date_time": "तारीख / वेळ",
+    "crop": "पीक",
+    "qty": "प्रमाण",
+    "location": "ठिकाण",
+    "pool": "गट",
+    "call_status": "स्थिती",
+    "price_per_kg": "किंमत/किलो",
+    "premium": "प्रीमियम",
+    "total_amount": "एकूण रक्कम",
+    "buyers": "खरेदीदार",
+    "date": "तारीख"
+  },
+
+  "farmerSettlements": {
+    "title": "माझी देयके",
+    "subtitle": "पूर्ण झालेले गट आणि कमाई",
+    "stat_total_pools": "एकूण निकाली गट",
+    "stat_total_earnings": "एकूण कमाई",
+    "stat_avg_premium": "मंडईपेक्षा सरासरी प्रीमियम",
+    "no_settlements": "अद्याप कोणतेही देयक नाही",
+    "no_settlements_hint": "तुमचा पहिला निकाली गट येथे दिसेल",
+    "pool_id": "गट",
+    "crop": "पीक",
+    "location": "ठिकाण",
+    "your_qty": "तुमचे प्रमाण",
+    "price_per_kg": "किंमत/किलो",
+    "mandi_rate": "मंडी दर",
+    "premium": "प्रीमियम",
+    "total": "एकूण",
+    "buyers": "खरेदीदार",
+    "date": "तारीख",
+    "view_receipt": "पावती पहा",
+    "download_receipt": "पावती डाउनलोड करा",
+    "copy_receipt": "क्लिपबोर्डवर कॉपी करा",
+    "receipt_copied": "पावती क्लिपबोर्डवर कॉपी केली",
+    "receipt_title": "मंडी मित्र देयक पावती",
+    "receipt_subtitle": "पीक निपटारा प्रमाणपत्र",
+    "settlement_details": "देयक तपशील",
+    "total_quantity": "एकूण प्रमाण",
+    "market_rate": "मंडी बाजार दर",
+    "selling_price": "तुमची विक्री किंमत",
+    "premium_over_market": "बाजारापेक्षा प्रीमियम",
+    "total_earnings": "एकूण कमाई",
+    "settlement_date": "देयक तारीख",
+    "receipt_footer": "ही पावती तुमच्या विक्रीचा पुरावा आहे.",
+    "receipt_contact": "वादांसाठी 1800-120-MITRA शी संपर्क साधा.",
+    "pool_detail_error": "या गटातील इतर शेतकऱ्यांचे तपशील लोड करता आले नाहीत.",
+    "receipt_error": "पावती तपशील लोड करण्यात अयशस्वी."
+  },
+
+  "farmerBuyers": {
+    "title": "तुमच्या भागातील खरेदीदार",
+    "subtitle": "नोंदणीकृत घाऊक व्यापारी आणि डीलर",
+    "no_buyers": "तुमच्या भागात कोणतेही खरेदीदार नोंदणीकृत नाहीत",
+    "buys": "खरेदी करतो: {crop}",
+    "min_lot": "किमान लॉट: {quantity} किलो",
+    "unknown": "अज्ञात"
+  },
+
+  "buyerAuctions": {
+    "title": "लाइव्ह लिलाव",
+    "subtitle": "तुमच्या भागातील सक्रिय गटांवर बोली लावा",
+    "log_out": "लॉग आउट",
+    "no_auctions": "सध्या कोणतेही सक्रिय लिलाव नाहीत",
+    "no_auctions_hint": "लवकरच पुन्हा तपासा — शेतकरी कॉल करतात तेव्हा गट तयार होतात",
+    "pool_number": "गट #{id}",
+    "farmers_pooled": "{count} शेतकरी एकत्रित",
+    "bidding_closed": "या गटासाठी बोली बंद आहे",
+    "remaining": "{time} शिल्लक",
+    "auction_closed": "लिलाव बंद",
+    "place_bid": "बोली लावा",
+    "placing": "बोली लावत आहे...",
+    "price_placeholder": "किंमत",
+    "qty_placeholder": "प्रमाण",
+    "per_kg": "/किलो",
+    "kg": "किलो",
+    "your_bids": "तुमच्या बोली",
+    "submitted": "सादर केले",
+    "bid_success": "बोली लावली — ₹{price}/किलो, {quantity}किलोसाठी",
+    "bid_success_demo": "बोली सिम्युलेट केली — ₹{price}/किलो, {quantity}किलोसाठी (Demo मोड)",
+    "bid_error": "बोली लावण्यात अयशस्वी"
+  },
+
+  "buyerBids": {
+    "title": "माझा बोली इतिहास",
+    "subtitle": "तुम्ही लिलावांमध्ये लावलेल्या सर्व बोली",
+    "no_bids": "अद्याप कोणतीही बोली नाही",
+    "no_bids_hint": "तुमची पहिली बोली लावण्यासाठी लाइव्ह लिलावाकडे जा.",
+    "go_to_auctions": "लाइव्ह लिलावाकडे जा",
+    "pool": "गट",
+    "crop": "पीक",
+    "location": "ठिकाण",
+    "price": "किंमत",
+    "quantity": "प्रमाण",
+    "time": "वेळ",
+    "status": "स्थिती"
+  },
+
+  "buyerProfile": {
+    "title": "माझी प्रोफाइल",
+    "subtitle": "तुमच्या खरेदीदार खात्याचे तपशील",
+    "business_name": "व्यवसायाचे नाव",
+    "phone": "फोन",
+    "crop_interest": "पीक आवड",
+    "location": "ठिकाण",
+    "min_lot": "किमान लॉट आकार",
+    "total_bids": "एकूण बोली लावल्या",
+    "auctions_won": "जिंकलेले लिलाव",
+    "avg_bid_price": "सरासरी बोली किंमत",
+    "bid_history": "बोली इतिहास",
+    "no_bids": "अद्याप कोणतीही बोली नाही"
+  },
+
+  "buyerSettlements": {
+    "title": "देयके",
+    "subtitle": "पूर्ण झालेले लिलाव आणि पेमेंट नोंदी",
+    "stat_total": "एकूण निकाली",
+    "stat_volume": "एकूण प्रमाण",
+    "stat_value": "एकूण मूल्य",
+    "no_settlements": "अद्याप कोणतेही देयक नाही",
+    "pool": "गट",
+    "crop": "पीक",
+    "location": "ठिकाण",
+    "qty": "वाटप केलेले प्रमाण",
+    "price": "किंमत/किलो",
+    "total": "एकूण",
+    "date": "तारीख"
+  },
+
+  "buyerFarmers": {
+    "title": "शेतकरी नोंदणी",
+    "subtitle": "पूलिंग नेटवर्कमधील सर्व शेतकरी",
+    "total_farmers": "{count} एकूण शेतकरी",
+    "active_today": "{count} आज सक्रिय",
+    "flagged": "{count} फ्लॅग केलेले"
+  },
+
+  "poolDetail": {
+    "back_to_auctions": "लिलाव",
+    "pool_number": "गट #{id}",
+    "quick_stats_farmers": "शेतकरी",
+    "quick_stats_timeline": "टाइमलाइन",
+    "quick_stats_district": "जिल्हा",
+    "quick_stats_assurance": "हमी",
+    "timeline_value": "90 मिनिटे",
+    "assurance_value": "एफपीओ गुणवत्ता",
+    "auction_bidding": "लिलाव बोली",
+    "settled_info": "लिलाव यशस्वीरित्या निकाली झाला",
+    "farmers_in_pool": "या गटातील शेतकरी",
+    "no_farmers": "शेतकरी तपशील लोड करता आले नाहीत",
+    "phone": "फोन",
+    "quantity": "प्रमाण",
+    "trust_score": "विश्वासार्हता स्कोअर",
+    "call_time": "कॉल वेळ",
+    "language": "भाषा",
+    "error_title": "गट तपशील लोड करता आले नाहीत",
+    "retry": "पुन्हा प्रयत्न करा"
+  },
+
+  "sidebar": {
+    "brand": "MANDI MITRA",
+    "farmer_portal": "शेतकरी पोर्टल",
+    "buyer_portal": "खरेदीदार पोर्टल",
+    "admin_dashboard": "ॲडमिन Dashboard",
+    "sign_out": "साइन आउट",
+    "language": "भाषा",
+    "system_live": "सिस्टम लाइव्ह",
+    "active_pools": "{count} सक्रिय गट",
+    "farmer_badge": "शेतकरी",
+    "buyer_badge": "खरेदीदार",
+    "admin_badge": "ॲडमिन"
+  },
+
+  "farmerNav": {
+    "dashboard": "माझा Dashboard",
+    "profile": "माझी प्रोफाइल",
+    "settlements": "देयके",
+    "buyers": "खरेदीदार",
+    "demo": "Demo पॅनेल"
+  },
+
+  "buyerNav": {
+    "auctions": "लाइव्ह लिलाव",
+    "bids": "माझ्या बोली",
+    "profile": "माझी प्रोफाइल",
+    "farmers": "शेतकरी",
+    "settlements": "देयके",
+    "demo": "Demo पॅनेल"
+  },
+
+  "offline": {
+    "banner": "बॅकएंड ऑफलाइन आहे — Demo डेटा दाखवत आहे"
   }
 }

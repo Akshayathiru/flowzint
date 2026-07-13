@@ -5,11 +5,15 @@ import { useRouter } from "@/lib/navigation";
 import { useFarmerSessionStore } from "@/store/farmerSessionStore";
 import { farmerApi } from "@/lib/farmerApi";
 import { Star, ShieldAlert, AlertCircle, PhoneCall, Sprout, CheckCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 import LanguageBadge from "@/components/shared/LanguageBadge";
 
 export default function FarmerProfilePage() {
   const router = useRouter();
   const { phone, isLoggedIn, hasHydrated } = useFarmerSessionStore();
+  const t = useTranslations("farmerProfile");
+  const tRoles = useTranslations("roles");
+  const tDash = useTranslations("farmerDashboard");
 
   const [profile, setProfile] = useState<{
     phone: string;
@@ -112,7 +116,7 @@ export default function FarmerProfilePage() {
           className="text-2xl font-bold text-charcoal"
           style={{ fontFamily: "Mukta, sans-serif" }}
         >
-          My Profile
+          {t("title")}
         </h1>
       </div>
 
@@ -161,37 +165,37 @@ export default function FarmerProfilePage() {
                 <div className="space-y-3.5">
                   <div>
                     <label className="text-[10px] text-gray-400 font-medium uppercase tracking-widest block">
-                      Farmer Name
+                      {t("farmer_name")}
                     </label>
                     <span className="text-base font-semibold text-charcoal" style={{ fontFamily: "Mukta, sans-serif" }}>
-                      {profile.name || "Farmer"}
+                      {profile.name || tRoles("farmer")}
                     </span>
                   </div>
 
                   <div>
                     <label className="text-[10px] text-gray-400 font-medium uppercase tracking-widest block">
-                      Phone Number
+                      {t("phone_number")}
                     </label>
                     <span className="font-mono text-base font-medium text-charcoal">{profile.phone}</span>
                   </div>
 
                   <div>
                     <label className="text-[10px] text-gray-400 font-medium uppercase tracking-widest block">
-                      Primary Location
+                      {t("primary_location")}
                     </label>
                     <span className="text-sm text-charcoal font-medium capitalize">{profile.location}</span>
                   </div>
 
                   <div>
                     <label className="text-[10px] text-gray-400 font-medium uppercase tracking-widest block">
-                      Primary Crop
+                      {t("primary_crop")}
                     </label>
                     <span className="text-sm text-charcoal font-medium capitalize">{profile.primary_crop}</span>
                   </div>
 
                   <div>
                     <label className="text-[10px] text-gray-400 font-medium uppercase tracking-widest block">
-                      Member Since
+                      {t("member_since")}
                     </label>
                     <span className="text-xs text-gray-450 font-medium font-mono">
                       {new Date(profile.member_since).toLocaleDateString([], { month: "long", year: "numeric" })}
@@ -211,7 +215,7 @@ export default function FarmerProfilePage() {
                       )}
                     </div>
                     <div>
-                      <span className="text-[10px] uppercase font-medium tracking-widest text-gray-500 block">Trust Score</span>
+                      <span className="text-[10px] uppercase font-medium tracking-widest text-gray-500 block">{t("trust_score")}</span>
                       <span className="text-2xl font-semibold font-display leading-tight">{profile.trust_score.toFixed(1)}</span>
                     </div>
                   </div>
@@ -219,15 +223,15 @@ export default function FarmerProfilePage() {
                   {/* Stat boxes */}
                   <div className="grid grid-cols-3 gap-4 w-full">
                     <div className="bg-gray-50 rounded-xl p-3 border border-gray-100 text-center">
-                      <span className="text-[9px] text-gray-400 font-medium uppercase tracking-widest block">Total Calls</span>
+                      <span className="text-[9px] text-gray-400 font-medium uppercase tracking-widest block">{t("total_calls")}</span>
                       <span className="text-lg font-semibold font-display text-charcoal">{profile.total_calls}</span>
                     </div>
                     <div className="bg-gray-50 rounded-xl p-3 border border-gray-100 text-center">
-                      <span className="text-[9px] text-gray-400 font-medium uppercase tracking-widest block">Pools Joined</span>
+                      <span className="text-[9px] text-gray-400 font-medium uppercase tracking-widest block">{t("pools_joined")}</span>
                       <span className="text-lg font-semibold font-display text-charcoal">{profile.total_pools}</span>
                     </div>
                     <div className="bg-gray-50 rounded-xl p-3 border border-gray-100 text-center">
-                      <span className="text-[9px] text-gray-400 font-medium uppercase tracking-widest block">Total Qty</span>
+                      <span className="text-[9px] text-gray-400 font-medium uppercase tracking-widest block">{t("qty")}</span>
                       <span className="text-lg font-semibold font-display text-charcoal whitespace-nowrap">{profile.total_quantity_kg} kg</span>
                     </div>
                   </div>
@@ -242,27 +246,27 @@ export default function FarmerProfilePage() {
               className="text-lg font-semibold text-charcoal mb-4"
               style={{ fontFamily: "Mukta, sans-serif" }}
             >
-              Call History
+              {t("call_history")}
             </h2>
             <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse text-xs">
                   <thead>
                     <tr className="bg-gray-50/50 text-[10px] font-medium text-gray-400 uppercase tracking-widest font-sans">
-                      <th className="px-6 py-3">Date/Time</th>
-                      <th className="px-6 py-3">Crop</th>
-                      <th className="px-6 py-3">Quantity</th>
-                      <th className="px-6 py-3">Location</th>
-                      <th className="px-6 py-3">Language</th>
-                      <th className="px-6 py-3">Pool</th>
-                      <th className="px-6 py-3">Status</th>
+                      <th className="px-6 py-3">{t("date_time")}</th>
+                      <th className="px-6 py-3">{t("crop")}</th>
+                      <th className="px-6 py-3">{t("qty")}</th>
+                      <th className="px-6 py-3">{t("location")}</th>
+                      <th className="px-6 py-3">{tDash("language")}</th>
+                      <th className="px-6 py-3">{t("pool")}</th>
+                      <th className="px-6 py-3">{t("call_status")}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100 text-stone-600 font-sans">
                     {calls.length === 0 ? (
                       <tr>
                         <td colSpan={7} className="px-6 py-8 text-center text-gray-400 italic">
-                          No inbound calls recorded.
+                          {t("no_calls")}
                         </td>
                       </tr>
                     ) : (
@@ -306,30 +310,30 @@ export default function FarmerProfilePage() {
               className="text-lg font-semibold text-charcoal mb-4"
               style={{ fontFamily: "Mukta, sans-serif" }}
             >
-              Settlement History
+              {t("settlement_history")}
             </h2>
             <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse text-xs">
                   <thead>
                     <tr className="bg-gray-50/50 text-[10px] font-medium text-gray-400 uppercase tracking-widest font-sans">
-                      <th className="px-6 py-3">Pool ID</th>
-                      <th className="px-6 py-3">Crop</th>
-                      <th className="px-6 py-3">Location</th>
-                      <th className="px-6 py-3">Your Qty</th>
-                      <th className="px-6 py-3">Price/kg</th>
+                      <th className="px-6 py-3">{t("pool")} ID</th>
+                      <th className="px-6 py-3">{t("crop")}</th>
+                      <th className="px-6 py-3">{t("location")}</th>
+                      <th className="px-6 py-3">{t("qty")}</th>
+                      <th className="px-6 py-3">{t("price_per_kg")}</th>
                       <th className="px-6 py-3">Mandi Rate</th>
-                      <th className="px-6 py-3">Premium</th>
-                      <th className="px-6 py-3">Total Amount</th>
-                      <th className="px-6 py-3">Buyers</th>
-                      <th className="px-6 py-3">Date</th>
+                      <th className="px-6 py-3">{t("premium")}</th>
+                      <th className="px-6 py-3">{t("total_amount")}</th>
+                      <th className="px-6 py-3">{t("buyers")}</th>
+                      <th className="px-6 py-3">{t("date")}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100 text-stone-600 font-sans">
                     {settlements.length === 0 ? (
                       <tr>
                         <td colSpan={10} className="px-6 py-8 text-center text-gray-400 italic">
-                          No settlements completed yet.
+                          {t("no_settlements")}
                         </td>
                       </tr>
                     ) : (

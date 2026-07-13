@@ -9,10 +9,13 @@ import StatusBadge from "@/components/shared/StatusBadge";
 import LanguageBadge from "@/components/shared/LanguageBadge";
 import { CheckCircle, Package, TrendingUp, ChevronRight, X, Loader2, AlertCircle, FileText, ClipboardCopy, Download } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 export default function FarmerSettlementsPage() {
   const router = useRouter();
   const { phone, isLoggedIn, hasHydrated } = useFarmerSessionStore();
+  const t = useTranslations("farmerSettlements");
+  const tDash = useTranslations("farmerDashboard");
 
   const [settlements, setSettlements] = useState<Array<{
     pool_id: number;
@@ -83,7 +86,7 @@ export default function FarmerSettlementsPage() {
       })
       .catch((err) => {
         console.error("Failed to fetch settlements:", err);
-        setError(err.message || "Could not load settlements");
+        setError(err.message || tDash("error_title"));
       })
       .finally(() => {
         setLoading(false);
@@ -130,7 +133,7 @@ export default function FarmerSettlementsPage() {
         })
         .catch((err) => {
           console.error("Failed to load pool farmers:", err);
-          toast.error("Could not load details of other farmers in this pool.");
+          toast.error(t("pool_detail_error"));
         })
         .finally(() => {
           setPoolFarmersLoading(false);
@@ -151,7 +154,7 @@ export default function FarmerSettlementsPage() {
       })
       .catch((err) => {
         console.error("Failed to load receipt:", err);
-        toast.error("Failed to load receipt details.");
+        toast.error(t("receipt_error"));
       })
       .finally(() => {
         setReceiptLoading(false);
@@ -160,21 +163,21 @@ export default function FarmerSettlementsPage() {
 
   const handleCopyReceiptText = () => {
     if (!receiptData) return;
-    const text = `--- MANDI MITRA SETTLEMENT RECEIPT ---
-Receipt Date: ${new Date().toLocaleDateString()}
+    const text = `--- ${t("receipt_title")} ---
+Receipt ${t("date")}: ${new Date().toLocaleDateString()}
 Pool ID: Pool #${receiptData.pool_id}
-Crop: ${receiptData.crop.toUpperCase()}
-Location: ${receiptData.location.toUpperCase()}
-Farmer Phone: ${receiptData.farmer_phone}
-Quantity: ${receiptData.quantity} kg
-Price/kg: ₹${receiptData.average_price_per_kg.toFixed(2)}
+${t("crop")}: ${receiptData.crop.toUpperCase()}
+${t("location")}: ${receiptData.location.toUpperCase()}
+Farmer ${tDash("phone")}: ${receiptData.farmer_phone}
+${tDash("quantity")}: ${receiptData.quantity} kg
+${t("price_per_kg")}: ₹${receiptData.average_price_per_kg.toFixed(2)}
 Total Payout: ₹${receiptData.total_amount.toLocaleString()}
-Buyer(s): ${receiptData.buyers}
-Status: ${receiptData.status}
+${t("buyers")}: ${receiptData.buyers}
+${tDash("status")}: ${receiptData.status}
 -------------------------------------`;
 
     navigator.clipboard.writeText(text);
-    toast.success("Receipt copied to clipboard!");
+    toast.success(t("receipt_copied"));
   };
 
   if (!isLoggedIn) {
@@ -196,10 +199,10 @@ Status: ${receiptData.status}
           className="text-2xl font-bold text-charcoal"
           style={{ fontFamily: "Mukta, sans-serif" }}
         >
-          My Settlements
+          {t("title")}
         </h1>
         <p className="text-sm text-gray-400 mt-1">
-          Completed pools and earnings history
+          {t("subtitle")}
         </p>
       </div>
 
@@ -208,16 +211,16 @@ Status: ${receiptData.status}
         <div className="flex flex-col items-center justify-center p-8 my-8 bg-red-50 border border-red-200 rounded-xl max-w-md mx-auto text-center shadow-sm">
           <AlertCircle className="w-8 h-8 text-alert-red mb-3" />
           <h3 className="font-sans font-semibold text-sm text-red-600">
-            Could not load settlements
+            {tDash("error_title")}
           </h3>
           <p className="font-sans text-xs text-gray-400 mt-1">
-            Make sure the backend is running
+            {tDash("error_hint")}
           </p>
           <button
             onClick={fetchSettlements}
             className="border border-gray-200 rounded-lg px-4 py-2 mt-4 bg-white text-xs font-semibold text-charcoal hover:bg-gray-50 active:bg-gray-100 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 shadow-sm cursor-pointer"
           >
-            Retry
+            {tDash("retry")}
           </button>
         </div>
       ) : (
@@ -242,7 +245,7 @@ Status: ${receiptData.status}
                   </div>
                   <div>
                     <div className="text-[10px] text-gray-400 font-medium uppercase tracking-widest">
-                      Total Settled Pools
+                      {t("stat_total_pools")}
                     </div>
                     <div className="font-display font-semibold text-2xl text-charcoal">
                       {totalSettledPools}
@@ -256,7 +259,7 @@ Status: ${receiptData.status}
                   </div>
                   <div>
                     <div className="text-[10px] text-gray-400 font-medium uppercase tracking-widest">
-                      Total Earnings
+                      {t("stat_total_earnings")}
                     </div>
                     <div className="font-display font-semibold text-2xl text-charcoal">
                       ₹{totalEarnings.toLocaleString()}
@@ -270,7 +273,7 @@ Status: ${receiptData.status}
                   </div>
                   <div>
                     <div className="text-[10px] text-gray-400 font-medium uppercase tracking-widest">
-                      Avg Premium over Mandi
+                      {t("stat_avg_premium")}
                     </div>
                     <div className="font-display font-semibold text-2xl text-field-green">
                       +{avgPremium}%
@@ -294,7 +297,7 @@ Status: ${receiptData.status}
           ) : settlements.length === 0 ? (
             <div className="bg-white rounded-xl border border-gray-200 p-12 text-center shadow-sm">
               <p className="text-sm text-gray-400">
-                No settlements yet — your first settled pool will appear here.
+                {t("no_settlements")} — {t("no_settlements_hint")}
               </p>
             </div>
           ) : (
@@ -303,16 +306,16 @@ Status: ${receiptData.status}
                 <table className="w-full text-left border-collapse text-xs">
                   <thead>
                     <tr className="bg-gray-50/50 text-[10px] font-medium uppercase tracking-widest text-gray-400">
-                      <th className="px-4 py-3">Pool</th>
-                      <th className="px-4 py-3">Crop</th>
-                      <th className="px-4 py-3">Location</th>
-                      <th className="px-4 py-3">Your Qty</th>
-                      <th className="px-4 py-3">Price/kg</th>
-                      <th className="px-4 py-3">Mandi Rate</th>
-                      <th className="px-4 py-3">Premium</th>
-                      <th className="px-4 py-3">Total Amount</th>
-                      <th className="px-4 py-3">Buyers</th>
-                      <th className="px-4 py-3">Date</th>
+                      <th className="px-4 py-3">{t("pool_id")}</th>
+                      <th className="px-4 py-3">{t("crop")}</th>
+                      <th className="px-4 py-3">{t("location")}</th>
+                      <th className="px-4 py-3">{t("your_qty")}</th>
+                      <th className="px-4 py-3">{t("price_per_kg")}</th>
+                      <th className="px-4 py-3">{t("mandi_rate")}</th>
+                      <th className="px-4 py-3">{t("premium")}</th>
+                      <th className="px-4 py-3">{t("total")}</th>
+                      <th className="px-4 py-3">{t("buyers")}</th>
+                      <th className="px-4 py-3">{t("date")}</th>
                       <th className="px-4 py-3 text-center">Receipt</th>
                     </tr>
                   </thead>
@@ -399,7 +402,7 @@ Status: ${receiptData.status}
                             className="text-sky-blue hover:text-sky-blue/80 hover:underline font-semibold flex items-center gap-1 mx-auto cursor-pointer"
                           >
                             <FileText className="w-3.5 h-3.5" />
-                            <span>View</span>
+                            <span>{t("view_receipt")}</span>
                           </button>
                         </td>
                       </tr>
@@ -425,7 +428,7 @@ Status: ${receiptData.status}
 
             <div className="mb-4">
               <span className="text-xs text-gray-400 font-mono">
-                Pool Details &middot; #{poolDetails.pool_id}
+                {tDash("pool_details")} &middot; #{poolDetails.pool_id}
               </span>
               <h3 className="font-display font-bold text-xl text-charcoal mt-1">
                 {poolDetails.crop} Pool
@@ -435,27 +438,27 @@ Status: ${receiptData.status}
 
             <div className="space-y-3.5">
               <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                <span className="text-xs text-gray-400 font-medium">Status</span>
+                <span className="text-xs text-gray-400 font-medium">{tDash("status")}</span>
                 <StatusBadge status={poolDetails.status as any} />
               </div>
 
               <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                <span className="text-xs text-gray-400 font-medium">Total Quantity Pooled</span>
+                <span className="text-xs text-gray-400 font-medium">{tDash("total_qty_pooled")}</span>
                 <span className="text-xs text-charcoal font-semibold">{poolDetails.current_qty_kg} kg</span>
               </div>
 
               <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                <span className="text-xs text-gray-400 font-medium">Target Quantity</span>
+                <span className="text-xs text-gray-400 font-medium">{tDash("target_qty")}</span>
                 <span className="text-xs text-charcoal font-semibold">{poolDetails.target_qty_kg} kg</span>
               </div>
 
               <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                <span className="text-xs text-gray-400 font-medium">Farmers Participated</span>
+                <span className="text-xs text-gray-400 font-medium">{tDash("farmers_participated")}</span>
                 <span className="text-xs text-charcoal font-semibold">{poolDetails.farmers_count}</span>
               </div>
 
               <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                <span className="text-xs text-gray-400 font-medium">Your Contribution</span>
+                <span className="text-xs text-gray-400 font-medium">{tDash("your_contribution")}</span>
                 <span className="text-xs text-soil-brown font-semibold">{poolDetails.your_contribution_kg} kg</span>
               </div>
 
@@ -470,13 +473,13 @@ Status: ${receiptData.status}
             {/* FARMERS IN THIS POOL SECTION */}
             <div className="border-t border-gray-100 mt-5 pt-4">
               <h4 className="font-display font-semibold text-sm text-charcoal mb-3">
-                Farmers in this Pool
+                {tDash("farmers_in_pool")}
               </h4>
 
               {poolFarmersLoading ? (
                 <div className="flex items-center justify-center py-6 text-xs text-gray-400 gap-2 font-sans">
                   <Loader2 className="w-4 h-4 animate-spin text-soil-brown" />
-                  <span>Loading farmers...</span>
+                  <span>{tDash("loading_farmers")}</span>
                 </div>
               ) : poolFarmers.length === 0 ? (
                 <div className="py-4 text-center text-xs text-gray-400 font-sans italic">
@@ -487,10 +490,10 @@ Status: ${receiptData.status}
                   <table className="w-full text-left border-collapse text-xs font-sans">
                     <thead>
                       <tr className="bg-gray-50 text-gray-400 border-b border-gray-150 text-[10px] font-medium uppercase tracking-widest">
-                        <th className="px-3 py-2">Phone</th>
-                        <th className="px-3 py-2">Quantity</th>
-                        <th className="px-3 py-2">Trust Score</th>
-                        <th className="px-3 py-2">Language</th>
+                        <th className="px-3 py-2">{tDash("phone")}</th>
+                        <th className="px-3 py-2">{tDash("quantity")}</th>
+                        <th className="px-3 py-2">{tDash("trust_score")}</th>
+                        <th className="px-3 py-2">{tDash("language")}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 text-charcoal">
@@ -522,7 +525,7 @@ Status: ${receiptData.status}
               onClick={() => setSelectedPoolId(null)}
               className="mt-6 w-full bg-charcoal text-white rounded-lg py-2 text-xs font-semibold hover:brightness-90 active:scale-[0.98] transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 cursor-pointer select-none"
             >
-              Close
+              {tDash("close")}
             </button>
           </div>
         </div>
@@ -541,7 +544,7 @@ Status: ${receiptData.status}
 
             <div className="mb-4">
               <span className="text-[10px] uppercase font-bold tracking-widest text-gray-400 block mb-0.5">
-                Settlement Receipt
+                {t("receipt_title")}
               </span>
               <h3 className="font-display font-semibold text-lg text-charcoal">
                 Pool #{receiptPoolId} Receipt
@@ -559,17 +562,17 @@ Status: ${receiptData.status}
                 <pre className="bg-gray-50 rounded-lg p-4 border border-gray-200 font-mono text-xs text-gray-600 leading-relaxed whitespace-pre-wrap">
                   {`Mandi Mitra Payout Receipt
 ----------------------------
-Date: ${new Date().toLocaleDateString()}
+${t("date")}: ${new Date().toLocaleDateString()}
 Pool ID: ${receiptData.pool_id}
-Crop: ${receiptData.crop.toUpperCase()}
-Location: ${receiptData.location}
-Phone: ${receiptData.farmer_phone}
+${t("crop")}: ${receiptData.crop.toUpperCase()}
+${t("location")}: ${receiptData.location}
+${tDash("phone")}: ${receiptData.farmer_phone}
 ----------------------------
-Allocated Qty: ${receiptData.quantity} kg
-Price/kg: ₹${receiptData.average_price_per_kg.toFixed(2)}
-Total Amount: ₹${receiptData.total_amount.toLocaleString()}
-Buyer(s): ${receiptData.buyers}
-Status: ${receiptData.status}
+${t("your_qty")}: ${receiptData.quantity} kg
+${t("price_per_kg")}: ₹${receiptData.average_price_per_kg.toFixed(2)}
+${t("total_earnings")}: ₹${receiptData.total_amount.toLocaleString()}
+${t("buyers")}: ${receiptData.buyers}
+${tDash("status")}: ${receiptData.status}
 ----------------------------
 Thank you for using Mandi Mitra!`}
                 </pre>
@@ -581,7 +584,7 @@ Thank you for using Mandi Mitra!`}
                     className="flex-1 bg-charcoal text-white rounded-lg py-2.5 text-xs font-semibold hover:brightness-90 active:scale-[0.98] transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <ClipboardCopy className="w-3.5 h-3.5" />
-                    <span>Copy to Clipboard</span>
+                    <span>{t("copy_receipt")}</span>
                   </button>
                   <button
                     onClick={() => {
@@ -604,7 +607,7 @@ Thank you for using Mandi Mitra!`}
               </div>
             ) : (
               <div className="py-8 text-center text-xs text-alert-red">
-                Failed to load receipt information.
+                {t("receipt_error")}
               </div>
             )}
           </div>

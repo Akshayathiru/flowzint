@@ -7,12 +7,14 @@ import { useBuyerAuctions } from "@/hooks/useBuyerAuctions";
 import PageHeader from "@/components/shared/PageHeader";
 import StatusBadge from "@/components/shared/StatusBadge";
 import { FileText } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { AuctionPool } from "@/types";
 
 export default function BuyerBidsPage() {
   const router = useRouter();
   const { currentBuyer, isLoggedIn, bidHistory, hasHydrated } = useBuyerSessionStore();
+  const t = useTranslations("buyerBids");
   const { data } = useBuyerAuctions();
   const activePools = data?.data || [];
 
@@ -37,8 +39,8 @@ export default function BuyerBidsPage() {
   return (
     <div className="min-h-screen bg-warm-cream flex flex-col font-sans">
       <PageHeader
-        title="My Bid History"
-        subtitle="All bids you've placed across auctions"
+        title={t("title")}
+        subtitle={t("subtitle")}
       />
 
       <main className="flex-1 p-4 lg:p-6 max-w-7xl mx-auto w-full">
@@ -46,16 +48,16 @@ export default function BuyerBidsPage() {
           <div className="text-center py-16 bg-white border border-gray-200 rounded-xl shadow-sm max-w-2xl mx-auto flex flex-col items-center">
             <FileText className="w-10 h-10 text-gray-300 mb-3" />
             <p className="font-sans text-sm text-gray-500 font-semibold">
-              No bids yet
+              {t("no_bids")}
             </p>
             <p className="font-sans text-xs text-gray-400 mt-1 font-medium mb-4">
-              Head to Live Auctions to place your first bid
+              {t("no_bids_hint")}
             </p>
             <Link
               href="/buyer/auctions"
               className="inline-flex items-center justify-center bg-charcoal text-white rounded-lg px-4 py-2 font-sans font-medium text-xs hover:brightness-90 active:scale-[0.98] transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 cursor-pointer"
             >
-              View Live Auctions
+              {t("go_to_auctions")}
             </Link>
           </div>
         ) : (
@@ -66,25 +68,25 @@ export default function BuyerBidsPage() {
                 <thead>
                   <tr className="bg-gray-50/50">
                     <th scope="col" className="py-3 px-1 sm:px-2 text-gray-400 uppercase tracking-widest text-[10px] font-medium">
-                      Pool ID
+                      {t("pool")} ID
                     </th>
                     <th scope="col" className="py-3 px-1 sm:px-2 text-gray-400 uppercase tracking-widest text-[10px] font-medium">
-                      Crop
+                      {t("crop")}
                     </th>
                     <th scope="col" className="py-3 px-1 sm:px-2 text-gray-400 uppercase tracking-widest text-[10px] font-medium">
-                      Location
+                      {t("location")}
                     </th>
                     <th scope="col" className="py-3 px-1 sm:px-2 text-gray-400 uppercase tracking-widest text-[10px] font-medium">
-                      Price
+                      {t("price")}
                     </th>
                     <th scope="col" className="py-3 px-1 sm:px-2 text-gray-400 uppercase tracking-widest text-[10px] font-medium">
-                      Quantity
+                      {t("quantity")}
                     </th>
                     <th scope="col" className="py-3 px-1 sm:px-2 text-gray-400 uppercase tracking-widest text-[10px] font-medium">
-                      Time
+                      {t("time")}
                     </th>
                     <th scope="col" className="py-3 px-1 sm:px-2 text-gray-400 uppercase tracking-widest text-[10px] font-medium">
-                      Pool Status
+                      {t("pool")} {t("status")}
                     </th>
                   </tr>
                 </thead>

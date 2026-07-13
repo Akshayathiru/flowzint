@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { useBuyerSessionStore } from "@/store/buyerSessionStore";
 import { Link } from "@/lib/navigation";
+import { useTranslations } from "next-intl";
 
 interface AuctionPoolCardProps {
   pool: AuctionPool;
@@ -21,6 +22,7 @@ export default function AuctionPoolCard({
   onBidPlaced,
 }: AuctionPoolCardProps) {
   const { addBid, bidHistory } = useBuyerSessionStore();
+  const t = useTranslations("buyerAuctions");
   const [price, setPrice] = useState<string>("");
   const [quantity, setQuantity] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -50,11 +52,11 @@ export default function AuctionPoolCard({
 
   // Format time remaining
   const formatTime = (ms: number) => {
-    if (ms <= 0) return "Auction Closed";
+    if (ms <= 0) return t("auction_closed");
     const totalSecs = Math.floor(ms / 1000);
     const mins = Math.floor(totalSecs / 60);
     const secs = totalSecs % 60;
-    return `⏱ ${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")} remaining`;
+    return t("remaining", { time: `⏱ ${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}` });
   };
 
   // Timer text color styling rules
@@ -126,14 +128,14 @@ export default function AuctionPoolCard({
 
       toast.success(
         offline
-          ? `Bid simulated — ₹${parsedPrice}/kg for ${parsedQty}kg (demo mode)`
-          : `Bid placed — ₹${parsedPrice}/kg for ${parsedQty}kg`
+          ? t("bid_success_demo", { price: parsedPrice, quantity: parsedQty })
+          : t("bid_success", { price: parsedPrice, quantity: parsedQty })
       );
       setPrice("");
       setQuantity("");
       if (onBidPlaced) onBidPlaced();
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Failed to place bid");
+      toast.error(err instanceof Error ? err.message : t("bid_error"));
     } finally {
       setIsSubmitting(false);
     }
@@ -150,7 +152,7 @@ export default function AuctionPoolCard({
       <div className="flex justify-between items-start">
         <Link href={`/buyer/pool/${pool.pool_id}`} className="hover:opacity-85 transition-opacity block">
           <span className="font-sans text-[10px] text-gray-400 font-mono">
-            Pool #{pool.pool_id}
+            {t("pool_number", { id: pool.pool_id })}
           </span>
           <h3 className="font-display font-semibold text-lg text-charcoal capitalize">
             {pool.crop}
@@ -187,7 +189,7 @@ export default function AuctionPoolCard({
           />
         </div>
         <p className="font-sans text-[11px] text-gray-400 mt-2">
-          {pool.farmers_count} farmers pooled
+          {t("farmers_pooled", { count: pool.farmers_count })}
         </p>
       </div>
 
@@ -195,7 +197,7 @@ export default function AuctionPoolCard({
       <div className="mt-4 border-t border-gray-100 pt-4">
         {isBiddingDisabled ? (
           <div className="text-xs text-gray-400 italic">
-            Bidding closed for this pool
+            {t("bidding_closed")}
           </div>
         ) : (
           <form onSubmit={handlePlaceBid} className="flex flex-col gap-3">
@@ -211,11 +213,11 @@ export default function AuctionPoolCard({
                   required
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
-                  placeholder="Price"
+                  placeholder={t("price_placeholder")}
                   className="w-full pl-6 pr-8 border border-gray-200 rounded-lg py-2 text-sm focus:outline-none focus:ring-1 focus:ring-gray-300 font-sans bg-white text-charcoal"
                 />
                 <span className="absolute inset-y-0 right-0 pr-2 flex items-center text-gray-400 font-sans text-[10px]">
-                  /kg
+                  {t("per_kg")}
                 </span>
               </div>
 
@@ -227,11 +229,11 @@ export default function AuctionPoolCard({
                   required
                   value={quantity}
                   onChange={(e) => setQuantity(e.target.value)}
-                  placeholder="Quantity"
+                  placeholder={t("qty_placeholder")}
                   className="w-full pr-8 pl-3 border border-gray-200 rounded-lg py-2 text-sm focus:outline-none focus:ring-1 focus:ring-gray-300 font-sans bg-white text-charcoal"
                 />
                 <span className="absolute inset-y-0 right-0 pr-2 flex items-center text-gray-400 font-sans text-[10px]">
-                  kg
+                  {t("kg")}
                 </span>
               </div>
 
@@ -243,10 +245,10 @@ export default function AuctionPoolCard({
                 {isSubmitting ? (
                   <>
                     <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
-                    Placing...
+                    {t("placing")}
                   </>
                 ) : (
-                  "Place Bid"
+                  t("place_bid")
                 )}
               </button>
             </div>
@@ -257,7 +259,7 @@ export default function AuctionPoolCard({
         {previousBids.length > 0 && (
           <div className="mt-4 pt-3 border-t border-dashed border-gray-100">
             <span className="font-sans text-[9px] uppercase tracking-widest text-gray-400 font-bold block mb-2">
-              Your Bids
+              {t("your_bids")}
             </span>
             <div className="flex flex-col gap-1.5 max-h-24 overflow-y-auto pr-1">
               {previousBids.map((bid, idx) => (
@@ -274,7 +276,7 @@ export default function AuctionPoolCard({
                       })}
                     </span>
                     <span className="bg-sky-blue/10 text-sky-blue text-[9px] font-bold rounded px-1.5 py-0.5 uppercase tracking-wide">
-                      Submitted
+                      {t("submitted")}
                     </span>
                   </div>
                 </div>

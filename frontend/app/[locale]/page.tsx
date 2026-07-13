@@ -9,6 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 
 export default function Home() {
   const t = useTranslations("landing");
+  const tBrand = useTranslations("brand");
 
   const [activeStep, setActiveStep] = useState(0);
 
@@ -88,7 +89,7 @@ export default function Home() {
       {/* SECTION 1: TOP BAR */}
       <nav className="w-full bg-white border-b border-gray-200 py-4 px-6 md:px-12 flex items-center justify-between z-20">
         <span className="font-display font-bold text-lg md:text-xl tracking-widest uppercase text-soil-brown">
-          MANDI MITRA
+          {tBrand("name")}
         </span>
         <div className="flex items-center gap-2">
           <LanguageSwitcher />
@@ -124,19 +125,19 @@ export default function Home() {
               href="/login?role=farmer"
               className="inline-flex items-center justify-center border border-field-green text-field-green rounded-lg px-6 py-3 hover:bg-field-green/5 transition-colors font-sans font-semibold text-sm whitespace-nowrap"
             >
-              I'm a Farmer
+              {t("cta_farmer")}
             </Link>
             <Link
               href="/login?role=admin"
               className="inline-flex items-center justify-center bg-charcoal text-white rounded-lg px-6 py-3 hover:bg-gray-800 transition-colors font-sans font-semibold text-sm whitespace-nowrap"
             >
-              Admin Dashboard
+              {t("cta_primary")}
             </Link>
             <Link
               href="/login?role=buyer"
               className="inline-flex items-center justify-center border border-harvest-gold text-harvest-gold rounded-lg px-6 py-3 hover:bg-harvest-gold/5 transition-colors font-sans font-semibold text-sm whitespace-nowrap"
             >
-              I'm a Buyer
+              {t("cta_buyer")}
             </Link>
           </div>
           <div className="text-center">
@@ -144,7 +145,7 @@ export default function Home() {
               href="/demo"
               className="font-sans text-sm text-gray-400 hover:text-charcoal underline font-semibold transition-colors"
             >
-              Watch Demo Flow
+              {t("cta_demo")}
             </Link>
           </div>
         </div>
@@ -195,10 +196,10 @@ export default function Home() {
       <section ref={sectionRef} className="w-full max-w-6xl mx-auto px-6 py-20">
         <div className="text-center mb-16">
           <h2 className="font-display font-bold text-2xl md:text-3xl text-charcoal">
-            How It Works
+            {t("how_it_works")}
           </h2>
           <p className="font-sans text-sm text-gray-500 mt-2">
-            Five steps. One phone call.
+            {t("how_it_works_sub")}
           </p>
         </div>
 
@@ -302,7 +303,7 @@ export default function Home() {
               </div>
             </div>
             <p className="font-sans text-[11px] text-gray-500 mt-4 leading-relaxed">
-              Fully interactive speaking calls processed in native dialects
+              {t("trust2_sub")}
             </p>
           </div>
 
@@ -317,7 +318,7 @@ export default function Home() {
               </div>
             </div>
             <p className="font-sans text-[11px] text-gray-500 mt-4 leading-relaxed">
-              Immediate callbacks with verified wholesale auction prices
+              {t("trust3_sub")}
             </p>
           </div>
         </div>

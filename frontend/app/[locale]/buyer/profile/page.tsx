@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "@/lib/navigation";
 import { useBuyerSessionStore } from "@/store/buyerSessionStore";
 import { Gavel, CheckCircle, Percent } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface BuyerCallRecord {
   result: "won" | "lost" | "no_answer" | "pending";
@@ -12,6 +13,9 @@ interface BuyerCallRecord {
 export default function BuyerProfilePage() {
   const router = useRouter();
   const { currentBuyer, isLoggedIn, bidHistory, hasHydrated } = useBuyerSessionStore();
+  const t = useTranslations("buyerProfile");
+  const tBids = useTranslations("buyerBids");
+  const tAuc = useTranslations("buyerAuctions");
 
   const [auctionsWon, setAuctionsWon] = useState<number | null>(null);
 
@@ -58,10 +62,10 @@ export default function BuyerProfilePage() {
           className="text-2xl font-bold text-charcoal"
           style={{ fontFamily: "Mukta, sans-serif" }}
         >
-          My Profile
+          {t("title")}
         </h1>
         <p className="text-sm text-gray-400 mt-1">
-          Your buyer account details
+          {t("subtitle")}
         </p>
       </div>
 
@@ -72,7 +76,7 @@ export default function BuyerProfilePage() {
           <div className="space-y-4">
             <div>
               <label className="text-[10px] text-gray-400 font-medium uppercase tracking-widest block">
-                Business Name
+                {t("business_name")}
               </label>
               <h2 className="font-display font-semibold text-xl text-charcoal">
                 {currentBuyer.name}
@@ -81,7 +85,7 @@ export default function BuyerProfilePage() {
 
             <div>
               <label className="text-[10px] text-gray-400 font-medium uppercase tracking-widest block">
-                Phone Number
+                {t("phone")}
               </label>
               <span className="text-sm font-mono text-gray-500">{currentBuyer.phone}</span>
             </div>
@@ -89,7 +93,7 @@ export default function BuyerProfilePage() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="text-[10px] text-gray-400 font-medium uppercase tracking-widest block">
-                  Crop Interest
+                  {t("crop_interest")}
                 </label>
                 <span className="text-sm text-charcoal font-medium capitalize">
                   {currentBuyer.crop}
@@ -98,7 +102,7 @@ export default function BuyerProfilePage() {
 
               <div>
                 <label className="text-[10px] text-gray-400 font-medium uppercase tracking-widest block">
-                  Location
+                  {t("location")}
                 </label>
                 <span className="text-sm text-charcoal font-medium capitalize">
                   {currentBuyer.location}
@@ -108,7 +112,7 @@ export default function BuyerProfilePage() {
 
             <div>
               <label className="text-[10px] text-gray-400 font-medium uppercase tracking-widest block">
-                Minimum Lot Size
+                {t("min_lot")}
               </label>
               <span className="text-sm text-charcoal font-medium">
                 {currentBuyer.min_quantity} kg
@@ -123,7 +127,7 @@ export default function BuyerProfilePage() {
                 <Gavel className="w-4 h-4" />
               </div>
               <span className="text-[9px] text-gray-400 font-medium uppercase tracking-widest block">
-                Total Bids
+                {t("total_bids")}
               </span>
               <span className="font-display font-semibold text-xl text-charcoal mt-1 block">
                 {totalBids}
@@ -135,7 +139,7 @@ export default function BuyerProfilePage() {
                 <CheckCircle className="w-4 h-4" />
               </div>
               <span className="text-[9px] text-gray-400 font-medium uppercase tracking-widest block">
-                Auctions Won
+                {t("auctions_won")}
               </span>
               <span className="font-display font-semibold text-xl text-charcoal mt-1 block">
                 {auctionsWon === null ? "—" : auctionsWon}
@@ -147,7 +151,7 @@ export default function BuyerProfilePage() {
                 <Percent className="w-4 h-4" />
               </div>
               <span className="text-[9px] text-gray-400 font-medium uppercase tracking-widest block">
-                Avg Bid Price
+                {t("avg_bid_price")}
               </span>
               <span className="font-display font-semibold text-base text-charcoal mt-1 block truncate">
                 ₹{avgBidPrice > 0 ? avgBidPrice.toFixed(2) : "0.00"}/kg
@@ -163,37 +167,37 @@ export default function BuyerProfilePage() {
           className="text-lg font-semibold text-charcoal mb-4"
           style={{ fontFamily: "Mukta, sans-serif" }}
         >
-          Bid History
+          {t("bid_history")}
         </h2>
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
           {bidHistory.length === 0 ? (
             <div className="text-center py-12 text-gray-400 text-xs font-semibold">
-              You haven't placed any bids yet
+              {t("no_bids")}
             </div>
           ) : (
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-gray-50/50">
                   <th className="px-6 py-3 text-[10px] font-medium text-gray-400 uppercase tracking-widest font-sans">
-                    Pool ID
+                    {tBids("pool")} ID
                   </th>
                   <th className="px-6 py-3 text-[10px] font-medium text-gray-400 uppercase tracking-widest font-sans">
-                    Crop
+                    {tBids("crop")}
                   </th>
                   <th className="px-6 py-3 text-[10px] font-medium text-gray-400 uppercase tracking-widest font-sans">
-                    Location
+                    {tBids("location")}
                   </th>
                   <th className="px-6 py-3 text-[10px] font-medium text-gray-400 uppercase tracking-widest font-sans">
-                    Price/kg
+                    {tBids("price")}/kg
                   </th>
                   <th className="px-6 py-3 text-[10px] font-medium text-gray-400 uppercase tracking-widest font-sans">
-                    Quantity
+                    {tBids("quantity")}
                   </th>
                   <th className="px-6 py-3 text-[10px] font-medium text-gray-400 uppercase tracking-widest font-sans">
-                    Time
+                    {tBids("time")}
                   </th>
                   <th className="px-6 py-3 text-[10px] font-medium text-gray-400 uppercase tracking-widest font-sans">
-                    Status
+                    {tBids("status")}
                   </th>
                 </tr>
               </thead>
@@ -223,7 +227,7 @@ export default function BuyerProfilePage() {
                     </td>
                     <td className="px-6 py-3 text-xs font-medium">
                       <span className="inline-flex items-center rounded-full bg-sky-blue/10 text-sky-blue px-2 py-0.5 text-[10px] font-bold">
-                        Submitted
+                        {tAuc("submitted")}
                       </span>
                     </td>
                   </tr>

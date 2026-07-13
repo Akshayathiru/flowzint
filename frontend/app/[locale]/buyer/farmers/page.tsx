@@ -31,6 +31,7 @@ interface BackendFarmer {
 export default function BuyerFarmerRegistryPage() {
   const router = useRouter();
   const t = useTranslations("farmer");
+  const tBF = useTranslations("buyerFarmers");
   const { isLoggedIn, hasHydrated } = useBuyerSessionStore();
   const [farmers, setFarmers] = useState<FarmerCallRecord[]>([]);
   const [search, setSearch] = useState("");
@@ -143,15 +144,15 @@ export default function BuyerFarmerRegistryPage() {
   return (
     <div className="min-h-screen bg-warm-cream flex flex-col font-sans pb-12">
       <PageHeader
-        title="Farmer Registry"
-        subtitle="All farmers in the pooling network"
+        title={tBF("title")}
+        subtitle={tBF("subtitle")}
         actions={
           <div className="flex flex-wrap gap-2.5 select-none">
             <span className="border border-gray-200 rounded-full px-3 py-1 font-sans text-xs font-semibold text-gray-500 bg-white">
-              {farmers.length} total farmers
+              {tBF("total_farmers", { count: farmers.length })}
             </span>
             <span className="bg-alert-red/10 border border-alert-red/20 rounded-full px-3 py-1 font-sans text-xs font-semibold text-alert-red">
-              {flaggedCount} flagged
+              {tBF("flagged", { count: flaggedCount })}
             </span>
           </div>
         }

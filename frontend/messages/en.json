@@ -28,7 +28,13 @@
     "trust2_stat": "6 Languages",
     "trust2_label": "Tamil, Telugu, Hindi, Kannada, Marathi, Bengali",
     "trust3_stat": "< 90 min",
-    "trust3_label": "From first call to confirmed deal"
+    "trust3_label": "From first call to confirmed deal",
+    "cta_farmer": "I'm a Farmer",
+    "cta_demo": "Watch Demo Flow",
+    "how_it_works": "How It Works",
+    "how_it_works_sub": "Five steps. One phone call.",
+    "trust2_sub": "Fully interactive speaking calls processed in native dialects",
+    "trust3_sub": "Immediate callbacks with verified wholesale auction prices"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -190,5 +196,298 @@
     "date": "Date",
     "today": "Today",
     "yesterday": "Yesterday"
+  },
+
+  "brand": {
+    "name": "MANDI MITRA",
+    "tagline": "Smart Agriculture Market Pooler"
+  },
+
+  "roles": {
+    "farmer": "Farmer",
+    "admin": "Admin",
+    "buyer": "Buyer / Wholesaler",
+    "farmer_desc": "View your pools and track your crops",
+    "admin_desc": "Manage pools, farmers, and settlements",
+    "buyer_desc": "View live auctions and place bids",
+    "choose_role": "Choose your portal access role",
+    "signin_heading": "Sign in to Mandi Mitra",
+    "back_to_roles": "← Back to role selection"
+  },
+
+  "farmerAuth": {
+    "title": "Farmer Login",
+    "subtitle": "Enter the phone number you call from",
+    "phone_label": "Phone Number",
+    "phone_helper": "Enter your 10-digit phone number (the one you call from)",
+    "signin": "Sign In",
+    "signing_in": "Signing in...",
+    "demo_hint": "Demo: use any phone from the farmer registry",
+    "invalid_phone": "Please enter a valid 10-digit phone number",
+    "login_success": "Logged in as Farmer ({phone})"
+  },
+
+  "buyerAuth": {
+    "title": "Buyer Portal",
+    "subtitle": "Select your buyer profile to access live auctions",
+    "no_buyers": "No buyers registered yet",
+    "register_cta": "Register as Buyer →",
+    "not_registered": "Not registered yet?",
+    "min_lot": "Min lot: {quantity}kg",
+    "login_success": "Logged in as {name}",
+    "backend_error": "Could not reach the backend server",
+    "backend_hint": "Make sure the backend is running at {url}"
+  },
+
+  "adminAuth": {
+    "demo_credentials": "DEMO CREDENTIALS"
+  },
+
+  "farmerDashboard": {
+    "title": "My Dashboard",
+    "subtitle": "Your active pools and recent activity",
+    "welcome": "Welcome, {name}",
+    "cta_title": "Have crops to sell?",
+    "cta_subtitle": "Call our IVR to join the next pool",
+    "cta_phone": "1800-120-MITRA",
+    "stat_active_pools": "ACTIVE POOLS",
+    "stat_total_qty": "TOTAL QUANTITY CONTRIBUTED",
+    "stat_total_earnings": "TOTAL EARNINGS",
+    "stat_trust_score": "TRUST SCORE",
+    "my_pools": "My Pools",
+    "no_pools": "You're not part of any pools yet",
+    "no_pools_hint": "Call the IVR number to get pooled with nearby farmers",
+    "your_contribution": "Your Contribution",
+    "settled_price": "Settled Price",
+    "mandi_avg": "Mandi avg: ₹{rate}/kg · {premium}% more",
+    "view_details": "View Details",
+    "recent_activity": "Recent Activity",
+    "no_activity": "No recent activity",
+    "pool_details": "Pool Details",
+    "pool_number": "Pool #{id}",
+    "status": "Status",
+    "total_qty_pooled": "Total Quantity pooled",
+    "target_qty": "Target Quantity",
+    "farmers_participated": "Farmers Participated",
+    "farmers_in_pool": "Farmers in this Pool",
+    "loading_farmers": "Loading farmers...",
+    "no_farmers_data": "Could not load farmer details",
+    "phone": "Phone",
+    "quantity": "Quantity",
+    "trust_score": "Trust Score",
+    "language": "Language",
+    "close": "Close",
+    "error_title": "Could not load your data",
+    "error_hint": "Make sure the backend is running",
+    "retry": "Retry"
+  },
+
+  "farmerProfile": {
+    "title": "My Profile",
+    "farmer_name": "Farmer Name",
+    "phone_number": "Phone Number",
+    "primary_location": "Primary Location",
+    "primary_crop": "Primary Crop",
+    "member_since": "Member Since",
+    "trust_score": "Trust Score",
+    "total_calls": "Total Calls",
+    "pools_joined": "Pools Joined",
+    "total_earnings": "Total Earnings",
+    "call_history": "Call History",
+    "no_calls": "No call history available",
+    "settlement_history": "Settlement History",
+    "no_settlements": "No settlements yet",
+    "date_time": "Date / Time",
+    "crop": "Crop",
+    "qty": "Qty",
+    "location": "Location",
+    "pool": "Pool",
+    "call_status": "Status",
+    "price_per_kg": "Price/kg",
+    "premium": "Premium",
+    "total_amount": "Total Amount",
+    "buyers": "Buyers",
+    "date": "Date"
+  },
+
+  "farmerSettlements": {
+    "title": "My Settlements",
+    "subtitle": "Completed pools and earnings",
+    "stat_total_pools": "TOTAL SETTLED POOLS",
+    "stat_total_earnings": "TOTAL EARNINGS",
+    "stat_avg_premium": "AVG PREMIUM OVER MANDI",
+    "no_settlements": "No settlements yet",
+    "no_settlements_hint": "Your first settled pool will appear here",
+    "pool_id": "Pool",
+    "crop": "Crop",
+    "location": "Location",
+    "your_qty": "Your Qty",
+    "price_per_kg": "Price/kg",
+    "mandi_rate": "Mandi Rate",
+    "premium": "Premium",
+    "total": "Total",
+    "buyers": "Buyers",
+    "date": "Date",
+    "view_receipt": "View Receipt",
+    "download_receipt": "Download Receipt",
+    "copy_receipt": "Copy to Clipboard",
+    "receipt_copied": "Receipt copied to clipboard",
+    "receipt_title": "MANDI MITRA SETTLEMENT RECEIPT",
+    "receipt_subtitle": "Crop Settlement Certificate",
+    "settlement_details": "SETTLEMENT DETAILS",
+    "total_quantity": "Total Quantity",
+    "market_rate": "Mandi Market Rate",
+    "selling_price": "Your Selling Price",
+    "premium_over_market": "Premium Over Market",
+    "total_earnings": "Total Earnings",
+    "settlement_date": "Settlement Date",
+    "receipt_footer": "This receipt is your proof of sale.",
+    "receipt_contact": "Contact 1800-120-MITRA for disputes.",
+    "pool_detail_error": "Could not load details of other farmers in this pool.",
+    "receipt_error": "Failed to load receipt details."
+  },
+
+  "farmerBuyers": {
+    "title": "Buyers in Your Area",
+    "subtitle": "Registered wholesalers and traders",
+    "no_buyers": "No buyers registered in your area",
+    "buys": "Buys: {crop}",
+    "min_lot": "Min lot: {quantity} kg",
+    "unknown": "Unknown"
+  },
+
+  "buyerAuctions": {
+    "title": "Live Auctions",
+    "subtitle": "Place bids on active pools in your area",
+    "log_out": "Log out",
+    "no_auctions": "No active auctions right now",
+    "no_auctions_hint": "Check back soon — pools form when farmers call in",
+    "pool_number": "Pool #{id}",
+    "farmers_pooled": "{count} farmers pooled",
+    "bidding_closed": "Bidding closed for this pool",
+    "remaining": "{time} remaining",
+    "auction_closed": "Auction Closed",
+    "place_bid": "Place Bid",
+    "placing": "Placing...",
+    "price_placeholder": "Price",
+    "qty_placeholder": "Quantity",
+    "per_kg": "/kg",
+    "kg": "kg",
+    "your_bids": "Your Bids",
+    "submitted": "Submitted",
+    "bid_success": "Bid placed — ₹{price}/kg for {quantity}kg",
+    "bid_success_demo": "Bid simulated — ₹{price}/kg for {quantity}kg (demo mode)",
+    "bid_error": "Failed to place bid"
+  },
+
+  "buyerBids": {
+    "title": "My Bid History",
+    "subtitle": "All bids you've placed across auctions",
+    "no_bids": "No bids yet",
+    "no_bids_hint": "Head to Live Auctions to place your first bid.",
+    "go_to_auctions": "Go to Live Auctions",
+    "pool": "Pool",
+    "crop": "Crop",
+    "location": "Location",
+    "price": "Price",
+    "quantity": "Quantity",
+    "time": "Time",
+    "status": "Status"
+  },
+
+  "buyerProfile": {
+    "title": "My Profile",
+    "subtitle": "Your buyer account details",
+    "business_name": "Business Name",
+    "phone": "Phone",
+    "crop_interest": "Crop Interest",
+    "location": "Location",
+    "min_lot": "Min Lot Size",
+    "total_bids": "Total Bids Placed",
+    "auctions_won": "Auctions Won",
+    "avg_bid_price": "Avg Bid Price",
+    "bid_history": "Bid History",
+    "no_bids": "No bids yet"
+  },
+
+  "buyerSettlements": {
+    "title": "Settlements",
+    "subtitle": "Completed auctions and payment records",
+    "stat_total": "TOTAL SETTLED",
+    "stat_volume": "TOTAL VOLUME",
+    "stat_value": "TOTAL VALUE",
+    "no_settlements": "No settlements yet",
+    "pool": "Pool",
+    "crop": "Crop",
+    "location": "Location",
+    "qty": "Qty Allocated",
+    "price": "Price/kg",
+    "total": "Total",
+    "date": "Date"
+  },
+
+  "buyerFarmers": {
+    "title": "Farmer Registry",
+    "subtitle": "All farmers in the pooling network",
+    "total_farmers": "{count} total farmers",
+    "active_today": "{count} active today",
+    "flagged": "{count} flagged"
+  },
+
+  "poolDetail": {
+    "back_to_auctions": "Auctions",
+    "pool_number": "Pool #{id}",
+    "quick_stats_farmers": "Farmers",
+    "quick_stats_timeline": "Timeline",
+    "quick_stats_district": "District",
+    "quick_stats_assurance": "Assurance",
+    "timeline_value": "90 Minutes",
+    "assurance_value": "FPO Quality",
+    "auction_bidding": "Auction Bidding",
+    "settled_info": "Auction Settled Successfully",
+    "farmers_in_pool": "Farmers in this Pool",
+    "no_farmers": "Could not load farmer details",
+    "phone": "Phone",
+    "quantity": "Quantity",
+    "trust_score": "Trust Score",
+    "call_time": "Call Time",
+    "language": "Language",
+    "error_title": "Could not load pool details",
+    "retry": "Retry"
+  },
+
+  "sidebar": {
+    "brand": "MANDI MITRA",
+    "farmer_portal": "Farmer Portal",
+    "buyer_portal": "Buyer Portal",
+    "admin_dashboard": "Admin Dashboard",
+    "sign_out": "Sign Out",
+    "language": "LANGUAGE",
+    "system_live": "System Live",
+    "active_pools": "{count} active pool(s)",
+    "farmer_badge": "FARMER",
+    "buyer_badge": "BUYER",
+    "admin_badge": "ADMIN"
+  },
+
+  "farmerNav": {
+    "dashboard": "My Dashboard",
+    "profile": "My Profile",
+    "settlements": "Settlements",
+    "buyers": "Buyers",
+    "demo": "Demo Panel"
+  },
+
+  "buyerNav": {
+    "auctions": "Live Auctions",
+    "bids": "My Bids",
+    "profile": "My Profile",
+    "farmers": "Farmers",
+    "settlements": "Settlements",
+    "demo": "Demo Panel"
+  },
+
+  "offline": {
+    "banner": "Backend offline — showing demo data"
   }
 }

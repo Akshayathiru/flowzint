@@ -7,10 +7,12 @@ import StatusBadge from "@/components/shared/StatusBadge";
 import LanguageBadge from "@/components/shared/LanguageBadge";
 import { farmerApi } from "@/lib/farmerApi";
 import { Sprout, PhoneCall, CheckCircle, ArrowRight, X, Star, ShieldAlert, Loader2, AlertCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export default function FarmerDashboard() {
   const router = useRouter();
   const { phone, isLoggedIn, hasHydrated } = useFarmerSessionStore();
+  const t = useTranslations("farmerDashboard");
 
   const [profile, setProfile] = useState<{
     phone: string;
@@ -100,7 +102,7 @@ export default function FarmerDashboard() {
       })
       .catch((err) => {
         console.error("Failed to load farmer dashboard data:", err);
-        setError(err.message || "Could not load your data");
+        setError(err.message || t("error_title"));
       })
       .finally(() => {
         setLoading(false);
@@ -175,15 +177,15 @@ export default function FarmerDashboard() {
             className="text-2xl font-bold text-charcoal"
             style={{ fontFamily: "Mukta, sans-serif" }}
           >
-            My Dashboard
+            {t("title")}
           </h1>
           <p className="text-sm text-gray-400 mt-1">
-            Your active pools and recent activity
+            {t("subtitle")}
           </p>
         </div>
         {profile?.name && (
           <div className="bg-white px-4 py-2 rounded-lg border border-gray-200 shadow-sm text-xs font-semibold text-charcoal">
-            Welcome, {profile.name}
+            {t("welcome", { name: profile.name })}
           </div>
         )}
       </div>
@@ -192,10 +194,10 @@ export default function FarmerDashboard() {
       <div className="bg-field-green/5 border border-field-green/20 rounded-xl px-5 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-8">
         <div>
           <h4 className="font-sans font-semibold text-sm text-charcoal">
-            Have crops to sell?
+            {t("cta_title")}
           </h4>
           <p className="font-sans text-xs text-gray-400 mt-0.5">
-            Call our toll-free IVR line to list your produce and join the next pool
+            {t("cta_subtitle")}
           </p>
         </div>
         <div className="text-right sm:text-right">
@@ -203,7 +205,7 @@ export default function FarmerDashboard() {
             className="font-display font-bold text-lg text-field-green block sm:inline"
             style={{ fontFamily: "Mukta, sans-serif" }}
           >
-            1800-120-MITRA
+            {t("cta_phone")}
           </span>
           <span className="text-[10px] text-gray-400 block sm:mt-0.5">Toll-Free (24/7 Support)</span>
         </div>
@@ -214,16 +216,16 @@ export default function FarmerDashboard() {
         <div className="flex flex-col items-center justify-center p-8 my-8 bg-red-50 border border-red-200 rounded-xl max-w-md mx-auto text-center shadow-sm">
           <AlertCircle className="w-8 h-8 text-alert-red mb-3" />
           <h3 className="font-sans font-semibold text-sm text-red-600">
-            Could not load your data
+            {t("error_title")}
           </h3>
           <p className="font-sans text-xs text-gray-400 mt-1">
-            Make sure the backend is running
+            {t("error_hint")}
           </p>
           <button
             onClick={fetchData}
             className="border border-gray-200 rounded-lg px-4 py-2 mt-4 bg-white text-xs font-semibold text-charcoal hover:bg-gray-50 active:bg-gray-100 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 shadow-sm cursor-pointer"
           >
-            Retry
+            {t("retry")}
           </button>
         </div>
       ) : (
@@ -250,7 +252,7 @@ export default function FarmerDashboard() {
                   </div>
                   <div>
                     <div className="text-[10px] text-gray-400 font-medium uppercase tracking-widest">
-                      Active Pools
+                      {t("stat_active_pools")}
                     </div>
                     <div className="font-display font-semibold text-2xl text-charcoal">
                       {activePoolsCount}
@@ -265,7 +267,7 @@ export default function FarmerDashboard() {
                   </div>
                   <div>
                     <div className="text-[10px] text-gray-400 font-medium uppercase tracking-widest">
-                      Total Quantity
+                      {t("stat_total_qty")}
                     </div>
                     <div className="font-display font-semibold text-2xl text-charcoal">
                       {totalQty} kg
@@ -280,7 +282,7 @@ export default function FarmerDashboard() {
                   </div>
                   <div>
                     <div className="text-[10px] text-gray-400 font-medium uppercase tracking-widest">
-                      Total Earnings
+                      {t("stat_total_earnings")}
                     </div>
                     <div className="font-display font-semibold text-2xl text-charcoal">
                       ₹{totalEarnings.toLocaleString()}
@@ -299,7 +301,7 @@ export default function FarmerDashboard() {
                   </div>
                   <div>
                     <div className="text-[10px] text-gray-500 font-medium uppercase tracking-widest">
-                      Trust Score
+                      {t("stat_trust_score")}
                     </div>
                     <div className="font-display font-semibold text-2xl">
                       {trustScore > 0 ? trustScore.toFixed(1) : "N/A"}
@@ -318,7 +320,7 @@ export default function FarmerDashboard() {
                 className="text-lg font-semibold text-charcoal"
                 style={{ fontFamily: "Mukta, sans-serif" }}
               >
-                My Pools
+                {t("my_pools")}
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -348,10 +350,10 @@ export default function FarmerDashboard() {
                   <div className="col-span-2 bg-white rounded-xl border border-gray-200 p-8 flex flex-col items-center justify-center text-center">
                     <Sprout className="w-10 h-10 text-gray-300 mb-3" />
                     <p className="font-sans text-sm text-gray-500">
-                      You&apos;re not in any crop pools yet
+                      {t("no_pools")}
                     </p>
                     <p className="font-sans text-xs text-gray-400 mt-1">
-                      Call our toll-free line above to join the next pool
+                      {t("no_pools_hint")}
                     </p>
                   </div>
                 ) : (
@@ -405,21 +407,21 @@ export default function FarmerDashboard() {
                           {/* Contribution Info */}
                           <div className="mt-4 bg-gray-50 rounded-lg p-3 border border-gray-100">
                             <div className="flex justify-between text-xs">
-                              <span className="text-gray-500 font-medium">Your Contribution:</span>
+                              <span className="text-gray-500 font-medium">{t("your_contribution")}:</span>
                               <span className="font-bold text-charcoal">{pool.your_contribution_kg} kg</span>
                             </div>
-                            
+
                             {hasSettledPrice && (
                               <div className="mt-1.5 pt-1.5 border-t border-gray-200/50 flex flex-col gap-0.5">
                                 <div className="flex justify-between text-xs">
-                                  <span className="text-gray-500 font-medium">Settled:</span>
+                                  <span className="text-gray-500 font-medium">{t("settled_price")}:</span>
                                   <span className="font-semibold text-field-green font-display" style={{ fontFamily: "Mukta, sans-serif" }}>
                                     ₹{pool.settled_price_per_kg!.toFixed(2)}/kg
                                   </span>
                                 </div>
                                 {hasMandiRate && (
                                   <div className="text-[10px] text-gray-400 text-right">
-                                    Mandi avg: ₹{pool.mandi_rate_per_kg!.toFixed(2)}/kg &middot; {premiumPercent}% more
+                                    {t("mandi_avg", { rate: pool.mandi_rate_per_kg!.toFixed(2), premium: premiumPercent })}
                                   </div>
                                 )}
                               </div>
@@ -431,7 +433,7 @@ export default function FarmerDashboard() {
                           onClick={() => setSelectedPool(pool)}
                           className="mt-4 text-xs font-semibold text-soil-brown hover:underline inline-flex items-center gap-1 self-start cursor-pointer select-none rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300"
                         >
-                          View Details <ArrowRight className="w-3.5 h-3.5" />
+                          {t("view_details")} <ArrowRight className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     );
@@ -446,7 +448,7 @@ export default function FarmerDashboard() {
                 className="text-lg font-semibold text-charcoal mb-4"
                 style={{ fontFamily: "Mukta, sans-serif" }}
               >
-                Recent Activity
+                {t("recent_activity")}
               </h2>
 
               <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm min-h-[150px] flex flex-col">
@@ -466,7 +468,7 @@ export default function FarmerDashboard() {
                 ) : calls.length === 0 ? (
                   <div className="flex-1 flex flex-col items-center justify-center text-center py-6">
                     <PhoneCall className="w-10 h-10 text-gray-300 mb-3" />
-                    <p className="font-sans text-sm text-gray-500">No recent calls</p>
+                    <p className="font-sans text-sm text-gray-500">{t("no_activity")}</p>
                     <p className="font-sans text-xs text-gray-400 mt-1">
                       Your call history will show up here
                     </p>
@@ -530,7 +532,7 @@ export default function FarmerDashboard() {
 
             <div className="mb-4">
               <span className="text-xs text-gray-400 font-mono">
-                Pool Details &middot; #{selectedPool.pool_id}
+                {t("pool_details")} &middot; #{selectedPool.pool_id}
               </span>
               <h3 className="font-display font-bold text-xl text-charcoal mt-1">
                 {selectedPool.crop} Pool
@@ -540,27 +542,27 @@ export default function FarmerDashboard() {
 
             <div className="space-y-3.5">
               <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                <span className="text-xs text-gray-400 font-medium">Status</span>
+                <span className="text-xs text-gray-400 font-medium">{t("status")}</span>
                 <StatusBadge status={selectedPool.status as any} />
               </div>
 
               <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                <span className="text-xs text-gray-400 font-medium">Total Quantity Pooled</span>
+                <span className="text-xs text-gray-400 font-medium">{t("total_qty_pooled")}</span>
                 <span className="text-xs text-charcoal font-semibold">{selectedPool.current_qty_kg} kg</span>
               </div>
 
               <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                <span className="text-xs text-gray-400 font-medium">Target Quantity</span>
+                <span className="text-xs text-gray-400 font-medium">{t("target_qty")}</span>
                 <span className="text-xs text-charcoal font-semibold">{selectedPool.target_qty_kg} kg</span>
               </div>
 
               <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                <span className="text-xs text-gray-400 font-medium">Farmers Participated</span>
+                <span className="text-xs text-gray-400 font-medium">{t("farmers_participated")}</span>
                 <span className="text-xs text-charcoal font-semibold">{selectedPool.farmers_count}</span>
               </div>
 
               <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                <span className="text-xs text-gray-400 font-medium">Your Contribution</span>
+                <span className="text-xs text-gray-400 font-medium">{t("your_contribution")}</span>
                 <span className="text-xs text-soil-brown font-semibold">{selectedPool.your_contribution_kg} kg</span>
               </div>
 
@@ -575,17 +577,17 @@ export default function FarmerDashboard() {
             {/* FARMERS IN THIS POOL SECTION */}
             <div className="border-t border-gray-100 mt-5 pt-4">
               <h4 className="font-display font-semibold text-sm text-charcoal mb-3">
-                Farmers in this Pool
+                {t("farmers_in_pool")}
               </h4>
 
               {modalFarmersLoading ? (
                 <div className="flex items-center justify-center py-6 text-xs text-gray-400 gap-2 font-sans">
                   <Loader2 className="w-4 h-4 animate-spin text-soil-brown" />
-                  <span>Loading farmers...</span>
+                  <span>{t("loading_farmers")}</span>
                 </div>
               ) : modalFarmersError ? (
                 <div className="py-4 text-center text-xs text-alert-red font-sans">
-                  Could not load farmer details
+                  {t("no_farmers_data")}
                 </div>
               ) : modalFarmers.length === 0 ? (
                 <div className="py-4 text-center text-xs text-gray-400 font-sans italic">
@@ -596,10 +598,10 @@ export default function FarmerDashboard() {
                   <table className="w-full text-left border-collapse text-xs font-sans">
                     <thead>
                       <tr className="bg-gray-50 text-gray-400 border-b border-gray-150 text-[10px] font-medium uppercase tracking-widest">
-                        <th className="px-3 py-2">Phone</th>
-                        <th className="px-3 py-2">Quantity</th>
-                        <th className="px-3 py-2">Trust Score</th>
-                        <th className="px-3 py-2">Language</th>
+                        <th className="px-3 py-2">{t("phone")}</th>
+                        <th className="px-3 py-2">{t("quantity")}</th>
+                        <th className="px-3 py-2">{t("trust_score")}</th>
+                        <th className="px-3 py-2">{t("language")}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 text-charcoal">
@@ -631,7 +633,7 @@ export default function FarmerDashboard() {
               onClick={() => setSelectedPool(null)}
               className="mt-6 w-full bg-charcoal text-white rounded-lg py-2 text-xs font-semibold hover:brightness-90 active:scale-[0.98] transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 cursor-pointer select-none"
             >
-              Close
+              {t("close")}
             </button>
           </div>
         </div>

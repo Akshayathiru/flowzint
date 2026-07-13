@@ -18,6 +18,7 @@ import { useAuth } from "@/hooks/useAuth";
 export default function Sidebar() {
   const pathname = usePathname();
   const t = useTranslations("nav");
+  const tSidebar = useTranslations("sidebar");
   const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
   const { pools } = usePoolStore();
   const { user, signOut, isAdmin, isViewer } = useAuth();
@@ -37,10 +38,10 @@ export default function Sidebar() {
       {/* TOP SECTION */}
       <div className="px-4 pt-5 pb-4 border-b border-gray-100 shrink-0">
         <span className="font-display font-bold text-sm tracking-widest uppercase text-soil-brown">
-          MANDI MITRA
+          {tSidebar("brand")}
         </span>
         <p className="font-sans text-[10px] text-gray-500 mt-0.5 font-semibold">
-          Admin Dashboard
+          {tSidebar("admin_dashboard")}
         </p>
       </div>
 
@@ -99,7 +100,7 @@ export default function Sidebar() {
             onClick={signOut}
             className="text-left font-sans text-xs font-semibold text-alert-red hover:underline mt-1 cursor-pointer select-none"
           >
-            Sign Out
+            {tSidebar("sign_out")}
           </button>
         </div>
       )}
@@ -107,7 +108,7 @@ export default function Sidebar() {
       {/* LANGUAGE SWITCHER */}
       <div className="px-4 py-4 border-t border-gray-100 shrink-0 bg-white">
         <span className="font-sans text-[10px] uppercase tracking-wider text-gray-500 font-bold block mb-2">
-          Language
+          {tSidebar("language")}
         </span>
         <LanguageSwitcher />
       </div>
@@ -120,11 +121,11 @@ export default function Sidebar() {
             <span className="relative inline-flex rounded-full h-2 w-2 bg-field-green animate-pulse"></span>
           </span>
           <span className="font-sans text-xs text-gray-455 font-bold">
-            System Live
+            {tSidebar("system_live")}
           </span>
         </div>
         <p className="font-sans text-[10px] text-gray-500 mt-1 font-semibold">
-          {activePoolsCount} active pools
+          {tSidebar("active_pools", { count: activePoolsCount })}
         </p>
       </div>
     </aside>

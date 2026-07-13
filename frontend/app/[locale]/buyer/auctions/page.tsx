@@ -9,10 +9,12 @@ import PageHeader from "@/components/shared/PageHeader";
 import { AuctionPool } from "@/types";
 import OfflineBanner from "@/components/shared/OfflineBanner";
 import { Gavel } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export default function BuyerAuctionsPage() {
   const router = useRouter();
   const { currentBuyer, isLoggedIn, clearSession, hasHydrated } = useBuyerSessionStore();
+  const t = useTranslations("buyerAuctions");
   
   const { data, isLoading, refetch } = useBuyerAuctions();
   const pools = data?.data || [];
@@ -48,7 +50,7 @@ export default function BuyerAuctionsPage() {
         onClick={handleLogout}
         className="font-sans text-xs text-gray-400 hover:text-alert-red font-semibold cursor-pointer transition-colors border-l border-gray-200 pl-2 ml-1"
       >
-        Log out
+        {t("log_out")}
       </button>
     </div>
   );
@@ -56,8 +58,8 @@ export default function BuyerAuctionsPage() {
   return (
     <div className="min-h-screen bg-warm-cream flex flex-col font-sans">
       <PageHeader
-        title="Live Auctions"
-        subtitle="Place bids on active pools in your area"
+        title={t("title")}
+        subtitle={t("subtitle")}
         actions={loggedInBadge}
       />
 
@@ -97,10 +99,10 @@ export default function BuyerAuctionsPage() {
               <div className="text-center py-16 bg-white border border-gray-200 rounded-xl shadow-sm max-w-2xl mx-auto flex flex-col items-center">
                 <Gavel className="w-10 h-10 text-gray-300 mb-3" />
                 <p className="font-sans text-sm text-gray-500 font-semibold">
-                  No active auctions right now
+                  {t("no_auctions")}
                 </p>
                 <p className="font-sans text-xs text-gray-400 mt-1 font-medium">
-                  Check back soon — pools form when farmers call in
+                  {t("no_auctions_hint")}
                 </p>
               </div>
             ) : (

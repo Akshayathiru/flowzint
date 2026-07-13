@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, usePathname, useRouter } from "@/lib/navigation";
 import { Gavel, FileText, User, Users, CheckCircle, Play } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
 import { useBuyerSessionStore } from "@/store/buyerSessionStore";
 
@@ -10,6 +11,8 @@ export default function BuyerSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { currentBuyer, clearSession } = useBuyerSessionStore();
+  const t = useTranslations("sidebar");
+  const tn = useTranslations("buyerNav");
 
   const [poolCount, setPoolCount] = useState<number | null>(null);
 
@@ -23,12 +26,12 @@ export default function BuyerSidebar() {
   }, []);
 
   const buyerNavItems = [
-    { label: "Live Auctions", href: "/buyer/auctions", icon: Gavel },
-    { label: "My Bids", href: "/buyer/bids", icon: FileText },
-    { label: "My Profile", href: "/buyer/profile", icon: User },
-    { label: "Farmers", href: "/buyer/farmers", icon: Users },
-    { label: "Settlements", href: "/buyer/settlements", icon: CheckCircle },
-    { label: "Demo Panel", href: "/demo", icon: Play },
+    { label: tn("auctions"), href: "/buyer/auctions", icon: Gavel },
+    { label: tn("bids"), href: "/buyer/bids", icon: FileText },
+    { label: tn("profile"), href: "/buyer/profile", icon: User },
+    { label: tn("farmers"), href: "/buyer/farmers", icon: Users },
+    { label: tn("settlements"), href: "/buyer/settlements", icon: CheckCircle },
+    { label: tn("demo"), href: "/demo", icon: Play },
   ];
 
   const handleSignOut = () => {
@@ -41,10 +44,10 @@ export default function BuyerSidebar() {
       {/* TOP SECTION */}
       <div className="px-4 pt-5 pb-4 border-b border-gray-100 shrink-0">
         <span className="font-display font-bold text-sm tracking-widest uppercase text-soil-brown">
-          MANDI MITRA
+          {t("brand")}
         </span>
         <p className="font-sans text-[10px] text-gray-500 mt-0.5 font-semibold">
-          Buyer Portal
+          {t("buyer_portal")}
         </p>
       </div>
 
@@ -87,7 +90,7 @@ export default function BuyerSidebar() {
             </span>
             <div className="flex items-center gap-1.5 mt-2">
               <span className="border border-harvest-gold rounded px-2.5 py-1 text-[10px] text-harvest-gold font-bold tracking-wider uppercase select-none bg-harvest-gold/10">
-                BUYER
+                {t("buyer_badge")}
               </span>
             </div>
           </div>
@@ -95,7 +98,7 @@ export default function BuyerSidebar() {
             onClick={handleSignOut}
             className="text-left font-sans text-xs font-semibold text-alert-red hover:underline mt-1 cursor-pointer select-none"
           >
-            Sign Out
+            {t("sign_out")}
           </button>
         </div>
       )}
@@ -103,7 +106,7 @@ export default function BuyerSidebar() {
       {/* LANGUAGE SWITCHER */}
       <div className="px-4 py-4 border-t border-gray-100 shrink-0 bg-white">
         <span className="font-sans text-[10px] uppercase tracking-wider text-gray-500 font-bold block mb-2">
-          Language
+          {t("language")}
         </span>
         <LanguageSwitcher />
       </div>
@@ -116,13 +119,13 @@ export default function BuyerSidebar() {
             <span className="relative inline-flex rounded-full h-2 w-2 bg-field-green animate-pulse"></span>
           </span>
           <span className="font-sans text-xs text-gray-455 font-bold">
-            System Live
+            {t("system_live")}
           </span>
         </div>
         <p className="font-sans text-[10px] text-gray-500 mt-1 font-semibold">
           {poolCount !== null
-            ? `${poolCount} active pool${poolCount !== 1 ? "s" : ""}`
-            : "System Live"}
+            ? t("active_pools", { count: poolCount })
+            : t("system_live")}
         </p>
       </div>
     </aside>

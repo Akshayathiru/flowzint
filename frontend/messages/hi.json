@@ -5,6 +5,7 @@
     "headline2": "एक कॉल। नब्बे मिनट।",
     "subheadline": "छोटे किसान अपनी फसल और मात्रा बताने के लिए कॉल करते हैं। हमारा सिस्टम उन्हें एकत्रित करता है, पंजीकृत थोक खरीदारों को लॉट की नीलामी करता है, और सत्यापित कीमत के साथ हर किसान को वापस कॉल करता है - बिना किसी ऐप, सदस्यता या साक्षरता के।",
     "cta_primary": "ऑपरेटर डैशबोर्ड खोलें",
+    "cta_buyer": "मैं खरीदार हूं",
     "cta_secondary": "डेमो प्रवाह देखें",
     "stats_pools": "सक्रिय समूह",
     "stats_farmers": "आज कॉल करने वाले किसान",
@@ -27,7 +28,13 @@
     "trust2_stat": "6 भाषाएँ",
     "trust2_label": "तमिल, तेलुगु, हिंदी, कन्नड़, मराठी, बंगाली",
     "trust3_stat": "< 90 मिनट",
-    "trust3_label": "पहली कॉल से लेकर सौदे की पुष्टि तक"
+    "trust3_label": "पहली कॉल से लेकर सौदे की पुष्टि तक",
+    "cta_farmer": "मैं किसान हूं",
+    "cta_demo": "Demo प्रवाह देखें",
+    "how_it_works": "यह कैसे काम करता है",
+    "how_it_works_sub": "पांच चरण। एक कॉल।",
+    "trust2_sub": "स्थानीय भाषा में पूरी तरह इंटरैक्टिव कॉल्स",
+    "trust3_sub": "सत्यापित थोक नीलामी कीमतों के साथ तुरंत कॉलबैक"
   },
   "nav": {
     "dashboard": "डैशबोर्ड",
@@ -189,5 +196,298 @@
     "date": "तारीख",
     "today": "आज",
     "yesterday": "कल"
+  },
+
+  "brand": {
+    "name": "MANDI MITRA",
+    "tagline": "स्मार्ट कृषि बाज़ार पूलिंग प्रणाली"
+  },
+
+  "roles": {
+    "farmer": "किसान",
+    "admin": "एडमिन",
+    "buyer": "खरीदार / थोक व्यापारी",
+    "farmer_desc": "अपने समूह देखें और अपनी फसलों को ट्रैक करें",
+    "admin_desc": "समूह, किसान और भुगतान प्रबंधित करें",
+    "buyer_desc": "लाइव नीलामी देखें और बोली लगाएं",
+    "choose_role": "अपनी पहुंच भूमिका चुनें",
+    "signin_heading": "मंडी मित्र में साइन इन करें",
+    "back_to_roles": "← भूमिका चयन पर वापस जाएं"
+  },
+
+  "farmerAuth": {
+    "title": "किसान लॉगिन",
+    "subtitle": "वह फोन नंबर दर्ज करें जिससे आप कॉल करते हैं",
+    "phone_label": "फोन नंबर",
+    "phone_helper": "अपना 10-अंकीय फोन नंबर दर्ज करें (जिससे आप कॉल करते हैं)",
+    "signin": "साइन इन करें",
+    "signing_in": "साइन इन हो रहा है...",
+    "demo_hint": "Demo: किसान रजिस्ट्री से कोई भी फोन नंबर उपयोग करें",
+    "invalid_phone": "कृपया मान्य 10-अंकीय फोन नंबर दर्ज करें",
+    "login_success": "किसान के रूप में लॉगिन किया गया ({phone})"
+  },
+
+  "buyerAuth": {
+    "title": "खरीदार पोर्टल",
+    "subtitle": "लाइव नीलामी तक पहुंचने के लिए अपनी खरीदार प्रोफ़ाइल चुनें",
+    "no_buyers": "अभी तक कोई खरीदार पंजीकृत नहीं है",
+    "register_cta": "खरीदार के रूप में पंजीकरण करें →",
+    "not_registered": "अभी तक पंजीकृत नहीं हैं?",
+    "min_lot": "न्यूनतम लॉट: {quantity}किग्रा",
+    "login_success": "{name} के रूप में लॉगिन किया गया",
+    "backend_error": "बैकएंड सर्वर तक नहीं पहुंचा जा सका",
+    "backend_hint": "सुनिश्चित करें कि बैकएंड {url} पर चल रहा है"
+  },
+
+  "adminAuth": {
+    "demo_credentials": "Demo क्रेडेंशियल"
+  },
+
+  "farmerDashboard": {
+    "title": "मेरा Dashboard",
+    "subtitle": "आपके सक्रिय समूह और हाल की गतिविधि",
+    "welcome": "स्वागत है, {name}",
+    "cta_title": "बेचने के लिए फसल है?",
+    "cta_subtitle": "अगले समूह में शामिल होने के लिए हमारी आईवीआर पर कॉल करें",
+    "cta_phone": "1800-120-MITRA",
+    "stat_active_pools": "सक्रिय समूह",
+    "stat_total_qty": "कुल योगदान मात्रा",
+    "stat_total_earnings": "कुल कमाई",
+    "stat_trust_score": "विश्वास स्कोर",
+    "my_pools": "मेरे समूह",
+    "no_pools": "आप अभी तक किसी समूह का हिस्सा नहीं हैं",
+    "no_pools_hint": "आस-पास के किसानों के साथ समूहित होने के लिए आईवीआर नंबर पर कॉल करें",
+    "your_contribution": "आपका योगदान",
+    "settled_price": "निपटान मूल्य",
+    "mandi_avg": "मंडी औसत: ₹{rate}/किग्रा · {premium}% अधिक",
+    "view_details": "विवरण देखें",
+    "recent_activity": "हाल की गतिविधि",
+    "no_activity": "कोई हाल की गतिविधि नहीं",
+    "pool_details": "समूह विवरण",
+    "pool_number": "समूह #{id}",
+    "status": "स्थिति",
+    "total_qty_pooled": "कुल एकत्रित मात्रा",
+    "target_qty": "लक्ष्य मात्रा",
+    "farmers_participated": "भाग लेने वाले किसान",
+    "farmers_in_pool": "इस समूह में किसान",
+    "loading_farmers": "किसान लोड हो रहे हैं...",
+    "no_farmers_data": "किसान विवरण लोड नहीं किया जा सका",
+    "phone": "फोन",
+    "quantity": "मात्रा",
+    "trust_score": "विश्वास स्कोर",
+    "language": "भाषा",
+    "close": "बंद करें",
+    "error_title": "आपका डेटा लोड नहीं किया जा सका",
+    "error_hint": "सुनिश्चित करें कि बैकएंड चल रहा है",
+    "retry": "पुनः प्रयास"
+  },
+
+  "farmerProfile": {
+    "title": "मेरी प्रोफ़ाइल",
+    "farmer_name": "किसान का नाम",
+    "phone_number": "फोन नंबर",
+    "primary_location": "मुख्य स्थान",
+    "primary_crop": "मुख्य फसल",
+    "member_since": "सदस्यता तिथि",
+    "trust_score": "विश्वास स्कोर",
+    "total_calls": "कुल कॉल",
+    "pools_joined": "शामिल समूह",
+    "total_earnings": "कुल कमाई",
+    "call_history": "कॉल इतिहास",
+    "no_calls": "कोई कॉल इतिहास उपलब्ध नहीं है",
+    "settlement_history": "निपटान इतिहास",
+    "no_settlements": "अभी तक कोई निपटान नहीं",
+    "date_time": "तारीख / समय",
+    "crop": "फसल",
+    "qty": "मात्रा",
+    "location": "स्थान",
+    "pool": "समूह",
+    "call_status": "स्थिति",
+    "price_per_kg": "मूल्य/किग्रा",
+    "premium": "प्रीमियम",
+    "total_amount": "कुल राशि",
+    "buyers": "खरीदार",
+    "date": "तारीख"
+  },
+
+  "farmerSettlements": {
+    "title": "मेरे निपटान",
+    "subtitle": "पूर्ण समूह और कमाई",
+    "stat_total_pools": "कुल निपटाए गए समूह",
+    "stat_total_earnings": "कुल कमाई",
+    "stat_avg_premium": "मंडी पर औसत प्रीमियम",
+    "no_settlements": "अभी तक कोई निपटान नहीं",
+    "no_settlements_hint": "आपका पहला निपटाया गया समूह यहां दिखाई देगा",
+    "pool_id": "समूह",
+    "crop": "फसल",
+    "location": "स्थान",
+    "your_qty": "आपकी मात्रा",
+    "price_per_kg": "मूल्य/किग्रा",
+    "mandi_rate": "मंडी दर",
+    "premium": "प्रीमियम",
+    "total": "कुल",
+    "buyers": "खरीदार",
+    "date": "तारीख",
+    "view_receipt": "रसीद देखें",
+    "download_receipt": "रसीद डाउनलोड करें",
+    "copy_receipt": "क्लिपबोर्ड पर कॉपी करें",
+    "receipt_copied": "रसीद क्लिपबोर्ड पर कॉपी की गई",
+    "receipt_title": "मंडी मित्र निपटान रसीद",
+    "receipt_subtitle": "फसल निपटान प्रमाणपत्र",
+    "settlement_details": "निपटान विवरण",
+    "total_quantity": "कुल मात्रा",
+    "market_rate": "मंडी बाज़ार दर",
+    "selling_price": "आपका बिक्री मूल्य",
+    "premium_over_market": "बाज़ार से अधिक प्रीमियम",
+    "total_earnings": "कुल कमाई",
+    "settlement_date": "निपटान तिथि",
+    "receipt_footer": "यह रसीद आपकी बिक्री का प्रमाण है।",
+    "receipt_contact": "विवादों के लिए 1800-120-MITRA पर संपर्क करें।",
+    "pool_detail_error": "इस समूह के अन्य किसानों का विवरण लोड नहीं किया जा सका।",
+    "receipt_error": "रसीद विवरण लोड करने में विफल।"
+  },
+
+  "farmerBuyers": {
+    "title": "आपके क्षेत्र में खरीदार",
+    "subtitle": "पंजीकृत थोक व्यापारी और डीलर",
+    "no_buyers": "आपके क्षेत्र में कोई खरीदार पंजीकृत नहीं है",
+    "buys": "खरीदता है: {crop}",
+    "min_lot": "न्यूनतम लॉट: {quantity} किग्रा",
+    "unknown": "अज्ञात"
+  },
+
+  "buyerAuctions": {
+    "title": "लाइव नीलामी",
+    "subtitle": "अपने क्षेत्र के सक्रिय समूहों पर बोली लगाएं",
+    "log_out": "लॉग आउट",
+    "no_auctions": "अभी कोई सक्रिय नीलामी नहीं है",
+    "no_auctions_hint": "जल्द ही देखें — किसानों के कॉल करने पर समूह बनते हैं",
+    "pool_number": "समूह #{id}",
+    "farmers_pooled": "{count} किसान एकत्रित",
+    "bidding_closed": "इस समूह के लिए बोली बंद है",
+    "remaining": "{time} शेष",
+    "auction_closed": "नीलामी बंद",
+    "place_bid": "बोली लगाएं",
+    "placing": "बोली लगाई जा रही है...",
+    "price_placeholder": "मूल्य",
+    "qty_placeholder": "मात्रा",
+    "per_kg": "/किग्रा",
+    "kg": "किग्रा",
+    "your_bids": "आपकी बोलियां",
+    "submitted": "सबमिट की गई",
+    "bid_success": "बोली लगाई गई — ₹{price}/किग्रा, {quantity}किग्रा के लिए",
+    "bid_success_demo": "बोली सिम्युलेट की गई — ₹{price}/किग्रा, {quantity}किग्रा के लिए (Demo मोड)",
+    "bid_error": "बोली लगाने में विफल"
+  },
+
+  "buyerBids": {
+    "title": "मेरा बोली इतिहास",
+    "subtitle": "आपके द्वारा नीलामियों में लगाई गई सभी बोलियां",
+    "no_bids": "अभी तक कोई बोली नहीं",
+    "no_bids_hint": "अपनी पहली बोली लगाने के लिए लाइव नीलामी पर जाएं।",
+    "go_to_auctions": "लाइव नीलामी पर जाएं",
+    "pool": "समूह",
+    "crop": "फसल",
+    "location": "स्थान",
+    "price": "मूल्य",
+    "quantity": "मात्रा",
+    "time": "समय",
+    "status": "स्थिति"
+  },
+
+  "buyerProfile": {
+    "title": "मेरी प्रोफ़ाइल",
+    "subtitle": "आपके खरीदार खाते का विवरण",
+    "business_name": "व्यवसाय का नाम",
+    "phone": "फोन",
+    "crop_interest": "फसल रुचि",
+    "location": "स्थान",
+    "min_lot": "न्यूनतम लॉट आकार",
+    "total_bids": "कुल बोलियां लगाईं",
+    "auctions_won": "जीती गई नीलामियां",
+    "avg_bid_price": "औसत बोली मूल्य",
+    "bid_history": "बोली इतिहास",
+    "no_bids": "अभी तक कोई बोली नहीं"
+  },
+
+  "buyerSettlements": {
+    "title": "निपटान",
+    "subtitle": "पूर्ण नीलामियां और भुगतान रिकॉर्ड",
+    "stat_total": "कुल निपटाए गए",
+    "stat_volume": "कुल मात्रा",
+    "stat_value": "कुल मूल्य",
+    "no_settlements": "अभी तक कोई निपटान नहीं",
+    "pool": "समूह",
+    "crop": "फसल",
+    "location": "स्थान",
+    "qty": "आवंटित मात्रा",
+    "price": "मूल्य/किग्रा",
+    "total": "कुल",
+    "date": "तारीख"
+  },
+
+  "buyerFarmers": {
+    "title": "किसान रजिस्ट्री",
+    "subtitle": "पूलिंग नेटवर्क में सभी किसान",
+    "total_farmers": "{count} कुल किसान",
+    "active_today": "{count} आज सक्रिय",
+    "flagged": "{count} फ़्लैग किए गए"
+  },
+
+  "poolDetail": {
+    "back_to_auctions": "नीलामी",
+    "pool_number": "समूह #{id}",
+    "quick_stats_farmers": "किसान",
+    "quick_stats_timeline": "समयरेखा",
+    "quick_stats_district": "जिला",
+    "quick_stats_assurance": "आश्वासन",
+    "timeline_value": "90 मिनट",
+    "assurance_value": "एफपीओ गुणवत्ता",
+    "auction_bidding": "नीलामी बोली",
+    "settled_info": "नीलामी सफलतापूर्वक निपटाई गई",
+    "farmers_in_pool": "इस समूह में किसान",
+    "no_farmers": "किसान विवरण लोड नहीं किया जा सका",
+    "phone": "फोन",
+    "quantity": "मात्रा",
+    "trust_score": "विश्वास स्कोर",
+    "call_time": "कॉल समय",
+    "language": "भाषा",
+    "error_title": "समूह विवरण लोड नहीं किया जा सका",
+    "retry": "पुनः प्रयास"
+  },
+
+  "sidebar": {
+    "brand": "MANDI MITRA",
+    "farmer_portal": "किसान पोर्टल",
+    "buyer_portal": "खरीदार पोर्टल",
+    "admin_dashboard": "एडमिन Dashboard",
+    "sign_out": "साइन आउट",
+    "language": "भाषा",
+    "system_live": "सिस्टम लाइव",
+    "active_pools": "{count} सक्रिय समूह",
+    "farmer_badge": "किसान",
+    "buyer_badge": "खरीदार",
+    "admin_badge": "एडमिन"
+  },
+
+  "farmerNav": {
+    "dashboard": "मेरा Dashboard",
+    "profile": "मेरी प्रोफ़ाइल",
+    "settlements": "निपटान",
+    "buyers": "खरीदार",
+    "demo": "Demo पैनल"
+  },
+
+  "buyerNav": {
+    "auctions": "लाइव नीलामी",
+    "bids": "मेरी बोलियां",
+    "profile": "मेरी प्रोफ़ाइल",
+    "farmers": "किसान",
+    "settlements": "निपटान",
+    "demo": "Demo पैनल"
+  },
+
+  "offline": {
+    "banner": "बैकएंड ऑफ़लाइन — Demo डेटा दिखाया जा रहा है"
   }
 }

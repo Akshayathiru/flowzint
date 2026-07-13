@@ -6,10 +6,13 @@ import { useFarmerSessionStore } from "@/store/farmerSessionStore";
 import { buyerApi } from "@/lib/buyerApi";
 import { BuyerProfile } from "@/types";
 import { Store, MapPin, Package, Phone, Loader2, AlertCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export default function FarmerBuyersPage() {
   const router = useRouter();
   const { isLoggedIn, hasHydrated } = useFarmerSessionStore();
+  const t = useTranslations("farmerBuyers");
+  const tDash = useTranslations("farmerDashboard");
 
   const [buyers, setBuyers] = useState<BuyerProfile[]>([]);
   const [loading, setLoading] = useState(true);
@@ -34,7 +37,7 @@ export default function FarmerBuyersPage() {
       })
       .catch((err) => {
         console.error("Failed to load buyers:", err);
-        setError(err.message || "Could not load data");
+        setError(err.message || tDash("error_title"));
       })
       .finally(() => {
         setLoading(false);
@@ -49,7 +52,7 @@ export default function FarmerBuyersPage() {
 
   // Mask phone numbers for farmer view privacy (e.g. +91 9876543210 -> +91 98XXX 43210)
   const maskPhone = (phone: string) => {
-    if (!phone) return "Unknown";
+    if (!phone) return t("unknown");
     const clean = phone.trim().replace(/\s+/g, "");
     if (clean.length >= 10) {
       const isInd = clean.startsWith("+91");
@@ -74,10 +77,10 @@ export default function FarmerBuyersPage() {
           className="text-2xl font-bold text-charcoal"
           style={{ fontFamily: "Mukta, sans-serif" }}
         >
-          Buyers in Your Area
+          {t("title")}
         </h1>
         <p className="text-sm text-gray-400 mt-1">
-          Registered wholesalers, traders, and FPO agents bidding on crops
+          {t("subtitle")}
         </p>
       </div>
 
@@ -86,16 +89,16 @@ export default function FarmerBuyersPage() {
         <div className="flex flex-col items-center justify-center p-8 my-8 bg-red-50 border border-red-200 rounded-xl max-w-md mx-auto text-center shadow-sm">
           <AlertCircle className="w-8 h-8 text-alert-red mb-3" />
           <h3 className="font-sans font-semibold text-sm text-red-600">
-            Could not load buyers
+            {tDash("error_title")}
           </h3>
           <p className="font-sans text-xs text-gray-400 mt-1">
-            Make sure the backend is running
+            {tDash("error_hint")}
           </p>
           <button
             onClick={fetchBuyers}
             className="border border-gray-200 rounded-lg px-4 py-2 mt-4 bg-white text-xs font-semibold text-charcoal hover:bg-gray-50 transition-colors shadow-sm cursor-pointer"
           >
-            Retry
+            {tDash("retry")}
           </button>
         </div>
       ) : loading ? (
@@ -116,7 +119,7 @@ export default function FarmerBuyersPage() {
         // Empty State
         <div className="bg-white rounded-xl border border-gray-200 p-12 text-center shadow-sm">
           <p className="text-sm text-gray-400">
-            No buyers registered yet.
+            {t("no_buyers")}
           </p>
         </div>
       ) : (
@@ -148,7 +151,7 @@ export default function FarmerBuyersPage() {
 
                   <div className="flex items-center gap-2">
                     <Package className="w-3.5 h-3.5 text-gray-450 shrink-0" />
-                    <span className="capitalize">Buys: <span className="font-medium text-charcoal">{buyer.crop}</span></span>
+                    <span className="capitalize">{t("buys", { crop: buyer.crop })}</span>
                   </div>
 
                   <div className="flex items-center gap-2">
@@ -161,7 +164,7 @@ export default function FarmerBuyersPage() {
               <div className="mt-5 pt-3 border-t border-dashed border-gray-100 flex items-center justify-between text-[10px] text-gray-400 font-sans">
                 <span>ID: WH-{buyer.buyer_id}</span>
                 <span className="font-semibold text-soil-brown bg-warm-cream/50 px-2 py-0.5 rounded border border-gray-200/50">
-                  Min lot: {buyer.min_quantity} kg
+                  {t("min_lot", { quantity: buyer.min_quantity })}
                 </span>
               </div>
             </div>
