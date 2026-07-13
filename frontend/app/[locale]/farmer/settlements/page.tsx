@@ -215,7 +215,7 @@ Status: ${receiptData.status}
           </p>
           <button
             onClick={fetchSettlements}
-            className="border border-gray-200 rounded-lg px-4 py-2 mt-4 bg-white text-xs font-semibold text-charcoal hover:bg-gray-50 transition-colors shadow-sm cursor-pointer"
+            className="border border-gray-200 rounded-lg px-4 py-2 mt-4 bg-white text-xs font-semibold text-charcoal hover:bg-gray-50 active:bg-gray-100 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 shadow-sm cursor-pointer"
           >
             Retry
           </button>
@@ -236,43 +236,43 @@ Status: ${receiptData.status}
               ))
             ) : (
               <>
-                <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm flex items-center gap-4">
+                <div className="bg-white rounded-xl border border-gray-200 border-l-4 border-l-sky-blue p-5 shadow-sm flex items-center gap-4">
                   <div className="w-10 h-10 rounded-full bg-field-green/10 text-field-green flex items-center justify-center shrink-0">
                     <Package className="w-5 h-5" />
                   </div>
                   <div>
-                    <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">
+                    <div className="text-[10px] text-gray-400 font-medium uppercase tracking-widest">
                       Total Settled Pools
                     </div>
-                    <div className="font-display font-bold text-2xl text-charcoal">
+                    <div className="font-display font-semibold text-2xl text-charcoal">
                       {totalSettledPools}
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm flex items-center gap-4">
+                <div className="bg-white rounded-xl border border-gray-200 border-l-4 border-l-field-green p-5 shadow-sm flex items-center gap-4">
                   <div className="w-10 h-10 rounded-full bg-sky-blue/10 text-sky-blue flex items-center justify-center shrink-0">
                     <CheckCircle className="w-5 h-5" />
                   </div>
                   <div>
-                    <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">
+                    <div className="text-[10px] text-gray-400 font-medium uppercase tracking-widest">
                       Total Earnings
                     </div>
-                    <div className="font-display font-bold text-2xl text-charcoal">
+                    <div className="font-display font-semibold text-2xl text-charcoal">
                       ₹{totalEarnings.toLocaleString()}
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm flex items-center gap-4">
+                <div className="bg-white rounded-xl border border-gray-200 border-l-4 border-l-harvest-gold p-5 shadow-sm flex items-center gap-4">
                   <div className="w-10 h-10 rounded-full bg-harvest-gold/10 text-harvest-gold flex items-center justify-center shrink-0">
                     <TrendingUp className="w-5 h-5" />
                   </div>
                   <div>
-                    <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">
+                    <div className="text-[10px] text-gray-400 font-medium uppercase tracking-widest">
                       Avg Premium over Mandi
                     </div>
-                    <div className="font-display font-bold text-2xl text-field-green">
+                    <div className="font-display font-semibold text-2xl text-field-green">
                       +{avgPremium}%
                     </div>
                   </div>
@@ -302,7 +302,7 @@ Status: ${receiptData.status}
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse text-xs">
                   <thead>
-                    <tr className="border-b border-gray-150 bg-gray-50/50 text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                    <tr className="bg-gray-50/50 text-[10px] font-medium uppercase tracking-widest text-gray-400">
                       <th className="px-4 py-3">Pool</th>
                       <th className="px-4 py-3">Crop</th>
                       <th className="px-4 py-3">Location</th>
@@ -324,43 +324,43 @@ Status: ${receiptData.status}
                       >
                         {/* Make row clickable to open details */}
                         <td
-                          className="px-4 py-3.5 font-mono text-xs font-bold text-sky-blue group-hover:underline"
+                          className="px-4 py-3 font-mono text-xs font-bold text-sky-blue group-hover:underline"
                           onClick={() => setSelectedPoolId(s.pool_id)}
                         >
                           Pool #{s.pool_id}
                         </td>
                         <td
-                          className="px-4 py-3.5 font-semibold capitalize"
+                          className="px-4 py-3 font-semibold capitalize"
                           onClick={() => setSelectedPoolId(s.pool_id)}
                         >
                           {s.crop}
                         </td>
                         <td
-                          className="px-4 py-3.5 text-gray-500 capitalize"
+                          className="px-4 py-3 text-gray-500 capitalize"
                           onClick={() => setSelectedPoolId(s.pool_id)}
                         >
                           {s.location}
                         </td>
                         <td
-                          className="px-4 py-3.5"
+                          className="px-4 py-3"
                           onClick={() => setSelectedPoolId(s.pool_id)}
                         >
                           {s.your_quantity_kg} kg
                         </td>
                         <td
-                          className="px-4 py-3.5 text-field-green font-semibold"
+                          className="px-4 py-3 text-field-green font-semibold"
                           onClick={() => setSelectedPoolId(s.pool_id)}
                         >
                           ₹{s.price_per_kg.toFixed(2)}
                         </td>
                         <td
-                          className="px-4 py-3.5 text-gray-400"
+                          className="px-4 py-3 text-gray-400"
                           onClick={() => setSelectedPoolId(s.pool_id)}
                         >
                           ₹{s.mandi_rate_per_kg.toFixed(2)}
                         </td>
                         <td
-                          className="px-4 py-3.5"
+                          className="px-4 py-3"
                           onClick={() => setSelectedPoolId(s.pool_id)}
                         >
                           {s.premium_percent > 0 ? (
@@ -372,25 +372,25 @@ Status: ${receiptData.status}
                           )}
                         </td>
                         <td
-                          className="px-4 py-3.5 font-bold"
+                          className="px-4 py-3 font-bold"
                           onClick={() => setSelectedPoolId(s.pool_id)}
                         >
                           ₹{s.total_amount.toLocaleString()}
                         </td>
                         <td
-                          className="px-4 py-3.5 text-gray-400 max-w-[150px] truncate"
+                          className="px-4 py-3 text-gray-400 max-w-[150px] truncate"
                           onClick={() => setSelectedPoolId(s.pool_id)}
                           title={s.buyers}
                         >
                           {s.buyers}
                         </td>
                         <td
-                          className="px-4 py-3.5 text-gray-450 font-mono"
+                          className="px-4 py-3 text-gray-450 font-mono"
                           onClick={() => setSelectedPoolId(s.pool_id)}
                         >
                           {new Date(s.settled_at).toLocaleDateString([], { month: "short", day: "numeric", year: "2-digit" })}
                         </td>
-                        <td className="px-4 py-3.5 text-center">
+                        <td className="px-4 py-3 text-center">
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
@@ -415,7 +415,7 @@ Status: ${receiptData.status}
       {/* POOL DETAIL MODAL */}
       {selectedPoolId && poolDetails && (
         <div className="fixed inset-0 z-50 bg-charcoal/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl border border-gray-200 max-w-lg w-full p-6 shadow-lg relative max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-xl border border-gray-200 max-w-lg w-full p-6 shadow-sm relative max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setSelectedPoolId(null)}
               className="absolute top-4 right-4 text-gray-400 hover:text-charcoal transition-colors cursor-pointer"
@@ -520,7 +520,7 @@ Status: ${receiptData.status}
 
             <button
               onClick={() => setSelectedPoolId(null)}
-              className="mt-6 w-full bg-charcoal text-white rounded-lg py-2 text-xs font-semibold hover:bg-stone-850 transition-colors cursor-pointer select-none"
+              className="mt-6 w-full bg-charcoal text-white rounded-lg py-2 text-xs font-semibold hover:brightness-90 active:scale-[0.98] transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 cursor-pointer select-none"
             >
               Close
             </button>
@@ -531,7 +531,7 @@ Status: ${receiptData.status}
       {/* RECEIPT MODAL */}
       {receiptPoolId && (
         <div className="fixed inset-0 z-50 bg-charcoal/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl border border-gray-200 max-w-md w-full p-6 shadow-lg relative">
+          <div className="bg-white rounded-xl border border-gray-200 max-w-md w-full p-6 shadow-sm relative">
             <button
               onClick={() => setReceiptPoolId(null)}
               className="absolute top-4 right-4 text-gray-400 hover:text-charcoal transition-colors cursor-pointer"
@@ -578,7 +578,7 @@ Thank you for using Mandi Mitra!`}
                 <div className="flex items-center gap-3">
                   <button
                     onClick={handleCopyReceiptText}
-                    className="flex-1 bg-charcoal text-white rounded-lg py-2.5 text-xs font-semibold hover:bg-stone-850 transition-colors shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="flex-1 bg-charcoal text-white rounded-lg py-2.5 text-xs font-semibold hover:brightness-90 active:scale-[0.98] transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <ClipboardCopy className="w-3.5 h-3.5" />
                     <span>Copy to Clipboard</span>
@@ -595,7 +595,7 @@ Thank you for using Mandi Mitra!`}
                       document.body.removeChild(element);
                       toast.success("Receipt downloaded!");
                     }}
-                    className="border border-gray-200 text-gray-600 rounded-lg p-2.5 hover:bg-gray-50 transition-colors bg-white shadow-sm flex items-center justify-center cursor-pointer"
+                    className="border border-gray-200 text-gray-600 rounded-lg p-2.5 hover:bg-gray-50 active:bg-gray-100 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 bg-white shadow-sm flex items-center justify-center cursor-pointer"
                     title="Download Text File"
                   >
                     <Download className="w-4 h-4" />

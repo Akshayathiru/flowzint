@@ -58,15 +58,12 @@ export default function FarmerSidebar() {
               href={item.href}
               aria-label={item.label}
               aria-current={isActive ? "page" : undefined}
-              className={`group flex items-center gap-3 px-3 py-2 rounded-lg font-sans text-xs font-semibold transition-colors cursor-pointer w-full relative ${
+              className={`flex items-center gap-3 pl-3 pr-3 py-2 rounded-lg font-sans text-xs transition-colors cursor-pointer w-full border-l-4 ${
                 isActive
-                  ? "bg-warm-cream text-soil-brown font-bold"
-                  : "text-gray-500 hover:bg-gray-50 hover:text-charcoal"
+                  ? "bg-warm-cream border-soil-brown text-soil-brown font-medium"
+                  : "border-transparent font-semibold text-gray-500 hover:bg-gray-50 hover:text-charcoal"
               }`}
             >
-              {isActive && (
-                <span className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-0.5 bg-soil-brown rounded-full" />
-              )}
               <item.icon className="w-4 h-4 shrink-0" strokeWidth={1.5} />
               <span className="flex-1">{item.label}</span>
             </Link>
@@ -85,7 +82,7 @@ export default function FarmerSidebar() {
               {phone}
             </span>
             <div className="flex items-center gap-1.5 mt-2">
-              <span className="border border-field-green text-field-green text-[9px] uppercase tracking-wider rounded px-2 py-0.5 font-bold select-none bg-field-green/5">
+              <span className="border border-field-green text-field-green text-[10px] uppercase tracking-wider rounded px-2.5 py-1 font-bold select-none bg-field-green/10">
                 FARMER
               </span>
             </div>

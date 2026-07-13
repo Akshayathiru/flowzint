@@ -128,7 +128,7 @@ export default function FarmerProfilePage() {
           </p>
           <button
             onClick={fetchProfileData}
-            className="border border-gray-200 rounded-lg px-4 py-2 mt-4 bg-white text-xs font-semibold text-charcoal hover:bg-gray-50 transition-colors shadow-sm cursor-pointer"
+            className="border border-gray-200 rounded-lg px-4 py-2 mt-4 bg-white text-xs font-semibold text-charcoal hover:bg-gray-50 active:bg-gray-100 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 shadow-sm cursor-pointer"
           >
             Retry
           </button>
@@ -160,7 +160,7 @@ export default function FarmerProfilePage() {
                 {/* Left Column */}
                 <div className="space-y-3.5">
                   <div>
-                    <label className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">
+                    <label className="text-[10px] text-gray-400 font-medium uppercase tracking-widest block">
                       Farmer Name
                     </label>
                     <span className="text-base font-semibold text-charcoal" style={{ fontFamily: "Mukta, sans-serif" }}>
@@ -169,28 +169,28 @@ export default function FarmerProfilePage() {
                   </div>
 
                   <div>
-                    <label className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">
+                    <label className="text-[10px] text-gray-400 font-medium uppercase tracking-widest block">
                       Phone Number
                     </label>
                     <span className="font-mono text-base font-medium text-charcoal">{profile.phone}</span>
                   </div>
 
                   <div>
-                    <label className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">
+                    <label className="text-[10px] text-gray-400 font-medium uppercase tracking-widest block">
                       Primary Location
                     </label>
                     <span className="text-sm text-charcoal font-medium capitalize">{profile.location}</span>
                   </div>
 
                   <div>
-                    <label className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">
+                    <label className="text-[10px] text-gray-400 font-medium uppercase tracking-widest block">
                       Primary Crop
                     </label>
                     <span className="text-sm text-charcoal font-medium capitalize">{profile.primary_crop}</span>
                   </div>
 
                   <div>
-                    <label className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">
+                    <label className="text-[10px] text-gray-400 font-medium uppercase tracking-widest block">
                       Member Since
                     </label>
                     <span className="text-xs text-gray-450 font-medium font-mono">
@@ -211,24 +211,24 @@ export default function FarmerProfilePage() {
                       )}
                     </div>
                     <div>
-                      <span className="text-[10px] uppercase font-bold tracking-wider text-gray-500 block">Trust Score</span>
-                      <span className="text-2xl font-bold font-display leading-tight">{profile.trust_score.toFixed(1)}</span>
+                      <span className="text-[10px] uppercase font-medium tracking-widest text-gray-500 block">Trust Score</span>
+                      <span className="text-2xl font-semibold font-display leading-tight">{profile.trust_score.toFixed(1)}</span>
                     </div>
                   </div>
 
                   {/* Stat boxes */}
                   <div className="grid grid-cols-3 gap-4 w-full">
                     <div className="bg-gray-50 rounded-xl p-3 border border-gray-100 text-center">
-                      <span className="text-[9px] text-gray-400 font-bold uppercase tracking-wider block">Total Calls</span>
-                      <span className="text-lg font-bold font-display text-charcoal">{profile.total_calls}</span>
+                      <span className="text-[9px] text-gray-400 font-medium uppercase tracking-widest block">Total Calls</span>
+                      <span className="text-lg font-semibold font-display text-charcoal">{profile.total_calls}</span>
                     </div>
                     <div className="bg-gray-50 rounded-xl p-3 border border-gray-100 text-center">
-                      <span className="text-[9px] text-gray-400 font-bold uppercase tracking-wider block">Pools Joined</span>
-                      <span className="text-lg font-bold font-display text-charcoal">{profile.total_pools}</span>
+                      <span className="text-[9px] text-gray-400 font-medium uppercase tracking-widest block">Pools Joined</span>
+                      <span className="text-lg font-semibold font-display text-charcoal">{profile.total_pools}</span>
                     </div>
                     <div className="bg-gray-50 rounded-xl p-3 border border-gray-100 text-center">
-                      <span className="text-[9px] text-gray-400 font-bold uppercase tracking-wider block">Total Qty</span>
-                      <span className="text-lg font-bold font-display text-charcoal whitespace-nowrap">{profile.total_quantity_kg} kg</span>
+                      <span className="text-[9px] text-gray-400 font-medium uppercase tracking-widest block">Total Qty</span>
+                      <span className="text-lg font-semibold font-display text-charcoal whitespace-nowrap">{profile.total_quantity_kg} kg</span>
                     </div>
                   </div>
                 </div>
@@ -239,7 +239,7 @@ export default function FarmerProfilePage() {
           {/* CALL HISTORY */}
           <div className="mb-8">
             <h2
-              className="text-lg font-bold text-charcoal mb-4"
+              className="text-lg font-semibold text-charcoal mb-4"
               style={{ fontFamily: "Mukta, sans-serif" }}
             >
               Call History
@@ -248,7 +248,7 @@ export default function FarmerProfilePage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse text-xs">
                   <thead>
-                    <tr className="bg-gray-50 border-b border-gray-200 text-[10px] font-bold text-gray-400 uppercase tracking-wider font-sans">
+                    <tr className="bg-gray-50/50 text-[10px] font-medium text-gray-400 uppercase tracking-widest font-sans">
                       <th className="px-6 py-3">Date/Time</th>
                       <th className="px-6 py-3">Crop</th>
                       <th className="px-6 py-3">Quantity</th>
@@ -258,7 +258,7 @@ export default function FarmerProfilePage() {
                       <th className="px-6 py-3">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-150 text-stone-600 font-sans">
+                  <tbody className="divide-y divide-gray-100 text-stone-600 font-sans">
                     {calls.length === 0 ? (
                       <tr>
                         <td colSpan={7} className="px-6 py-8 text-center text-gray-400 italic">
@@ -267,20 +267,20 @@ export default function FarmerProfilePage() {
                       </tr>
                     ) : (
                       calls.map((call) => (
-                        <tr key={call.call_id} className="hover:bg-gray-55/20 transition-colors">
-                          <td className="px-6 py-4 font-mono text-gray-500">
+                        <tr key={call.call_id} className="hover:bg-gray-50/50 transition-colors">
+                          <td className="px-6 py-3 font-mono text-gray-500">
                             {new Date(call.timestamp).toLocaleString([], { dateStyle: "short", timeStyle: "short" })}
                           </td>
-                          <td className="px-6 py-4 font-semibold text-charcoal capitalize">{call.crop}</td>
-                          <td className="px-6 py-4 font-medium text-charcoal">{call.quantity_kg} kg</td>
-                          <td className="px-6 py-4 capitalize">{call.location}</td>
-                          <td className="px-6 py-4">
+                          <td className="px-6 py-3 font-semibold text-charcoal capitalize">{call.crop}</td>
+                          <td className="px-6 py-3 font-medium text-charcoal">{call.quantity_kg} kg</td>
+                          <td className="px-6 py-3 capitalize">{call.location}</td>
+                          <td className="px-6 py-3">
                             <LanguageBadge code={call.language} />
                           </td>
-                          <td className="px-6 py-4 font-semibold text-soil-brown font-mono">
+                          <td className="px-6 py-3 font-semibold text-soil-brown font-mono">
                             {call.pool_id ? `Pool #${call.pool_id}` : "—"}
                           </td>
-                          <td className="px-6 py-4">
+                          <td className="px-6 py-3">
                             <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold capitalize ${
                               call.status === "pooled"
                                 ? "bg-sky-blue/10 text-sky-blue"
@@ -303,7 +303,7 @@ export default function FarmerProfilePage() {
           {/* SETTLEMENT HISTORY */}
           <div>
             <h2
-              className="text-lg font-bold text-charcoal mb-4"
+              className="text-lg font-semibold text-charcoal mb-4"
               style={{ fontFamily: "Mukta, sans-serif" }}
             >
               Settlement History
@@ -312,7 +312,7 @@ export default function FarmerProfilePage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse text-xs">
                   <thead>
-                    <tr className="bg-gray-50/50 border-b border-gray-200 text-[10px] font-bold text-gray-400 uppercase tracking-wider font-sans">
+                    <tr className="bg-gray-50/50 text-[10px] font-medium text-gray-400 uppercase tracking-widest font-sans">
                       <th className="px-6 py-3">Pool ID</th>
                       <th className="px-6 py-3">Crop</th>
                       <th className="px-6 py-3">Location</th>
@@ -325,7 +325,7 @@ export default function FarmerProfilePage() {
                       <th className="px-6 py-3">Date</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-150 text-stone-600 font-sans">
+                  <tbody className="divide-y divide-gray-100 text-stone-600 font-sans">
                     {settlements.length === 0 ? (
                       <tr>
                         <td colSpan={10} className="px-6 py-8 text-center text-gray-400 italic">
@@ -335,13 +335,13 @@ export default function FarmerProfilePage() {
                     ) : (
                       settlements.map((set) => (
                         <tr key={set.pool_id} className="hover:bg-gray-50/50 transition-colors">
-                          <td className="px-6 py-4 font-semibold text-charcoal">Pool #{set.pool_id}</td>
-                          <td className="px-6 py-4 font-semibold text-charcoal capitalize">{set.crop}</td>
-                          <td className="px-6 py-4 capitalize">{set.location}</td>
-                          <td className="px-6 py-4">{set.your_quantity_kg} kg</td>
-                          <td className="px-6 py-4 text-field-green font-semibold">₹{set.price_per_kg.toFixed(2)}</td>
-                          <td className="px-6 py-4 text-gray-400">₹{set.mandi_rate_per_kg.toFixed(2)}</td>
-                          <td className="px-6 py-4">
+                          <td className="px-6 py-3 font-semibold text-charcoal">Pool #{set.pool_id}</td>
+                          <td className="px-6 py-3 font-semibold text-charcoal capitalize">{set.crop}</td>
+                          <td className="px-6 py-3 capitalize">{set.location}</td>
+                          <td className="px-6 py-3">{set.your_quantity_kg} kg</td>
+                          <td className="px-6 py-3 text-field-green font-semibold">₹{set.price_per_kg.toFixed(2)}</td>
+                          <td className="px-6 py-3 text-gray-400">₹{set.mandi_rate_per_kg.toFixed(2)}</td>
+                          <td className="px-6 py-3">
                             {set.premium_percent > 0 ? (
                               <span className="inline-block bg-field-green/10 text-field-green text-[10px] font-bold rounded px-2 py-0.5 whitespace-nowrap">
                                 +{set.premium_percent}%
@@ -350,11 +350,11 @@ export default function FarmerProfilePage() {
                               <span className="text-gray-300">&mdash;</span>
                             )}
                           </td>
-                          <td className="px-6 py-4 font-bold text-charcoal">₹{set.total_amount.toLocaleString()}</td>
-                          <td className="px-6 py-4 text-gray-400 max-w-[150px] truncate" title={set.buyers}>
+                          <td className="px-6 py-3 font-bold text-charcoal">₹{set.total_amount.toLocaleString()}</td>
+                          <td className="px-6 py-3 text-gray-400 max-w-[150px] truncate" title={set.buyers}>
                             {set.buyers}
                           </td>
-                          <td className="px-6 py-4 font-mono text-gray-500">
+                          <td className="px-6 py-3 font-mono text-gray-500">
                             {new Date(set.settled_at).toLocaleDateString([], { month: "short", day: "numeric", year: "2-digit" })}
                           </td>
                         </tr>

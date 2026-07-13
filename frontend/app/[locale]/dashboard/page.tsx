@@ -56,7 +56,7 @@ export default function Dashboard() {
             </span>
             <Link
               href="/demo"
-              className="border border-gray-300 rounded-lg px-3 py-1.5 font-sans text-xs font-semibold text-gray-500 hover:bg-gray-50 bg-white transition-colors"
+              className="border border-gray-300 rounded-lg px-3 py-1.5 font-sans text-xs font-semibold text-gray-500 hover:bg-gray-50 active:bg-gray-100 bg-white transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300"
             >
               + New Demo Call
             </Link>
@@ -103,7 +103,7 @@ export default function Dashboard() {
           {/* LEFT PANEL */}
           <div className="flex flex-col gap-5 lg:overflow-y-auto lg:h-full pb-6 pr-1">
             <div>
-              <h2 className="font-sans text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-3">
+              <h2 className="font-sans text-[10px] font-medium uppercase tracking-widest text-gray-500 mb-3">
                 {t("active_pools")}
               </h2>
               {isLoading || isLoadingPools ? (
@@ -128,8 +128,12 @@ export default function Dashboard() {
                       />
                     ))
                   ) : (
-                    <div className="bg-white rounded-xl border border-gray-200 p-6 text-center text-gray-500 font-sans text-xs">
-                      No active pools at the moment.
+                    <div className="bg-white rounded-xl border border-gray-200 p-6 flex flex-col items-center justify-center text-center">
+                      <Layers className="w-10 h-10 text-gray-300 mb-3" />
+                      <p className="font-sans text-sm text-gray-500">No active pools at the moment</p>
+                      <p className="font-sans text-xs text-gray-400 mt-1">
+                        New pools appear here as farmers call in
+                      </p>
                     </div>
                   )}
                 </div>
@@ -147,7 +151,7 @@ export default function Dashboard() {
 
             {/* Quick Actions */}
             <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:border-gray-300 transition-colors">
-              <h3 className="font-sans text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-3">
+              <h3 className="font-sans text-[10px] font-medium uppercase tracking-widest text-gray-500 mb-3">
                 {t("quick_actions")}
               </h3>
               <div className="flex flex-col divide-y divide-gray-100">
@@ -157,7 +161,7 @@ export default function Dashboard() {
                   </span>
                   <Link
                     href="/demo"
-                    className="border border-gray-200 rounded px-2.5 py-1 text-xs font-semibold text-gray-500 hover:bg-gray-50 bg-white transition-colors"
+                    className="border border-gray-200 rounded px-2.5 py-1 text-xs font-semibold text-gray-500 hover:bg-gray-50 active:bg-gray-100 bg-white transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300"
                   >
                     {t("launch_button")}
                   </Link>
@@ -168,7 +172,7 @@ export default function Dashboard() {
                   </span>
                   <Link
                     href="/buyers"
-                    className="border border-gray-200 rounded px-2.5 py-1 text-xs font-semibold text-gray-500 hover:bg-gray-50 bg-white transition-colors"
+                    className="border border-gray-200 rounded px-2.5 py-1 text-xs font-semibold text-gray-500 hover:bg-gray-50 active:bg-gray-100 bg-white transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300"
                   >
                     {t("open_button")}
                   </Link>
@@ -179,7 +183,7 @@ export default function Dashboard() {
                   </span>
                   <Link
                     href="/settlements"
-                    className="border border-gray-200 rounded px-2.5 py-1 text-xs font-semibold text-gray-500 hover:bg-gray-50 bg-white transition-colors"
+                    className="border border-gray-200 rounded px-2.5 py-1 text-xs font-semibold text-gray-500 hover:bg-gray-50 active:bg-gray-100 bg-white transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300"
                   >
                     {t("view_button")}
                   </Link>
@@ -192,7 +196,7 @@ export default function Dashboard() {
                     onClick={() => {
                       toast.success(t("retry_toast"));
                     }}
-                    className="border border-gray-200 rounded px-2 py-1 text-xs font-semibold text-gray-600 hover:bg-gray-50 bg-white transition-colors cursor-pointer"
+                    className="border border-gray-200 rounded px-2 py-1 text-xs font-semibold text-gray-600 hover:bg-gray-50 active:bg-gray-100 bg-white transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 cursor-pointer"
                   >
                     {t("retry_button")}
                   </button>

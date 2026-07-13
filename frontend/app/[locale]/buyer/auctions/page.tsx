@@ -8,6 +8,7 @@ import AuctionPoolCard from "@/components/buyer/AuctionPoolCard";
 import PageHeader from "@/components/shared/PageHeader";
 import { AuctionPool } from "@/types";
 import OfflineBanner from "@/components/shared/OfflineBanner";
+import { Gavel } from "lucide-react";
 
 export default function BuyerAuctionsPage() {
   const router = useRouter();
@@ -93,11 +94,12 @@ export default function BuyerAuctionsPage() {
         {!isLoading && (
           <>
             {!pools || pools.length === 0 ? (
-              <div className="text-center py-16 bg-white border border-gray-200 rounded-xl shadow-sm max-w-2xl mx-auto">
-                <p className="font-sans text-sm text-gray-400 font-semibold">
+              <div className="text-center py-16 bg-white border border-gray-200 rounded-xl shadow-sm max-w-2xl mx-auto flex flex-col items-center">
+                <Gavel className="w-10 h-10 text-gray-300 mb-3" />
+                <p className="font-sans text-sm text-gray-500 font-semibold">
                   No active auctions right now
                 </p>
-                <p className="font-sans text-xs text-gray-300 mt-1 font-medium">
+                <p className="font-sans text-xs text-gray-400 mt-1 font-medium">
                   Check back soon — pools form when farmers call in
                 </p>
               </div>

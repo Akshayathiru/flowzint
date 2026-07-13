@@ -190,10 +190,10 @@ export default function LoginPage() {
               {/* Farmer Card */}
               <button
                 onClick={() => setSelectedRole("farmer")}
-                className="bg-white rounded-xl border border-gray-200 p-5 cursor-pointer hover:border-field-green hover:shadow-sm hover:bg-field-green/5 transition-all text-center flex flex-col items-center focus:outline-none focus:ring-1 focus:ring-field-green"
+                className="bg-white rounded-xl border border-gray-200 p-5 cursor-pointer hover:border-gray-300 hover:shadow-sm hover:scale-[1.02] transition-all text-center flex flex-col items-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300"
               >
                 <div className="w-12 h-12 rounded-full bg-field-green/5 flex items-center justify-center text-field-green shrink-0">
-                  <Sprout className="w-8 h-8" />
+                  <Sprout className="w-9 h-9" />
                 </div>
                 <h3 className="font-display font-semibold text-base text-charcoal mt-3" style={{ fontFamily: "Mukta, sans-serif" }}>
                   Farmer
@@ -206,10 +206,10 @@ export default function LoginPage() {
               {/* Admin Card */}
               <button
                 onClick={() => setSelectedRole("admin")}
-                className="bg-white rounded-xl border border-gray-200 p-5 cursor-pointer hover:border-soil-brown hover:shadow-sm hover:bg-soil-brown/5 transition-all text-center flex flex-col items-center focus:outline-none focus:ring-1 focus:ring-soil-brown"
+                className="bg-white rounded-xl border border-gray-200 p-5 cursor-pointer hover:border-gray-300 hover:shadow-sm hover:scale-[1.02] transition-all text-center flex flex-col items-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300"
               >
                 <div className="w-12 h-12 rounded-full bg-soil-brown/5 flex items-center justify-center text-soil-brown shrink-0">
-                  <Shield className="w-8 h-8" />
+                  <Shield className="w-9 h-9" />
                 </div>
                 <h3 className="font-display font-semibold text-base text-charcoal mt-3" style={{ fontFamily: "Mukta, sans-serif" }}>
                   Admin
@@ -222,10 +222,10 @@ export default function LoginPage() {
               {/* Buyer Card */}
               <button
                 onClick={() => setSelectedRole("buyer")}
-                className="bg-white rounded-xl border border-gray-200 p-5 cursor-pointer hover:border-harvest-gold hover:shadow-sm hover:bg-harvest-gold/5 transition-all text-center flex flex-col items-center focus:outline-none focus:ring-1 focus:ring-harvest-gold"
+                className="bg-white rounded-xl border border-gray-200 p-5 cursor-pointer hover:border-gray-300 hover:shadow-sm hover:scale-[1.02] transition-all text-center flex flex-col items-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300"
               >
                 <div className="w-12 h-12 rounded-full bg-harvest-gold/5 flex items-center justify-center text-harvest-gold shrink-0">
-                  <Gavel className="w-8 h-8" />
+                  <Gavel className="w-9 h-9" />
                 </div>
                 <h3 className="font-display font-semibold text-base text-charcoal mt-3" style={{ fontFamily: "Mukta, sans-serif" }}>
                   Buyer / Wholesaler
@@ -286,7 +286,7 @@ export default function LoginPage() {
 
               <button
                 type="submit"
-                className="w-full bg-field-green text-white rounded-lg py-3 text-sm font-semibold hover:bg-emerald-800 transition-colors shadow-sm cursor-pointer"
+                className="w-full bg-field-green text-white rounded-lg py-3 text-sm font-semibold hover:brightness-90 active:scale-[0.98] transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 shadow-sm cursor-pointer"
                 style={{ fontFamily: "Inter, sans-serif" }}
               >
                 Sign In
@@ -399,7 +399,7 @@ export default function LoginPage() {
               <button
                 onClick={handleSubmit(onSubmit)}
                 disabled={isLoading}
-                className="w-full bg-[#1C1C1E] text-white rounded-lg py-3 text-sm font-semibold hover:bg-gray-800 transition-colors disabled:opacity-60 flex items-center justify-center gap-2 mt-2 cursor-pointer shadow-sm"
+                className="w-full bg-[#1C1C1E] text-white rounded-lg py-3 text-sm font-semibold hover:brightness-90 active:scale-[0.98] transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2 cursor-pointer shadow-sm"
                 style={{ fontFamily: "Inter, sans-serif" }}
               >
                 {isLoading ? (
@@ -496,7 +496,7 @@ export default function LoginPage() {
                     </p>
                     <Link
                       href="/buyer/register"
-                      className="inline-flex items-center justify-center bg-charcoal text-white rounded-lg px-4 py-2 font-sans font-semibold text-xs hover:bg-stone-800 transition-colors shadow-sm cursor-pointer"
+                      className="inline-flex items-center justify-center bg-charcoal text-white rounded-lg px-4 py-2 font-sans font-semibold text-xs hover:brightness-90 active:scale-[0.98] transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 shadow-sm cursor-pointer"
                     >
                       Register as Buyer &rarr;
                     </Link>
@@ -507,7 +507,7 @@ export default function LoginPage() {
                       <button
                         key={buyer.buyer_id}
                         onClick={() => handleSelectBuyer(buyer)}
-                        className="text-left bg-white rounded-xl border border-gray-200 p-4 cursor-pointer hover:border-[#6B4226] hover:shadow-sm transition-all focus:outline-none focus:ring-1 focus:ring-[#6B4226]"
+                        className="text-left bg-white rounded-xl border border-gray-200 p-4 cursor-pointer hover:border-[#6B4226] hover:shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300"
                       >
                         <h3 className="font-display font-semibold text-sm text-charcoal">
                           {buyer.name}

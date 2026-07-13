@@ -59,9 +59,9 @@ export default function AuctionPoolCard({
 
   // Timer text color styling rules
   const getTimerColorClass = () => {
-    if (isExpired) return "text-gray-400";
+    if (isExpired) return "text-gray-400 line-through";
     const totalMins = timeLeftMs / 1000 / 60;
-    if (totalMins <= 1) return "text-alert-red animate-pulse font-bold";
+    if (totalMins <= 1) return "text-alert-red font-bold animate-pulse";
     if (totalMins <= 5) return "text-harvest-gold font-semibold";
     return "text-charcoal";
   };
@@ -144,7 +144,7 @@ export default function AuctionPoolCard({
 
   return (
     <div
-      className={`bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:border-gray-300 transition-all ${getBorderColorClass()}`}
+      className={`bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:shadow-md hover:border-gray-300 transition-all duration-150 ${getBorderColorClass()}`}
     >
       {/* Top row */}
       <div className="flex justify-between items-start">
@@ -162,7 +162,7 @@ export default function AuctionPoolCard({
         <div className="flex flex-col items-end gap-1.5">
           <StatusBadge status={pool.status as "filling" | "closed" | "auctioning" | "settled" | "expired"} />
           {pool.status === "auctioning" && (
-            <span className={`font-mono text-xs ${getTimerColorClass()}`}>
+            <span className={`font-mono text-sm transition-all duration-150 ${getTimerColorClass()}`}>
               {formatTime(timeLeftMs)}
             </span>
           )}
@@ -238,7 +238,7 @@ export default function AuctionPoolCard({
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="bg-harvest-gold text-soil-brown font-sans font-medium text-xs rounded-lg px-4 py-2.5 hover:brightness-95 transition-all disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
+                className="bg-harvest-gold text-soil-brown font-sans font-medium text-xs rounded-lg px-4 py-2.5 hover:brightness-95 active:scale-[0.98] transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 cursor-pointer"
               >
                 {isSubmitting ? (
                   <>

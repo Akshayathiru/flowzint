@@ -6,6 +6,7 @@ import { useBuyerSessionStore } from "@/store/buyerSessionStore";
 import { useBuyerAuctions } from "@/hooks/useBuyerAuctions";
 import PageHeader from "@/components/shared/PageHeader";
 import StatusBadge from "@/components/shared/StatusBadge";
+import { FileText } from "lucide-react";
 
 import { AuctionPool } from "@/types";
 
@@ -42,16 +43,17 @@ export default function BuyerBidsPage() {
 
       <main className="flex-1 p-4 lg:p-6 max-w-7xl mx-auto w-full">
         {bidHistory.length === 0 ? (
-          <div className="text-center py-16 bg-white border border-gray-200 rounded-xl shadow-sm max-w-2xl mx-auto">
-            <p className="font-sans text-sm text-gray-400 font-semibold">
+          <div className="text-center py-16 bg-white border border-gray-200 rounded-xl shadow-sm max-w-2xl mx-auto flex flex-col items-center">
+            <FileText className="w-10 h-10 text-gray-300 mb-3" />
+            <p className="font-sans text-sm text-gray-500 font-semibold">
               No bids yet
             </p>
-            <p className="font-sans text-xs text-gray-300 mt-1 font-medium mb-4">
+            <p className="font-sans text-xs text-gray-400 mt-1 font-medium mb-4">
               Head to Live Auctions to place your first bid
             </p>
             <Link
               href="/buyer/auctions"
-              className="inline-flex items-center justify-center bg-charcoal text-white rounded-lg px-4 py-2 font-sans font-medium text-xs hover:bg-gray-800 transition-colors cursor-pointer"
+              className="inline-flex items-center justify-center bg-charcoal text-white rounded-lg px-4 py-2 font-sans font-medium text-xs hover:brightness-90 active:scale-[0.98] transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 cursor-pointer"
             >
               View Live Auctions
             </Link>
@@ -62,26 +64,26 @@ export default function BuyerBidsPage() {
               <table className="w-full text-left border-collapse text-xs font-sans">
                 <caption className="sr-only">List of your submitted bids</caption>
                 <thead>
-                  <tr className="border-b border-gray-150">
-                    <th scope="col" className="pb-3 text-gray-500 uppercase tracking-wider text-[10px] font-bold">
+                  <tr className="bg-gray-50/50">
+                    <th scope="col" className="py-3 px-2 text-gray-400 uppercase tracking-widest text-[10px] font-medium">
                       Pool ID
                     </th>
-                    <th scope="col" className="pb-3 text-gray-500 uppercase tracking-wider text-[10px] font-bold">
+                    <th scope="col" className="py-3 px-2 text-gray-400 uppercase tracking-widest text-[10px] font-medium">
                       Crop
                     </th>
-                    <th scope="col" className="pb-3 text-gray-500 uppercase tracking-wider text-[10px] font-bold">
+                    <th scope="col" className="py-3 px-2 text-gray-400 uppercase tracking-widest text-[10px] font-medium">
                       Location
                     </th>
-                    <th scope="col" className="pb-3 text-gray-500 uppercase tracking-wider text-[10px] font-bold">
+                    <th scope="col" className="py-3 px-2 text-gray-400 uppercase tracking-widest text-[10px] font-medium">
                       Price
                     </th>
-                    <th scope="col" className="pb-3 text-gray-500 uppercase tracking-wider text-[10px] font-bold">
+                    <th scope="col" className="py-3 px-2 text-gray-400 uppercase tracking-widest text-[10px] font-medium">
                       Quantity
                     </th>
-                    <th scope="col" className="pb-3 text-gray-500 uppercase tracking-wider text-[10px] font-bold">
+                    <th scope="col" className="py-3 px-2 text-gray-400 uppercase tracking-widest text-[10px] font-medium">
                       Time
                     </th>
-                    <th scope="col" className="pb-3 text-gray-500 uppercase tracking-wider text-[10px] font-bold">
+                    <th scope="col" className="py-3 px-2 text-gray-400 uppercase tracking-widest text-[10px] font-medium">
                       Pool Status
                     </th>
                   </tr>
@@ -92,32 +94,32 @@ export default function BuyerBidsPage() {
                     return (
                       <tr key={index} className="hover:bg-gray-50/50 transition-colors">
                         {/* Pool ID */}
-                        <td className="py-3.5 font-mono text-xs text-charcoal font-medium">
+                        <td className="py-3 px-2 font-mono text-xs text-charcoal font-medium">
                           Pool #{bid.pool_id}
                         </td>
 
                         {/* Crop */}
-                        <td className="py-3.5 text-xs text-charcoal font-semibold capitalize">
+                        <td className="py-3 px-2 text-xs text-charcoal font-semibold capitalize">
                           {bid.crop}
                         </td>
 
                         {/* Location */}
-                        <td className="py-3.5 text-xs text-gray-500 font-medium capitalize">
+                        <td className="py-3 px-2 text-xs text-gray-500 font-medium capitalize">
                           {bid.location}
                         </td>
 
                         {/* Price */}
-                        <td className="py-3.5 text-xs text-charcoal font-bold font-mono">
+                        <td className="py-3 px-2 text-xs text-charcoal font-bold font-mono">
                           ₹{bid.price}/kg
                         </td>
 
                         {/* Quantity */}
-                        <td className="py-3.5 text-xs text-charcoal font-medium font-mono">
+                        <td className="py-3 px-2 text-xs text-charcoal font-medium font-mono">
                           {bid.quantity}kg
                         </td>
 
                         {/* Time */}
-                        <td className="py-3.5 text-xs text-gray-400 font-medium">
+                        <td className="py-3 px-2 text-xs text-gray-400 font-medium">
                           {new Date(bid.timestamp).toLocaleTimeString([], {
                             hour: "2-digit",
                             minute: "2-digit",
@@ -125,7 +127,7 @@ export default function BuyerBidsPage() {
                         </td>
 
                         {/* Status */}
-                        <td className="py-3.5">
+                        <td className="py-3 px-2">
                           <StatusBadge status={status as "filling" | "closed" | "auctioning" | "settled" | "expired"} />
                         </td>
                       </tr>

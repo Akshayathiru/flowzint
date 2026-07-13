@@ -130,7 +130,7 @@ export default function BuyerPoolDetailPage({ params }: PageProps) {
           </p>
           <button
             onClick={fetchPoolData}
-            className="border border-gray-200 rounded-lg px-4 py-2 mt-4 bg-white text-xs font-semibold text-charcoal hover:bg-gray-50 transition-colors shadow-sm cursor-pointer"
+            className="border border-gray-200 rounded-lg px-4 py-2 mt-4 bg-white text-xs font-semibold text-charcoal hover:bg-gray-50 active:bg-gray-100 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 shadow-sm cursor-pointer"
           >
             Retry
           </button>
@@ -149,6 +149,14 @@ export default function BuyerPoolDetailPage({ params }: PageProps) {
 
   const isExpired = timeLeftMs <= 0;
   const isBiddingDisabled = pool.auctionClosed || pool.status !== "auctioning" || isExpired;
+
+  const getTimerColorClass = () => {
+    if (isExpired) return "text-gray-400 line-through";
+    const totalMins = timeLeftMs / 1000 / 60;
+    if (totalMins <= 1) return "text-alert-red font-bold animate-pulse";
+    if (totalMins <= 5) return "text-harvest-gold font-semibold";
+    return "text-charcoal font-bold";
+  };
 
   const formatTime = (ms: number) => {
     if (ms <= 0) return "Auction Closed";
@@ -237,7 +245,7 @@ export default function BuyerPoolDetailPage({ params }: PageProps) {
               <div className="flex items-center gap-4">
                 <StatusBadge status={pool.status as any} />
                 {pool.status === "auctioning" && (
-                  <span className="text-xs text-alert-red font-bold font-mono animate-pulse">
+                  <span className={`text-sm font-mono transition-all duration-150 ${getTimerColorClass()}`}>
                     ⏱ {formatTime(timeLeftMs)}
                   </span>
                 )}
@@ -356,7 +364,7 @@ export default function BuyerPoolDetailPage({ params }: PageProps) {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="bg-harvest-gold text-soil-brown font-sans font-semibold text-xs rounded-lg px-6 py-3 hover:brightness-95 transition-all disabled:opacity-50 flex items-center gap-1.5 cursor-pointer shadow-sm"
+                  className="bg-harvest-gold text-soil-brown font-sans font-semibold text-xs rounded-lg px-6 py-3 hover:brightness-95 active:scale-[0.98] transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 cursor-pointer shadow-sm"
                 >
                   {isSubmitting ? (
                     <>
@@ -421,12 +429,12 @@ export default function BuyerPoolDetailPage({ params }: PageProps) {
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-xs font-sans">
                 <thead>
-                  <tr className="border-b border-gray-200 bg-gray-50 text-gray-500 font-bold">
-                    <th scope="col" className="px-4 py-2.5">Phone Number</th>
-                    <th scope="col" className="px-4 py-2.5">Quantity (kg)</th>
-                    <th scope="col" className="px-4 py-2.5">Call Time</th>
-                    <th scope="col" className="px-4 py-2.5">Language</th>
-                    <th scope="col" className="px-4 py-2.5">Trust Score</th>
+                  <tr className="bg-gray-50/50 text-gray-400 font-medium uppercase tracking-widest text-[10px]">
+                    <th scope="col" className="px-4 py-3">Phone Number</th>
+                    <th scope="col" className="px-4 py-3">Quantity (kg)</th>
+                    <th scope="col" className="px-4 py-3">Call Time</th>
+                    <th scope="col" className="px-4 py-3">Language</th>
+                    <th scope="col" className="px-4 py-3">Trust Score</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 text-gray-655">
@@ -444,7 +452,7 @@ export default function BuyerPoolDetailPage({ params }: PageProps) {
 
                     return (
                       <tr key={idx} className="hover:bg-gray-50/50">
-                        <td className="px-4 py-3 font-mono text-charcoal">{farmer.phone}</td>
+                        <td className="px-4 py-3 font-mono text-sky-blue">{farmer.phone}</td>
                         <td className="px-4 py-3 font-semibold text-charcoal">{farmer.quantity_kg} kg</td>
                         <td className="px-4 py-3 font-mono text-gray-400">{callTimeDisplay}</td>
                         <td className="px-4 py-3">

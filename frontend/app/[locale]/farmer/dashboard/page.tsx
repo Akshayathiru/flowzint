@@ -221,7 +221,7 @@ export default function FarmerDashboard() {
           </p>
           <button
             onClick={fetchData}
-            className="border border-gray-200 rounded-lg px-4 py-2 mt-4 bg-white text-xs font-semibold text-charcoal hover:bg-gray-50 transition-colors shadow-sm cursor-pointer"
+            className="border border-gray-200 rounded-lg px-4 py-2 mt-4 bg-white text-xs font-semibold text-charcoal hover:bg-gray-50 active:bg-gray-100 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 shadow-sm cursor-pointer"
           >
             Retry
           </button>
@@ -244,45 +244,45 @@ export default function FarmerDashboard() {
             ) : (
               <>
                 {/* 1. ACTIVE POOLS */}
-                <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm flex items-center gap-4 hover:border-gray-300 transition-colors">
+                <div className="bg-white rounded-xl border border-gray-200 border-l-4 border-l-sky-blue p-5 shadow-sm flex items-center gap-4 hover:border-gray-300 hover:border-l-sky-blue transition-colors">
                   <div className="w-10 h-10 rounded-full bg-field-green/10 text-field-green flex items-center justify-center shrink-0">
                     <Sprout className="w-5 h-5" />
                   </div>
                   <div>
-                    <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">
+                    <div className="text-[10px] text-gray-400 font-medium uppercase tracking-widest">
                       Active Pools
                     </div>
-                    <div className="font-display font-bold text-2xl text-charcoal">
+                    <div className="font-display font-semibold text-2xl text-charcoal">
                       {activePoolsCount}
                     </div>
                   </div>
                 </div>
 
                 {/* 2. TOTAL QUANTITY */}
-                <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm flex items-center gap-4 hover:border-gray-300 transition-colors">
+                <div className="bg-white rounded-xl border border-gray-200 border-l-4 border-l-field-green p-5 shadow-sm flex items-center gap-4 hover:border-gray-300 hover:border-l-field-green transition-colors">
                   <div className="w-10 h-10 rounded-full bg-soil-brown/10 text-soil-brown flex items-center justify-center shrink-0">
                     <PhoneCall className="w-5 h-5" />
                   </div>
                   <div>
-                    <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">
+                    <div className="text-[10px] text-gray-400 font-medium uppercase tracking-widest">
                       Total Quantity
                     </div>
-                    <div className="font-display font-bold text-2xl text-charcoal">
+                    <div className="font-display font-semibold text-2xl text-charcoal">
                       {totalQty} kg
                     </div>
                   </div>
                 </div>
 
                 {/* 3. TOTAL EARNINGS */}
-                <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm flex items-center gap-4 hover:border-gray-300 transition-colors">
+                <div className="bg-white rounded-xl border border-gray-200 border-l-4 border-l-field-green p-5 shadow-sm flex items-center gap-4 hover:border-gray-300 hover:border-l-field-green transition-colors">
                   <div className="w-10 h-10 rounded-full bg-sky-blue/10 text-sky-blue flex items-center justify-center shrink-0">
                     <CheckCircle className="w-5 h-5" />
                   </div>
                   <div>
-                    <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">
+                    <div className="text-[10px] text-gray-400 font-medium uppercase tracking-widest">
                       Total Earnings
                     </div>
-                    <div className="font-display font-bold text-2xl text-charcoal">
+                    <div className="font-display font-semibold text-2xl text-charcoal">
                       ₹{totalEarnings.toLocaleString()}
                     </div>
                   </div>
@@ -298,10 +298,10 @@ export default function FarmerDashboard() {
                     )}
                   </div>
                   <div>
-                    <div className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">
+                    <div className="text-[10px] text-gray-500 font-medium uppercase tracking-widest">
                       Trust Score
                     </div>
-                    <div className="font-display font-bold text-2xl">
+                    <div className="font-display font-semibold text-2xl">
                       {trustScore > 0 ? trustScore.toFixed(1) : "N/A"}
                     </div>
                   </div>
@@ -315,7 +315,7 @@ export default function FarmerDashboard() {
             {/* Active Pools Section */}
             <div className="lg:col-span-2 flex flex-col gap-4">
               <h2
-                className="text-lg font-bold text-charcoal"
+                className="text-lg font-semibold text-charcoal"
                 style={{ fontFamily: "Mukta, sans-serif" }}
               >
                 My Pools
@@ -345,8 +345,14 @@ export default function FarmerDashboard() {
                     </div>
                   ))
                 ) : pools.length === 0 ? (
-                  <div className="col-span-2 bg-white rounded-xl border border-gray-200 p-8 text-center text-xs text-gray-400 italic">
-                    You are not associated with any crop pools yet.
+                  <div className="col-span-2 bg-white rounded-xl border border-gray-200 p-8 flex flex-col items-center justify-center text-center">
+                    <Sprout className="w-10 h-10 text-gray-300 mb-3" />
+                    <p className="font-sans text-sm text-gray-500">
+                      You&apos;re not in any crop pools yet
+                    </p>
+                    <p className="font-sans text-xs text-gray-400 mt-1">
+                      Call our toll-free line above to join the next pool
+                    </p>
                   </div>
                 ) : (
                   pools.map((pool) => {
@@ -423,7 +429,7 @@ export default function FarmerDashboard() {
 
                         <button
                           onClick={() => setSelectedPool(pool)}
-                          className="mt-4 text-xs font-semibold text-soil-brown hover:underline inline-flex items-center gap-1 self-start cursor-pointer select-none"
+                          className="mt-4 text-xs font-semibold text-soil-brown hover:underline inline-flex items-center gap-1 self-start cursor-pointer select-none rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300"
                         >
                           View Details <ArrowRight className="w-3.5 h-3.5" />
                         </button>
@@ -437,7 +443,7 @@ export default function FarmerDashboard() {
             {/* Recent Activity Section */}
             <div>
               <h2
-                className="text-lg font-bold text-charcoal mb-4"
+                className="text-lg font-semibold text-charcoal mb-4"
                 style={{ fontFamily: "Mukta, sans-serif" }}
               >
                 Recent Activity
@@ -458,8 +464,12 @@ export default function FarmerDashboard() {
                     ))}
                   </div>
                 ) : calls.length === 0 ? (
-                  <div className="flex-1 flex items-center justify-center text-center text-xs text-gray-400 italic py-6">
-                    No recent calls logged.
+                  <div className="flex-1 flex flex-col items-center justify-center text-center py-6">
+                    <PhoneCall className="w-10 h-10 text-gray-300 mb-3" />
+                    <p className="font-sans text-sm text-gray-500">No recent calls</p>
+                    <p className="font-sans text-xs text-gray-400 mt-1">
+                      Your call history will show up here
+                    </p>
                   </div>
                 ) : (
                   <div className="flex flex-col gap-4 flex-grow">
@@ -510,7 +520,7 @@ export default function FarmerDashboard() {
       {/* POOL DETAIL MODAL */}
       {selectedPool && (
         <div className="fixed inset-0 z-50 bg-charcoal/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl border border-gray-200 max-w-lg w-full p-6 shadow-lg relative max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-xl border border-gray-200 max-w-lg w-full p-6 shadow-sm relative max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setSelectedPool(null)}
               className="absolute top-4 right-4 text-gray-400 hover:text-charcoal transition-colors cursor-pointer"
@@ -619,7 +629,7 @@ export default function FarmerDashboard() {
 
             <button
               onClick={() => setSelectedPool(null)}
-              className="mt-6 w-full bg-charcoal text-white rounded-lg py-2 text-xs font-semibold hover:bg-stone-850 transition-colors cursor-pointer select-none"
+              className="mt-6 w-full bg-charcoal text-white rounded-lg py-2 text-xs font-semibold hover:brightness-90 active:scale-[0.98] transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 cursor-pointer select-none"
             >
               Close
             </button>

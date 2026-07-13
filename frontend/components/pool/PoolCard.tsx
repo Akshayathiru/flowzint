@@ -55,12 +55,12 @@ export default function PoolCard({
 
   return (
     <div
-      className={`bg-white rounded-xl border border-gray-200 p-3 lg:p-4 shadow-sm hover:border-gray-300 transition-all ${getBorderColorClass()}`}
+      className={`bg-white rounded-xl border border-gray-200 p-3 lg:p-4 shadow-sm hover:shadow-md hover:border-gray-300 transition-all duration-150 ${getBorderColorClass()}`}
     >
       {/* Top Row */}
       <div className="flex justify-between items-start">
         <div>
-          <h3 className="font-display font-semibold text-sm text-charcoal">
+          <h3 className="font-display font-semibold text-base text-charcoal">
             {crop}
           </h3>
           <p className="font-sans text-xs text-gray-500">{location}</p>
