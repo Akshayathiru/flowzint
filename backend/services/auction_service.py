@@ -73,8 +73,13 @@ def save_offer(db, offer_data):
 
     # 6. Broadcast confirmed state post-write
     buyer_name = buyer.name if buyer else "Unknown"
-    from socket_manager import emit_pool_bid, emit_pool_update
+    from socket_manager import emit_pool_bid, emit_pool_update, emit_feed_event
     emit_pool_bid(str(offer_data.pool_id), buyer_name, offer_data.price)
+    emit_feed_event({
+        "timestamp": now.isoformat() + "Z",
+        "type": "buyer_bid",
+        "message": f"Buyer {buyer_name} placed a bid of ₹{offer_data.price}/kg on Pool #{offer_data.pool_id}"
+    })
 
     if extended:
         farmers_count = db.query(PoolMember).filter(PoolMember.pool_id == pool.id).count()
@@ -507,12 +512,17 @@ def allocate_pool(db, pool_id: int):
         
     db.commit()
 
-    from socket_manager import emit_pool_settled
+    from socket_manager import emit_pool_settled, emit_feed_event
     emit_pool_settled(
         pool_id=str(pool_id),
         winning_price_per_kg=pool.winning_price,
         settlement_ids=settlement_ids
     )
+    emit_feed_event({
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "type": "settlement",
+        "message": f"Pool #{pool_id} for {pool.crop.capitalize()} in {pool.location.capitalize()} settled at ₹{pool.winning_price}/kg!"
+    })
 
     return {
         "pool_id": pool_id,

@@ -1,5 +1,5 @@
 import { BuyerProfile, AuctionPool } from "@/types";
-import { MOCK_BUYERS, MOCK_AUCTION_POOLS } from "./buyerMockData";
+import { MOCK_BUYERS, MOCK_AUCTION_POOLS, MOCK_POOL_FARMERS } from "./buyerMockData";
 
 const rawBase = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 const BASE = rawBase.trim().replace(/\n/g, "").replace(/\r/g, "");
@@ -168,7 +168,7 @@ export const buyerApi = {
       const data = await request<any[]>(`/pool/${poolId}/farmers`)
       return { data, offline: false }
     } catch {
-      return { data: [], offline: true }
+      return { data: MOCK_POOL_FARMERS[poolId] || [], offline: true }
     }
   },
 };

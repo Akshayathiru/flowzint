@@ -7,6 +7,7 @@ import { buyerApi } from "@/lib/buyerApi";
 import { BuyerProfile } from "@/types";
 import { Store, MapPin, Package, Phone, Loader2, AlertCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
+import OfflineBanner from "@/components/shared/OfflineBanner";
 
 export default function FarmerBuyersPage() {
   const router = useRouter();
@@ -17,6 +18,7 @@ export default function FarmerBuyersPage() {
   const [buyers, setBuyers] = useState<BuyerProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [offline, setOffline] = useState(false);
 
   // Auth guard
   useEffect(() => {
@@ -29,10 +31,8 @@ export default function FarmerBuyersPage() {
     setLoading(true);
     setError(null);
     buyerApi.getAll()
-      .then(({ data, offline }) => {
-        if (offline) {
-          throw new Error("Could not connect to real backend API");
-        }
+      .then(({ data, offline: isOffline }) => {
+        setOffline(isOffline);
         setBuyers(data);
       })
       .catch((err) => {
@@ -83,6 +83,8 @@ export default function FarmerBuyersPage() {
           {t("subtitle")}
         </p>
       </div>
+
+      {offline && <div className="mb-6"><OfflineBanner /></div>}
 
       {/* ERROR STATE */}
       {error ? (

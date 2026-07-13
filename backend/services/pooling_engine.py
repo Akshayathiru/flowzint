@@ -132,10 +132,13 @@ def add_farmer_to_pool(db, farmer):
 
     pool.total_quantity += farmer.quantity
 
+    from socket_manager import emit_feed_event
+    has_transitioned = False
     if pool.total_quantity >= THRESHOLD and pool.status == "OPEN":
         pool.status = "AUCTION"
         pool.auction_start_time = datetime.now(timezone.utc)
         pool.auction_end_time = datetime.now(timezone.utc) + timedelta(minutes=30)
+        has_transitioned = True
 
     db.commit()
 
@@ -153,6 +156,20 @@ def add_farmer_to_pool(db, farmer):
         emit_pool_new(pool_data)
     else:
         emit_pool_update(pool_id=str(pool.id), pool_data=pool_data)
+
+    emit_feed_event({
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "type": "farmer_call",
+        "message": f"Farmer {farmer.phone} called in — {farmer.quantity}kg {farmer.crop.capitalize()}, {farmer.location.capitalize()}",
+        "lang": "en"
+    })
+
+    if has_transitioned:
+        emit_feed_event({
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "type": "pool_close",
+            "message": f"Pool #{pool.id} for {pool.crop.capitalize()} closed — target met! Auction started. ⏱"
+        })
 
     return {
         "pool_id": pool.id,

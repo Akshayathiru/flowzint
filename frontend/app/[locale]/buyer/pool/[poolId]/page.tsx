@@ -10,6 +10,7 @@ import { buyerApi } from "@/lib/buyerApi";
 import { toast } from "sonner";
 import LanguageBadge from "@/components/shared/LanguageBadge";
 import { useTranslations } from "next-intl";
+import OfflineBanner from "@/components/shared/OfflineBanner";
 
 interface PageProps {
   params: {
@@ -29,6 +30,7 @@ export default function BuyerPoolDetailPage({ params }: PageProps) {
   const [pool, setPool] = useState<any | null>(null);
   const [poolLoading, setPoolLoading] = useState(true);
   const [poolError, setPoolError] = useState<string | null>(null);
+  const [offline, setOffline] = useState(false);
 
   const [farmers, setFarmers] = useState<any[]>([]);
   const [farmersLoading, setFarmersLoading] = useState(true);
@@ -51,10 +53,8 @@ export default function BuyerPoolDetailPage({ params }: PageProps) {
     setPoolLoading(true);
     setPoolError(null);
     buyerApi.getActivePools()
-      .then(({ data, offline }) => {
-        if (offline) {
-          throw new Error("Could not connect to real backend API");
-        }
+      .then(({ data, offline: isOffline }) => {
+        setOffline(isOffline);
         const foundPool = data.find((p) => p.pool_id === poolId);
         if (foundPool) {
           setPool(foundPool);
@@ -83,10 +83,8 @@ export default function BuyerPoolDetailPage({ params }: PageProps) {
       setFarmersLoading(true);
       setFarmersError(false);
       buyerApi.getPoolFarmers(poolId)
-        .then(({ data, offline }) => {
-          if (offline) {
-            throw new Error("Could not connect to real backend API");
-          }
+        .then(({ data, offline: isOffline }) => {
+          setOffline(isOffline);
           setFarmers(data || []);
         })
         .catch((err) => {
@@ -242,6 +240,7 @@ export default function BuyerPoolDetailPage({ params }: PageProps) {
       />
 
       <main className="max-w-4xl w-full mx-auto px-6 py-6 flex flex-col gap-6">
+        {offline && <OfflineBanner />}
         {/* POOL OVERVIEW */}
         <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
           <div className="flex justify-between items-start flex-wrap gap-4">
