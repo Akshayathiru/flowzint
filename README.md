@@ -184,5 +184,6 @@ Track: Sarvam AI — Best use of Sarvam AI
 ---
 
 ## Team
-- Sreya — Frontend, Architecture, Strategy
-- Samiksha — Backend, Voice Integration, Database
+- Samiksha — Frontend
+- Akshaya — Backend
+- Samfrancis — Sarvam AI and calls
