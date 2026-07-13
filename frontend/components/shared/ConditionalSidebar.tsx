@@ -19,7 +19,7 @@ export function ConditionalSidebar() {
   const pathname = stripLocale(rawPathname);
 
   // Don't show any sidebar on login, landing, or registration pages
-  const noSidebarRoutes = ["/login", "/buyer/register", "/farmer/register"];
+  const noSidebarRoutes = ["/login", "/buyer/register", "/farmer/register", "/sarvam-showcase"];
   const isLanding = pathname === "/";
   const isNoSidebar =
     noSidebarRoutes.some((r) => pathname === r || pathname.startsWith(r + "/")) || isLanding;

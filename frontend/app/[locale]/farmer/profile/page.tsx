@@ -250,7 +250,7 @@ export default function FarmerProfilePage() {
             </h2>
             <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
               <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse text-xs">
+                <table className="min-w-[600px] w-full text-left border-collapse text-xs">
                   <thead>
                     <tr className="bg-gray-50/50 text-[10px] font-medium text-gray-400 uppercase tracking-widest font-sans">
                       <th className="px-6 py-3">{t("date_time")}</th>
@@ -314,7 +314,7 @@ export default function FarmerProfilePage() {
             </h2>
             <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
               <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse text-xs">
+                <table className="min-w-[600px] w-full text-left border-collapse text-xs">
                   <thead>
                     <tr className="bg-gray-50/50 text-[10px] font-medium text-gray-400 uppercase tracking-widest font-sans">
                       <th className="px-6 py-3">{t("pool")} ID</th>

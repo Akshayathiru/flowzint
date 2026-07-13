@@ -13,7 +13,7 @@ export function usePools() {
   return useQuery({
     queryKey: ["pools", "active"],
     queryFn: fetchActivePools,
-    refetchInterval: 10_000,
-    staleTime: 5_000,
+    refetchInterval: 3000,
+    staleTime: 1000,
   });
 }

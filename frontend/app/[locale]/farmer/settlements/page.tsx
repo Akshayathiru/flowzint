@@ -9,10 +9,12 @@ import StatusBadge from "@/components/shared/StatusBadge";
 import LanguageBadge from "@/components/shared/LanguageBadge";
 import { CheckCircle, Package, TrendingUp, ChevronRight, X, Loader2, AlertCircle, FileText, ClipboardCopy, Download } from "lucide-react";
 import { toast } from "sonner";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { localizeValue } from "@/lib/dataTranslations";
 
 export default function FarmerSettlementsPage() {
   const router = useRouter();
+  const locale = useLocale();
   const { phone, isLoggedIn, hasHydrated } = useFarmerSessionStore();
   const t = useTranslations("farmerSettlements");
   const tDash = useTranslations("farmerDashboard");
@@ -178,6 +180,56 @@ ${tDash("status")}: ${receiptData.status}
 
     navigator.clipboard.writeText(text);
     toast.success(t("receipt_copied"));
+  };
+
+  const generateReceiptText = (settlement: any) => {
+    return `
+═══════════════════════════════════════════════════
+                MANDI MITRA
+          ${t('receipt_title') || 'PAYOUT RECEIPT'}
+═══════════════════════════════════════════════════
+
+Phone: ${phone}
+Pool ID: #${settlement.pool_id}
+Crop: ${localizeValue('crops', settlement.crop, locale)}
+Location: ${settlement.location}
+
+═ Settlement Details ═
+
+Total Quantity: ${settlement.your_quantity_kg} kg
+Market Rate: ₹${settlement.mandi_rate_per_kg}/kg
+Selling Price: ₹${settlement.price_per_kg}/kg
+Premium Over Market: ${settlement.premium_percent}%
+
+Total Earnings: ₹${settlement.total_amount}
+
+Buyers: ${settlement.buyers}
+Settlement Date: ${new Date(settlement.settled_at).toLocaleDateString(locale)}
+
+═══════════════════════════════════════════════════
+Thank you for using Mandi Mitra!
+═══════════════════════════════════════════════════
+`.trim();
+  };
+
+  const generateReceipt = (settlement: any) => {
+    const receipt = generateReceiptText(settlement);
+    const blob = new Blob([receipt], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `mandi-mitra-receipt-pool-${settlement.pool_id}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success("Receipt downloaded!");
+  };
+
+  const copyReceipt = (settlement: any) => {
+    const receipt = generateReceiptText(settlement);
+    navigator.clipboard.writeText(receipt);
+    toast.success("Receipt copied to clipboard!");
   };
 
   if (!isLoggedIn) {
@@ -393,16 +445,25 @@ ${tDash("status")}: ${receiptData.status}
                         >
                           {new Date(s.settled_at).toLocaleDateString([], { month: "short", day: "numeric", year: "2-digit" })}
                         </td>
-                        <td className="px-4 py-3 text-center">
+                        <td className="px-4 py-3 text-center flex items-center justify-center gap-3">
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleOpenReceipt(s.pool_id);
+                              generateReceipt(s);
                             }}
-                            className="text-sky-blue hover:text-sky-blue/80 hover:underline font-semibold flex items-center gap-1 mx-auto cursor-pointer"
+                            className="text-sky-blue hover:underline cursor-pointer font-semibold font-sans text-xs min-h-[44px] flex items-center focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-blue"
                           >
-                            <FileText className="w-3.5 h-3.5" />
-                            <span>{t("view_receipt")}</span>
+                            Download
+                          </button>
+                          <span className="text-gray-300">|</span>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              copyReceipt(s);
+                            }}
+                            className="text-sky-blue hover:underline cursor-pointer font-semibold font-sans text-xs min-h-[44px] flex items-center focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-blue"
+                          >
+                            Copy
                           </button>
                         </td>
                       </tr>
@@ -417,8 +478,8 @@ ${tDash("status")}: ${receiptData.status}
 
       {/* POOL DETAIL MODAL */}
       {selectedPoolId && poolDetails && (
-        <div className="fixed inset-0 z-50 bg-charcoal/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl border border-gray-200 max-w-lg w-full p-6 shadow-sm relative max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-charcoal/40 backdrop-blur-sm flex items-center justify-center p-0 sm:p-4">
+          <div className="bg-white border border-gray-200 w-full h-full sm:h-auto sm:max-w-lg sm:mx-4 sm:rounded-xl rounded-none p-6 shadow-sm relative max-h-screen sm:max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setSelectedPoolId(null)}
               className="absolute top-4 right-4 text-gray-400 hover:text-charcoal transition-colors cursor-pointer"
@@ -533,8 +594,8 @@ ${tDash("status")}: ${receiptData.status}
 
       {/* RECEIPT MODAL */}
       {receiptPoolId && (
-        <div className="fixed inset-0 z-50 bg-charcoal/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl border border-gray-200 max-w-md w-full p-6 shadow-sm relative">
+        <div className="fixed inset-0 z-50 bg-charcoal/40 backdrop-blur-sm flex items-center justify-center p-0 sm:p-4">
+          <div className="bg-white border border-gray-200 w-full h-full sm:h-auto sm:max-w-md sm:mx-4 sm:rounded-xl rounded-none p-6 shadow-sm relative max-h-screen sm:max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setReceiptPoolId(null)}
               className="absolute top-4 right-4 text-gray-400 hover:text-charcoal transition-colors cursor-pointer"

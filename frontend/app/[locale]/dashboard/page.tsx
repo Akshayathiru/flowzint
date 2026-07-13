@@ -10,7 +10,7 @@ import LiveEventFeed from "@/components/feed/LiveEventFeed";
 import PageHeader from "@/components/shared/PageHeader";
 import DemoTriggerButton from "@/components/demo/DemoTriggerButton";
 import { toast } from "sonner";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import StatCardSkeleton from "@/components/shared/StatCardSkeleton";
 import PoolCardSkeleton from "@/components/shared/PoolCardSkeleton";
 import { useQuery } from "@tanstack/react-query";
@@ -22,7 +22,9 @@ const MandiMap = dynamic(() => import("@/components/map/MandiMap"), {
 
 export default function Dashboard() {
   const t = useTranslations("dashboard");
+  const locale = useLocale();
   const [isLoading, setIsLoading] = useState(true);
+  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
   const { data: stats } = useQuery({
     queryKey: ['stats'],
@@ -30,10 +32,16 @@ export default function Dashboard() {
       const res = await fetch('/api/stats');
       return res.json();
     },
-    refetchInterval: 10000
+    refetchInterval: 3000
   });
 
   const { data: activePools, isLoading: isLoadingPools } = usePools();
+
+  useEffect(() => {
+    if (stats || activePools) {
+      setLastUpdated(new Date());
+    }
+  }, [stats, activePools]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -205,6 +213,9 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+        <p className="text-[10px] text-gray-400 text-right mt-4 pr-6 select-none" style={{ fontFamily: 'Inter' }}>
+          Last updated: {lastUpdated.toLocaleTimeString(locale)}
+        </p>
       </main>
 
       {/* Floating Demo trigger button */}

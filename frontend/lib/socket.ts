@@ -4,9 +4,11 @@ let socket: Socket | null = null;
 
 export function getSocket(): Socket {
   if (!socket) {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+    const rawBackendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+    const backendUrl = rawBackendUrl.trim().replace(/\n/g, "").replace(/\r/g, "");
     const defaultWsUrl = backendUrl.replace(/^http/, "ws");
-    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || defaultWsUrl;
+    const rawWsUrl = process.env.NEXT_PUBLIC_WS_URL || defaultWsUrl;
+    const wsUrl = rawWsUrl.trim().replace(/\n/g, "").replace(/\r/g, "");
 
     socket = io(wsUrl, {
       transports: ["websocket"],

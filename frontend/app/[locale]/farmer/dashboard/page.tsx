@@ -323,7 +323,7 @@ export default function FarmerDashboard() {
                 {t("my_pools")}
               </h2>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                 {loading ? (
                   // Pools skeleton
                   Array.from({ length: 2 }).map((_, i) => (
@@ -521,8 +521,8 @@ export default function FarmerDashboard() {
 
       {/* POOL DETAIL MODAL */}
       {selectedPool && (
-        <div className="fixed inset-0 z-50 bg-charcoal/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl border border-gray-200 max-w-lg w-full p-6 shadow-sm relative max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-charcoal/40 backdrop-blur-sm flex items-center justify-center p-0 sm:p-4">
+          <div className="bg-white border border-gray-200 w-full h-full sm:h-auto sm:max-w-lg sm:mx-4 sm:rounded-xl rounded-none p-6 shadow-sm relative max-h-screen sm:max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setSelectedPool(null)}
               className="absolute top-4 right-4 text-gray-400 hover:text-charcoal transition-colors cursor-pointer"

@@ -34,7 +34,8 @@
     "how_it_works": "How It Works",
     "how_it_works_sub": "Five steps. One phone call.",
     "trust2_sub": "Fully interactive speaking calls processed in native dialects",
-    "trust3_sub": "Immediate callbacks with verified wholesale auction prices"
+    "trust3_sub": "Immediate callbacks with verified wholesale auction prices",
+    "sarvam_link": "See how Sarvam AI powers Mandi Mitra →"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -197,12 +198,10 @@
     "today": "Today",
     "yesterday": "Yesterday"
   },
-
   "brand": {
     "name": "MANDI MITRA",
     "tagline": "Smart Agriculture Market Pooler"
   },
-
   "roles": {
     "farmer": "Farmer",
     "admin": "Admin",
@@ -214,7 +213,6 @@
     "signin_heading": "Sign in to Mandi Mitra",
     "back_to_roles": "← Back to role selection"
   },
-
   "farmerAuth": {
     "title": "Farmer Login",
     "subtitle": "Enter the phone number you call from",
@@ -226,7 +224,6 @@
     "invalid_phone": "Please enter a valid 10-digit phone number",
     "login_success": "Logged in as Farmer ({phone})"
   },
-
   "buyerAuth": {
     "title": "Buyer Portal",
     "subtitle": "Select your buyer profile to access live auctions",
@@ -238,11 +235,9 @@
     "backend_error": "Could not reach the backend server",
     "backend_hint": "Make sure the backend is running at {url}"
   },
-
   "adminAuth": {
     "demo_credentials": "DEMO CREDENTIALS"
   },
-
   "farmerDashboard": {
     "title": "My Dashboard",
     "subtitle": "Your active pools and recent activity",
@@ -281,7 +276,6 @@
     "error_hint": "Make sure the backend is running",
     "retry": "Retry"
   },
-
   "farmerProfile": {
     "title": "My Profile",
     "farmer_name": "Farmer Name",
@@ -309,7 +303,6 @@
     "buyers": "Buyers",
     "date": "Date"
   },
-
   "farmerSettlements": {
     "title": "My Settlements",
     "subtitle": "Completed pools and earnings",
@@ -346,7 +339,6 @@
     "pool_detail_error": "Could not load details of other farmers in this pool.",
     "receipt_error": "Failed to load receipt details."
   },
-
   "farmerBuyers": {
     "title": "Buyers in Your Area",
     "subtitle": "Registered wholesalers and traders",
@@ -355,7 +347,6 @@
     "min_lot": "Min lot: {quantity} kg",
     "unknown": "Unknown"
   },
-
   "buyerAuctions": {
     "title": "Live Auctions",
     "subtitle": "Place bids on active pools in your area",
@@ -379,7 +370,6 @@
     "bid_success_demo": "Bid simulated — ₹{price}/kg for {quantity}kg (demo mode)",
     "bid_error": "Failed to place bid"
   },
-
   "buyerBids": {
     "title": "My Bid History",
     "subtitle": "All bids you've placed across auctions",
@@ -394,7 +384,6 @@
     "time": "Time",
     "status": "Status"
   },
-
   "buyerProfile": {
     "title": "My Profile",
     "subtitle": "Your buyer account details",
@@ -409,7 +398,6 @@
     "bid_history": "Bid History",
     "no_bids": "No bids yet"
   },
-
   "buyerSettlements": {
     "title": "Settlements",
     "subtitle": "Completed auctions and payment records",
@@ -425,7 +413,6 @@
     "total": "Total",
     "date": "Date"
   },
-
   "buyerFarmers": {
     "title": "Farmer Registry",
     "subtitle": "All farmers in the pooling network",
@@ -433,7 +420,6 @@
     "active_today": "{count} active today",
     "flagged": "{count} flagged"
   },
-
   "poolDetail": {
     "back_to_auctions": "Auctions",
     "pool_number": "Pool #{id}",
@@ -455,7 +441,6 @@
     "error_title": "Could not load pool details",
     "retry": "Retry"
   },
-
   "sidebar": {
     "brand": "MANDI MITRA",
     "farmer_portal": "Farmer Portal",
@@ -469,25 +454,94 @@
     "buyer_badge": "BUYER",
     "admin_badge": "ADMIN"
   },
-
   "farmerNav": {
     "dashboard": "My Dashboard",
     "profile": "My Profile",
     "settlements": "Settlements",
     "buyers": "Buyers",
-    "demo": "Demo Panel"
+    "demo": "Demo Panel",
+    "analytics": "My Earnings"
   },
-
   "buyerNav": {
     "auctions": "Live Auctions",
     "bids": "My Bids",
     "profile": "My Profile",
     "farmers": "Farmers",
     "settlements": "Settlements",
-    "demo": "Demo Panel"
+    "demo": "Demo Panel",
+    "analytics": "My Portfolio"
   },
-
   "offline": {
     "banner": "Backend offline — showing demo data"
+  },
+  "farmerAnalytics": {
+    "title": "My Earnings",
+    "subtitle": "Track your earnings across all pools",
+    "total_earnings": "Total Earnings",
+    "from_pools": "from {count} pools",
+    "earnings_chart": "Earnings Over Time",
+    "your_price": "Your Price (₹/kg)",
+    "mandi_rate": "Mandi Rate (₹/kg)",
+    "premium_area": "Premium Earned",
+    "no_settlements": "No settlements yet",
+    "no_settlements_hint": "Settlements will appear here once your pools are auctioned",
+    "pool": "Pool",
+    "crop": "Crop",
+    "date": "Date",
+    "your_qty": "Your Qty",
+    "price_per_kg": "Price/kg",
+    "mandi_rate_col": "Mandi Rate",
+    "premium": "Premium",
+    "earnings": "Earnings",
+    "error_title": "Could not load earnings data",
+    "retry": "Retry"
+  },
+  "buyerAnalytics": {
+    "title": "My Portfolio",
+    "subtitle": "Your auction activity and performance",
+    "total_bids": "Total Bids Placed",
+    "auctions_won": "Auctions Won",
+    "avg_price": "Avg Price Paid",
+    "total_volume": "Total Volume",
+    "bid_chart": "Bid History by Pool",
+    "price_per_kg": "Price (₹/kg)",
+    "no_bids": "No bids yet",
+    "no_bids_hint": "Head to Live Auctions to place your first bid",
+    "pool": "Pool",
+    "crop": "Crop",
+    "your_bid": "Your Bid",
+    "status": "Status",
+    "qty_won": "Qty Won",
+    "date": "Date"
+  },
+  "sarvamShowcase": {
+    "hero_title": "Powered by Sarvam AI",
+    "hero_subtitle": "A farmer who can't read runs an entire marketplace transaction using only their voice.",
+    "step1_title": "Farmer Calls",
+    "step1_desc": "Saaras v2.5 listens in Tamil, Hindi, Telugu, Kannada, Marathi, or English",
+    "step2_title": "AI Understands",
+    "step2_desc": "Sarvam-2 LLM extracts crop, quantity, and location from natural speech",
+    "step3_title": "Settlement Callback",
+    "step3_desc": "Bulbul v3 calls the farmer back with the final price — in their own language",
+    "comparison_title": "Why Voice-First?",
+    "without_sarvam": "Without Sarvam",
+    "with_sarvam": "With Sarvam",
+    "compare_app": "Requires a smartphone app",
+    "compare_app_alt": "One phone call — any phone",
+    "compare_literacy": "Requires ability to read",
+    "compare_literacy_alt": "Works in 6 Indian languages",
+    "compare_form": "Manual form entry",
+    "compare_form_alt": "AI understands natural speech",
+    "compare_signup": "Registration and paperwork",
+    "compare_signup_alt": "Phone number is the identity",
+    "quote": "I don't have a smartphone. I can't read. But this works. My tomatoes sold for ₹17 per kilo — 25% more than the trader offered.",
+    "quote_author": "Ravi Kumar, Kanchipuram",
+    "tech_title": "The Sarvam Stack",
+    "saaras_desc": "Speech-to-text in 6 Indian languages — Tamil, Hindi, Telugu, Kannada, Marathi, English",
+    "sarvam2_desc": "Extracts structured data (crop, quantity, location) from natural voice conversations",
+    "bulbul_desc": "Text-to-speech callbacks in the farmer's original language with verified price details",
+    "cta": "Experience the Demo",
+    "how_it_works": "How It Works",
+    "one_call": "One phone call. Three AI steps. Zero literacy required."
   }
 }

@@ -140,12 +140,19 @@ export default function Home() {
               {t("cta_buyer")}
             </Link>
           </div>
-          <div className="text-center">
+          <div className="text-center flex flex-col gap-3 items-center">
             <Link
               href="/demo"
-              className="font-sans text-sm text-gray-400 hover:text-charcoal underline font-semibold transition-colors"
+              className="font-sans text-sm text-gray-400 hover:text-charcoal underline font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-blue"
             >
               {t("cta_demo")}
+            </Link>
+            <Link
+              href="/sarvam-showcase"
+              className="font-sans text-xs text-gray-400 hover:text-charcoal underline transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-blue"
+              style={{ fontFamily: "Inter" }}
+            >
+              {t("sarvam_link") || "See how Sarvam AI powers Mandi Mitra →"}
             </Link>
           </div>
         </div>

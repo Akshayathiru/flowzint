@@ -63,7 +63,7 @@ export default function Sidebar() {
               href={item.href}
               aria-label={item.label}
               aria-current={isActive ? "page" : undefined}
-              className={`group flex items-center gap-3 pl-3 pr-3 py-2 rounded-lg font-sans text-xs transition-colors cursor-pointer w-full border-l-4 ${
+              className={`group flex items-center gap-3 pl-3 pr-3 py-2 rounded-lg font-sans text-xs transition-colors cursor-pointer w-full border-l-4 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-blue ${
                 isActive
                   ? "bg-warm-cream border-soil-brown text-soil-brown font-medium"
                   : "border-transparent font-semibold text-gray-500 hover:bg-gray-50 hover:text-charcoal"

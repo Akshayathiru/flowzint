@@ -191,7 +191,7 @@ export default function LoginPage() {
               {tRoles("choose_role")}
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 w-full">
               {/* Farmer Card */}
               <button
                 onClick={() => setSelectedRole("farmer")}
@@ -282,7 +282,7 @@ export default function LoginPage() {
                   placeholder="9876543210"
                   value={phoneInput}
                   onChange={(e) => setPhoneInput(e.target.value)}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-field-green/20 focus:border-field-green bg-white text-charcoal font-mono"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-field-green/20 focus:border-field-green bg-white text-charcoal font-mono"
                 />
                 <p className="text-[11px] text-gray-400 mt-1">
                   {tFarmer("phone_helper")}
@@ -336,7 +336,7 @@ export default function LoginPage() {
                   type="email"
                   autoComplete="email"
                   aria-required="true"
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#6B4226]/20 focus:border-[#6B4226] bg-white text-charcoal"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#6B4226]/20 focus:border-[#6B4226] bg-white text-charcoal"
                   style={{ fontFamily: "Inter, sans-serif" }}
                 />
                 {errors.email && (
@@ -366,7 +366,7 @@ export default function LoginPage() {
                     type={showPassword ? "text" : "password"}
                     autoComplete="current-password"
                     aria-required="true"
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2.5 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-[#6B4226]/20 focus:border-[#6B4226] bg-white text-charcoal"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2.5 pr-10 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#6B4226]/20 focus:border-[#6B4226] bg-white text-charcoal"
                     style={{ fontFamily: "Inter, sans-serif" }}
                   />
                   <button

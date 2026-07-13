@@ -29,6 +29,18 @@ export default function PoolCard({
   const t = useTranslations("pool");
   const percentage = Math.min(Math.round((currentQtyKg / targetQtyKg) * 100), 100);
 
+  const prevStatusRef = React.useRef(status);
+  const [pulse, setPulse] = React.useState(false);
+
+  React.useEffect(() => {
+    if (prevStatusRef.current !== status) {
+      setPulse(true);
+      prevStatusRef.current = status;
+      const timer = setTimeout(() => setPulse(false), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [status]);
+
   const getBarColorClass = () => {
     switch (status) {
       case "filling":
@@ -53,9 +65,25 @@ export default function PoolCard({
     }
   };
 
+  const getPulseColor = () => {
+    switch (status) {
+      case "filling":
+        return "#3B82F6";
+      case "auctioning":
+        return "#E6A817";
+      case "settled":
+        return "#2D6A4F";
+      default:
+        return "#9CA3AF";
+    }
+  };
+
   return (
     <div
-      className={`bg-white rounded-xl border border-gray-200 p-3 lg:p-4 shadow-sm hover:shadow-md hover:border-gray-300 transition-all duration-150 ${getBorderColorClass()}`}
+      className={`bg-white rounded-xl border border-gray-200 p-3 lg:p-4 shadow-sm hover:shadow-md hover:border-gray-300 transition-all duration-150 ${getBorderColorClass()} ${
+        pulse ? "animate-[borderPulse_1s_ease-in-out_2]" : ""
+      }`}
+      style={pulse ? ({ "--pulse-color": getPulseColor() } as React.CSSProperties) : {}}
     >
       {/* Top Row */}
       <div className="flex justify-between items-start">

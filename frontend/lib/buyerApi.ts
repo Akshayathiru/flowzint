@@ -1,7 +1,8 @@
 import { BuyerProfile, AuctionPool } from "@/types";
 import { MOCK_BUYERS, MOCK_AUCTION_POOLS } from "./buyerMockData";
 
-const BASE = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+const rawBase = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+const BASE = rawBase.trim().replace(/\n/g, "").replace(/\r/g, "");
 
 let _isOffline = false;
 export function isBackendOffline() {

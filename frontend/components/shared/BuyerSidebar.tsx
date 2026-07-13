@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Link, usePathname, useRouter } from "@/lib/navigation";
-import { Gavel, FileText, User, Users, CheckCircle, Play } from "lucide-react";
+import { Gavel, FileText, User, Users, CheckCircle, Play, PieChart } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
 import { useBuyerSessionStore } from "@/store/buyerSessionStore";
@@ -28,6 +28,7 @@ export default function BuyerSidebar() {
   const buyerNavItems = [
     { label: tn("auctions"), href: "/buyer/auctions", icon: Gavel },
     { label: tn("bids"), href: "/buyer/bids", icon: FileText },
+    { label: tn("analytics"), href: "/buyer/analytics", icon: PieChart },
     { label: tn("profile"), href: "/buyer/profile", icon: User },
     { label: tn("farmers"), href: "/buyer/farmers", icon: Users },
     { label: tn("settlements"), href: "/buyer/settlements", icon: CheckCircle },
@@ -62,7 +63,7 @@ export default function BuyerSidebar() {
               href={item.href}
               aria-label={item.label}
               aria-current={isActive ? "page" : undefined}
-              className={`flex items-center gap-3 pl-3 pr-3 py-2 rounded-lg font-sans text-xs transition-colors cursor-pointer w-full border-l-4 ${
+              className={`flex items-center gap-3 pl-3 pr-3 py-2 rounded-lg font-sans text-xs transition-colors cursor-pointer w-full border-l-4 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-blue ${
                 isActive
                   ? "bg-warm-cream border-soil-brown text-soil-brown font-medium"
                   : "border-transparent font-semibold text-gray-500 hover:bg-gray-50 hover:text-charcoal"

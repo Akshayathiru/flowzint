@@ -1,156 +1,188 @@
-# Mandi Mitra
+# Mandi Mitra — मंडी मित्र
+### AI-Orchestrated Crop Pooling & Live Auction Platform
 
-### Tagline: FPO-level bargaining power for every farmer via a phone call.
-
-Mandi Mitra is a voice-driven, regional-language crop pooling and live auction platform designed for small-scale Indian farmers. It removes the barrier of smartphones, internet access, and literacy, enabling any farmer to participate in collective bargaining by simply placing a local phone call.
-
----
-
-## Problem
-India's 120+ million smallholder farmers typically sell their produce individually to local middle-men far below market value. They face:
-- **No Bargaining Power:** Small quantities (e.g., 100-200 kg) do not justify transporting goods to central markets or negotiating prices.
-- **Digital Exclusion:** Existing agricultural e-commerce portals require smartphone ownership, stable internet, and digital literacy.
-- **High Transaction Overhead:** Individual transport and storage costs eat away thin profit margins.
+> _"An FPO takes six months. We do it in ninety minutes — with one phone call."_
 
 ---
 
-## Solution
-Mandi Mitra enables farmers to call a dedicated phone number, describe their produce in their native language (Hindi, Tamil, Telugu, Kannada, English), and get dynamically grouped into localized FPO-level crop pools.
-1. **Pledge via Voice:** Farmers speak naturally to list their name, crop, quantity, and location.
-2. **Dynamic Pooling:** The system aggregates individual crop pledges until a minimum shipping threshold is reached (e.g. 250 kg).
-3. **Live Auctions:** Once the threshold is met, the pool closes, and a live, competitive SMS-driven auction triggers for registered buyers.
-4. **Cascade Settlement:** The highest bidder wins, and the platform transparently allocates earnings to farmers on a First-Come, First-Served (FCFS) basis.
+## The Problem
+
+120 million smallholder farmers in India have zero bargaining power. They sell at whatever price the local trader offers. Forming a Farmer Producer Organization (FPO) takes months of paperwork most will never complete. Most farmers can't read. Most don't have smartphones.
+
+## The Solution
+
+A voice-first platform where farmers call a number, speak their crop and quantity in their language, and get pooled with nearby farmers for collective bargaining power. A live auction finds the best buyer. Everyone gets called back with a verified price.
+
+**No app. No literacy. No smartphone. Just a phone call.**
+
+---
+
+## How It Works
+
+```
+Farmer calls → Saaras STT → Sarvam-2 LLM → Pooling Engine → Live Auction → Bulbul TTS Callback
+```
+
+### Architecture
+
+```
+┌──────────────────────────────────────────────────────────┐
+│  FARMER CALLS (Twilio + Sarvam Saaras v2.5)             │
+│  "80 kilo tomato, Kanchipuram"                          │
+└──────────────────────┬───────────────────────────────────┘
+                       │
+                       ▼
+┌──────────────────────────────────────────────────────────┐
+│  SARVAM-2 LLM — Structured Data Extraction              │
+│  → crop: "tomato", qty: 80, location: "kanchipuram"     │
+└──────────────────────┬───────────────────────────────────┘
+                       │
+                       ▼
+┌──────────────────────────────────────────────────────────┐
+│  POOLING ENGINE — Geo-bounded, threshold-based           │
+│  → Groups nearby farmers by crop & location              │
+│  → Closes at 250kg threshold or 90-minute ceiling        │
+└──────────────────────┬───────────────────────────────────┘
+                       │
+                       ▼
+┌──────────────────────────────────────────────────────────┐
+│  LIVE AUCTION ENGINE                                     │
+│  → Notifies registered buyers                            │
+│  → Accepts bids with atomic locking + anti-sniping       │
+│  → Highest bid wins                                      │
+└──────────────────────┬───────────────────────────────────┘
+                       │
+                       ▼
+┌──────────────────────────────────────────────────────────┐
+│  SETTLEMENT CALLBACK (Sarvam Bulbul v3 TTS)             │
+│  → Calls every farmer in their language                  │
+│  → "Your tomatoes sold at ₹17/kg — 25% above market"   │
+└──────────────────────────────────────────────────────────┘
+```
 
 ---
 
 ## Sarvam AI Integration
-Sarvam AI powers the entire farmer-facing voice interface, serving as the core entry point of the platform:
-- **Sarvam Saaras STT:** Transcribes spoken farmer audio (in regional languages/dialects) to text.
-- **Sarvam LLM (sarvam-2):** Conversational NLP understands natural, unstructured speech to extract:
-  1. Farmer Name
-  2. Crop Name
-  3. Quantity (in kilograms)
-  4. Village / Location
-- **Sarvam TTS:** Speaks back the confirmation details in the farmer's native tongue before finalizing the database transaction.
 
-No Sarvam call = no pool = no auction. Sarvam is the foundational entry point of the entire application.
+Sarvam is not optional — it IS the product. Without Sarvam, this requires an app, literacy, and a smartphone.
+
+| Component | Role | Model |
+|-----------|------|-------|
+| **Saaras v2.5** | Speech-to-text for farmer IVR calls | `saaras:v2.5` |
+| **Sarvam-2 LLM** | Structured data extraction from voice | `sarvam-2` |
+| **Bulbul v3** | Text-to-speech settlement callbacks | `bulbul:v3` |
+
+Languages supported: Tamil, Hindi, Telugu, Kannada, Marathi, English
 
 ---
 
 ## Tech Stack
 
-### Frontend Table
-| Technology | Usage |
-| :--- | :--- |
-| **Next.js 14** | Application Framework |
-| **React 18** | UI Components |
-| **TailwindCSS** | Sleek Glassmorphism Styling |
-| **Zustand** | State Management |
-| **Socket.io-client** | Real-time WebSocket Updates |
-| **Leaflet / React Leaflet** | Geographic Mapping of Pools |
-
-### Backend Table
-| Technology | Usage |
-| :--- | :--- |
-| **FastAPI** | High-performance Python APIs |
-| **SQLAlchemy** | SQL Toolkit and Object-Relational Mapper |
-| **PostgreSQL** | Production-Grade Concurrent Database |
-| **Alembic** | Database Migrations |
-| **APScheduler** | Background Cron for Auction Expiry checks |
-| **Twilio SDK** | Inbound TwiML voice integration |
+| Layer | Technology |
+|-------|-----------|
+| **Frontend** | Next.js 14, TypeScript, Tailwind CSS, Zustand, React Query, Recharts, Leaflet, next-intl (6 languages) |
+| **Core Backend** | FastAPI, SQLAlchemy, SQLite, APScheduler, Socket.IO |
+| **Voice Layer** | FastAPI, Twilio, Sarvam AI (Saaras + Sarvam-2 + Bulbul) |
+| **Database** | SQLite (dev) / PostgreSQL (prod) |
 
 ---
 
-## Architecture
+## Three Role-Based Portals
 
+### Farmer Portal
+- Dashboard with active pools, earnings, trust score
+- Earnings analytics with price vs mandi rate charts
+- Settlement receipts (downloadable)
+- 6-language support (switch mid-session)
+
+### Buyer Portal
+- Live auctions with real-time countdown timers
+- Bid submission with atomic locking
+- Portfolio analytics
+- Pool detail with farmer transparency
+
+### Admin Dashboard
+- Real-time pool monitoring (3-second polling)
+- Farmer and buyer registries
+- Settlement archive
+- Catchment area maps
+
+---
+
+## Trust Score System
+
+- Farmers start at 100 points (5.0 stars)
+- Successful delivery: +5 points (capped at +2 for < 50kg to prevent gaming)
+- No-show penalty: up to -20 points, proportional to undelivered quantity
+- Buyers: 3 no-shows = auto-suspension
+
+---
+
+## Running Locally
+
+```bash
+# 1. Voice & Language Layer
+cd flowzint
+python -m uvicorn main:app --port 8000
+
+# 2. Core Backend Engine
+cd flowzint/backend
+python -m uvicorn app:app --port 8001
+
+# 3. Frontend
+cd flowzint/frontend
+npm install && npm run dev
 ```
-[Farmer Inbound Call]
-         │
-         ▼
- ┌───────────────┐        ┌───────────────┐
- │  Twilio Voice │───────▶│   FastAPI     │
- └───────────────┘        │ (Voice Layer) │
-                          └───────────────┘
-                                  │
-      ┌───────────────────────────┴───────────────────────────┐
-      ▼                                                       ▼
-┌───────────────┐                                       ┌───────────────┐
-│   Sarvam AI   │                                       │   FastAPI     │
-│ (STT/LLM/TTS) │                                       │ (Core Engine) │
-└───────────────┘                                       └───────────────┘
-                                                              │
-                                            ┌─────────────────┴─────────────────┐
-                                            ▼                                   ▼
-                                    ┌───────────────┐                   ┌───────────────┐
-                                    │  PostgreSQL   │                   │ Next.js WebUI │
-                                    └───────────────┘                   └───────────────┘
+
+### Environment Variables
+
+```bash
+# flowzint/.env
+SARVAM_API_KEY=<your key>
+MOCK_MODE=false
+DATABASE_URL=sqlite:///path/to/mandi.db
+TWILIO_ACCOUNT_SID=<your sid>
+TWILIO_AUTH_TOKEN=<your token>
+TWILIO_PHONE_NUMBER=<your number>
+PUBLIC_URL=<ngrok https URL>
+
+# flowzint/frontend/.env.local
+NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
 ```
 
 ---
 
-## How To Run Locally
+## API Endpoints
 
-### Prerequisites
-- Python 3.10+
-- Node.js 18+
-- PostgreSQL server
-
-### Steps
-1. **Clone the repo:**
-   ```bash
-   git clone <repo-url>
-   cd flowzint-new
-   ```
-
-2. **Backend Setup:**
-   ```bash
-   # Install dependencies
-   pip install -r requirements.txt
-   
-   # Set up Environment variables
-   cp .env.example .env
-   # Edit .env and configure SARVAM_API_KEY, DATABASE_URL, BASE_URL, TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN
-   ```
-
-3. **Database Migration:**
-   ```bash
-   # Initialize and apply database migrations
-   alembic init alembic
-   alembic revision --autogenerate -m "initial"
-   alembic upgrade head
-   ```
-
-4. **Start Backend Server:**
-   ```bash
-   uvicorn backend.app:app --reload --port 8000
-   ```
-
-5. **Start Voice Layer Server:**
-   ```bash
-   uvicorn main:app --reload --port 5000
-   ```
-
-6. **Expose Voice Layer via ngrok:**
-   ```bash
-   ngrok http 5000
-   # Copy the HTTPS URL and update BASE_URL in your .env
-   # Set your Twilio phone number webhook to: https://your-ngrok-url/inbound-call
-   ```
-
-7. **Frontend Setup & Run:**
-   ```bash
-   cd frontend
-   npm install
-   npm run dev
-   ```
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/active` | Active pools |
+| `GET` | `/farmer/{phone}` | Farmer profile |
+| `GET` | `/farmer/{phone}/pools` | Farmer's pools |
+| `GET` | `/farmer/{phone}/settlements` | Farmer settlements |
+| `GET` | `/farmer/{phone}/calls` | Call history |
+| `GET` | `/pool/{pool_id}/farmers` | Farmers in pool |
+| `POST` | `/add_buyer` | Register buyer |
+| `GET` | `/buyers` | All buyers |
+| `POST` | `/buyer_offer` | Submit bid |
+| `GET` | `/receipt/{pool_id}/{phone}` | Settlement receipt |
 
 ---
 
-## Demo Video
+## Demo
+
+[Demo Video](https://youtube.com/demo-link-here)
 <!-- TODO: Replace with actual demo video URL after recording -->
-[Link to Hackathon Submission Video](https://youtube.com/demo-link-here)
+
+---
+
+## Built for HACKHAZARDS '26
+
+Theme: 🌍 Climate & Sustainability Systems
+Track: Sarvam AI — Best use of Sarvam AI
 
 ---
 
 ## Team
-- **AgriTech Pioneers Team**
+- Sreya — Frontend, Architecture, Strategy
+- Samiksha — Backend, Voice Integration, Database

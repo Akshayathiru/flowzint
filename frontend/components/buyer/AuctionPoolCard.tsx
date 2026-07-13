@@ -214,7 +214,7 @@ export default function AuctionPoolCard({
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
                   placeholder={t("price_placeholder")}
-                  className="w-full pl-6 pr-8 border border-gray-200 rounded-lg py-2 text-sm focus:outline-none focus:ring-1 focus:ring-gray-300 font-sans bg-white text-charcoal"
+                  className="w-full pl-6 pr-8 border border-gray-200 rounded-lg py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-gray-300 font-sans bg-white text-charcoal"
                 />
                 <span className="absolute inset-y-0 right-0 pr-2 flex items-center text-gray-400 font-sans text-[10px]">
                   {t("per_kg")}
@@ -230,7 +230,7 @@ export default function AuctionPoolCard({
                   value={quantity}
                   onChange={(e) => setQuantity(e.target.value)}
                   placeholder={t("qty_placeholder")}
-                  className="w-full pr-8 pl-3 border border-gray-200 rounded-lg py-2 text-sm focus:outline-none focus:ring-1 focus:ring-gray-300 font-sans bg-white text-charcoal"
+                  className="w-full pr-8 pl-3 border border-gray-200 rounded-lg py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-gray-300 font-sans bg-white text-charcoal"
                 />
                 <span className="absolute inset-y-0 right-0 pr-2 flex items-center text-gray-400 font-sans text-[10px]">
                   {t("kg")}
@@ -240,7 +240,7 @@ export default function AuctionPoolCard({
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="bg-harvest-gold text-soil-brown font-sans font-medium text-xs rounded-lg px-4 py-2.5 hover:brightness-95 active:scale-[0.98] transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 cursor-pointer"
+                className="bg-harvest-gold text-soil-brown font-sans font-medium text-xs rounded-lg px-4 py-2.5 hover:brightness-95 active:scale-[0.98] transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 cursor-pointer min-h-[44px]"
               >
                 {isSubmitting ? (
                   <>

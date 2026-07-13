@@ -106,7 +106,7 @@ export default function BuyerAuctionsPage() {
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                 {pools.map((pool: AuctionPool) => (
                   <AuctionPoolCard
                     key={pool.pool_id}

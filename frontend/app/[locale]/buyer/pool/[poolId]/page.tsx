@@ -342,7 +342,7 @@ export default function BuyerPoolDetailPage({ params }: PageProps) {
                     value={price}
                     onChange={(e) => setPrice(e.target.value)}
                     placeholder={tAuc("price_placeholder")}
-                    className="w-full pl-6 pr-8 border border-gray-200 rounded-lg py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-gray-300 font-sans bg-white text-charcoal"
+                    className="w-full pl-6 pr-8 border border-gray-200 rounded-lg py-2.5 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-gray-300 font-sans bg-white text-charcoal"
                   />
                   <span className="absolute inset-y-0 right-0 pr-2 flex items-center text-gray-400 font-sans text-xs">
                     {tAuc("per_kg")}
@@ -358,7 +358,7 @@ export default function BuyerPoolDetailPage({ params }: PageProps) {
                     value={quantity}
                     onChange={(e) => setQuantity(e.target.value)}
                     placeholder={tAuc("qty_placeholder")}
-                    className="w-full pr-8 pl-3 border border-gray-200 rounded-lg py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-gray-300 font-sans bg-white text-charcoal"
+                    className="w-full pr-8 pl-3 border border-gray-200 rounded-lg py-2.5 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-gray-300 font-sans bg-white text-charcoal"
                   />
                   <span className="absolute inset-y-0 right-0 pr-2 flex items-center text-gray-400 font-sans text-xs">
                     {tAuc("kg")}
@@ -368,7 +368,7 @@ export default function BuyerPoolDetailPage({ params }: PageProps) {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="bg-harvest-gold text-soil-brown font-sans font-semibold text-xs rounded-lg px-6 py-3 hover:brightness-95 active:scale-[0.98] transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 cursor-pointer shadow-sm"
+                  className="bg-harvest-gold text-soil-brown font-sans font-semibold text-xs rounded-lg px-6 py-3 hover:brightness-95 active:scale-[0.98] transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 cursor-pointer shadow-sm min-h-[44px]"
                 >
                   {isSubmitting ? (
                     <>
@@ -431,7 +431,7 @@ export default function BuyerPoolDetailPage({ params }: PageProps) {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse text-xs font-sans">
+              <table className="min-w-[600px] w-full text-left border-collapse text-xs font-sans">
                 <thead>
                   <tr className="bg-gray-50/50 text-gray-400 font-medium uppercase tracking-widest text-[10px]">
                     <th scope="col" className="px-4 py-3">{t("phone")}</th>

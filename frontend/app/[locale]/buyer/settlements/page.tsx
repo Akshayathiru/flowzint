@@ -5,7 +5,9 @@ import { useRouter } from "@/lib/navigation";
 import PageHeader from "@/components/shared/PageHeader";
 import { CheckCircle, BarChart2, IndianRupee, AlertCircle } from "lucide-react";
 import { useBuyerSessionStore } from "@/store/buyerSessionStore";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { toast } from "sonner";
+import { localizeValue } from "@/lib/dataTranslations";
 
 interface BuyerCallRecord {
   poolId: string;
@@ -29,6 +31,7 @@ interface SettlementRow {
 
 export default function BuyerSettlementsPage() {
   const router = useRouter();
+  const locale = useLocale();
   const { isLoggedIn, currentBuyer, hasHydrated } = useBuyerSessionStore();
   const t = useTranslations("buyerSettlements");
   const tDash = useTranslations("farmerDashboard");
@@ -92,6 +95,54 @@ export default function BuyerSettlementsPage() {
 
   const handleRowClick = (poolId: number) => {
     router.push(`/buyer/pool/${poolId}`);
+  };
+
+  const generateReceiptText = (settlement: SettlementRow) => {
+    return `
+═══════════════════════════════════════════════════
+                MANDI MITRA
+          ${t('receipt_title') || 'PURCHASE RECEIPT'}
+═══════════════════════════════════════════════════
+
+Buyer Name: ${currentBuyer?.name || 'Wholesaler'}
+Buyer Phone: ${currentBuyer?.phone || ''}
+Pool ID: #POOL-${settlement.poolId}
+Crop: ${localizeValue('crops', settlement.crop, locale)}
+Location: ${settlement.location}
+
+═ Purchase Details ═
+
+Allocated Quantity: ${settlement.qtyKg} kg
+Purchase Price: ₹${settlement.pricePerKg.toFixed(2)}/kg
+
+Total Value: ₹${settlement.totalAmount.toLocaleString()}
+
+Settlement Date: ${settlement.date}
+
+═══════════════════════════════════════════════════
+Thank you for using Mandi Mitra!
+═══════════════════════════════════════════════════
+`.trim();
+  };
+
+  const generateReceipt = (settlement: SettlementRow) => {
+    const receipt = generateReceiptText(settlement);
+    const blob = new Blob([receipt], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `mandi-mitra-buyer-receipt-${settlement.poolId}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success("Receipt downloaded!");
+  };
+
+  const copyReceipt = (settlement: SettlementRow) => {
+    const receipt = generateReceiptText(settlement);
+    navigator.clipboard.writeText(receipt);
+    toast.success("Receipt copied to clipboard!");
   };
 
   return (
@@ -208,6 +259,9 @@ export default function BuyerSettlementsPage() {
                     <th className="px-6 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider font-sans">
                       {t("date")}
                     </th>
+                    <th className="px-6 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider font-sans text-center">
+                      Receipt
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-150">
@@ -235,8 +289,29 @@ export default function BuyerSettlementsPage() {
                       <td className="px-6 py-4 text-xs font-bold text-charcoal">
                         ₹{settlement.totalAmount.toLocaleString()}
                       </td>
-                      <td className="px-6 py-4 text-xs font-medium text-gray-450 font-mono">
+                      <td className="px-6 py-4 text-xs font-medium text-gray-455 font-mono">
                         {settlement.date}
+                      </td>
+                      <td className="px-6 py-4 text-center flex items-center justify-center gap-3">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            generateReceipt(settlement);
+                          }}
+                          className="text-sky-blue hover:underline cursor-pointer font-semibold font-sans text-xs min-h-[44px] flex items-center focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-blue"
+                        >
+                          Download
+                        </button>
+                        <span className="text-gray-300">|</span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            copyReceipt(settlement);
+                          }}
+                          className="text-sky-blue hover:underline cursor-pointer font-semibold font-sans text-xs min-h-[44px] flex items-center focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-blue"
+                        >
+                          Copy
+                        </button>
                       </td>
                     </tr>
                   ))}
