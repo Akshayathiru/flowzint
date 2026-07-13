@@ -12,16 +12,16 @@ import { AuctionPool } from "@/types";
 
 export default function BuyerBidsPage() {
   const router = useRouter();
-  const { currentBuyer, isLoggedIn, bidHistory } = useBuyerSessionStore();
+  const { currentBuyer, isLoggedIn, bidHistory, hasHydrated } = useBuyerSessionStore();
   const { data } = useBuyerAuctions();
   const activePools = data?.data || [];
 
   // Auth Guard
   useEffect(() => {
-    if (!isLoggedIn || !currentBuyer) {
+    if (hasHydrated && (!isLoggedIn || !currentBuyer)) {
       router.push("/login");
     }
-  }, [isLoggedIn, currentBuyer, router]);
+  }, [hasHydrated, isLoggedIn, currentBuyer, router]);
 
   if (!isLoggedIn || !currentBuyer) {
     return null;

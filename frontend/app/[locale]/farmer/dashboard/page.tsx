@@ -10,7 +10,7 @@ import { Sprout, PhoneCall, CheckCircle, ArrowRight, X, Star, ShieldAlert, Loade
 
 export default function FarmerDashboard() {
   const router = useRouter();
-  const { phone, isLoggedIn } = useFarmerSessionStore();
+  const { phone, isLoggedIn, hasHydrated } = useFarmerSessionStore();
 
   const [profile, setProfile] = useState<{
     phone: string;
@@ -79,10 +79,10 @@ export default function FarmerDashboard() {
 
   // Auth guard
   useEffect(() => {
-    if (!isLoggedIn) {
+    if (hasHydrated && !isLoggedIn) {
       router.push("/login?role=farmer");
     }
-  }, [isLoggedIn, router]);
+  }, [hasHydrated, isLoggedIn, router]);
 
   const fetchData = () => {
     if (!phone) return;

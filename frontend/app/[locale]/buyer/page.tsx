@@ -6,15 +6,16 @@ import { useBuyerSessionStore } from "@/store/buyerSessionStore";
 
 export default function BuyerRedirect() {
   const router = useRouter();
-  const { isLoggedIn } = useBuyerSessionStore();
+  const { isLoggedIn, hasHydrated } = useBuyerSessionStore();
 
   useEffect(() => {
+    if (!hasHydrated) return;
     if (isLoggedIn) {
       router.replace("/buyer/auctions");
     } else {
       router.replace("/login");
     }
-  }, [isLoggedIn, router]);
+  }, [hasHydrated, isLoggedIn, router]);
 
   return (
     <div className="min-h-screen bg-warm-cream flex items-center justify-center font-sans">

@@ -31,7 +31,7 @@ interface BackendFarmer {
 export default function BuyerFarmerRegistryPage() {
   const router = useRouter();
   const t = useTranslations("farmer");
-  const { isLoggedIn } = useBuyerSessionStore();
+  const { isLoggedIn, hasHydrated } = useBuyerSessionStore();
   const [farmers, setFarmers] = useState<FarmerCallRecord[]>([]);
   const [search, setSearch] = useState("");
   const [trustFilter, setTrustFilter] = useState<
@@ -46,10 +46,10 @@ export default function BuyerFarmerRegistryPage() {
 
   // Auth guard
   useEffect(() => {
-    if (!isLoggedIn) {
+    if (hasHydrated && !isLoggedIn) {
       router.push("/login?role=buyer");
     }
-  }, [isLoggedIn, router]);
+  }, [hasHydrated, isLoggedIn, router]);
 
   const fetchFarmers = async () => {
     setIsLoading(true);

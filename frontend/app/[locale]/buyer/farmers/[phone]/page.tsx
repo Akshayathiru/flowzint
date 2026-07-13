@@ -66,7 +66,7 @@ interface FarmerSettlement {
 export default function BuyerFarmerProfilePage({ params }: PageProps) {
   const router = useRouter();
   const t = useTranslations("farmer");
-  const { isLoggedIn } = useBuyerSessionStore();
+  const { isLoggedIn, hasHydrated } = useBuyerSessionStore();
   const phoneParam = decodeURIComponent(params.phone || "");
 
   const [profile, setProfile] = useState<FarmerProfile | null>(null);
@@ -77,10 +77,10 @@ export default function BuyerFarmerProfilePage({ params }: PageProps) {
 
   // Auth guard
   useEffect(() => {
-    if (!isLoggedIn) {
+    if (hasHydrated && !isLoggedIn) {
       router.push("/login?role=buyer");
     }
-  }, [isLoggedIn, router]);
+  }, [hasHydrated, isLoggedIn, router]);
 
   const fetchFarmer = async () => {
     setIsLoading(true);

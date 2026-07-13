@@ -12,7 +12,7 @@ import { Gavel } from "lucide-react";
 
 export default function BuyerAuctionsPage() {
   const router = useRouter();
-  const { currentBuyer, isLoggedIn, clearSession } = useBuyerSessionStore();
+  const { currentBuyer, isLoggedIn, clearSession, hasHydrated } = useBuyerSessionStore();
   
   const { data, isLoading, refetch } = useBuyerAuctions();
   const pools = data?.data || [];
@@ -20,10 +20,10 @@ export default function BuyerAuctionsPage() {
 
   // Auth Guard
   useEffect(() => {
-    if (!isLoggedIn || !currentBuyer) {
+    if (hasHydrated && (!isLoggedIn || !currentBuyer)) {
       router.push("/login");
     }
-  }, [isLoggedIn, currentBuyer, router]);
+  }, [hasHydrated, isLoggedIn, currentBuyer, router]);
 
   if (!isLoggedIn || !currentBuyer) {
     return null; // Prevents flashing before redirect completes

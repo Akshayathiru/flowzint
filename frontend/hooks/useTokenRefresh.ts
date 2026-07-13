@@ -1,13 +1,13 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { useRouter } from 'next/navigation'
-import { useTranslations } from 'next-intl'
-import { toast } from 'sonner'
 
+// Silently keeps a long-lived admin session's token from expiring — it does
+// NOT force a logout on failure. middleware.ts is the sole authority on
+// whether a session is valid: it already redirects to login on its own
+// whenever an actually-invalid/expired token is used to access a protected
+// route, so this hook doesn't need to (and shouldn't) preempt that.
 export function useTokenRefresh() {
-  const router = useRouter()
-  const t = useTranslations('auth')
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
@@ -15,45 +15,29 @@ export function useTokenRefresh() {
     const REFRESH_INTERVAL = 7 * 60 * 60 * 1000
 
     const refresh = async () => {
-      if (typeof window !== 'undefined') {
-        const path = window.location.pathname;
-        const isOperatorRoute = [
-          "/dashboard",
-          "/farmers",
-          "/buyers",
-          "/settlements",
-          "/demo",
-          "/admin",
-        ].some((r) => path.includes(r));
-        if (!isOperatorRoute) {
-          return;
-        }
-      }
+      if (typeof window === 'undefined') return
+      const path = window.location.pathname
+      const isOperatorRoute = [
+        "/dashboard",
+        "/farmers",
+        "/buyers",
+        "/settlements",
+        "/demo",
+        "/admin",
+      ].some((r) => path.includes(r))
+      if (!isOperatorRoute) return
 
       try {
-        const res = await fetch('/api/auth/refresh', { method: 'POST' })
-        if (!res.ok) {
-          // Token expired or invalid — redirect to login
-          toast.error(t('session_expired'))
-          router.push('/login?expired=true')
-        }
+        await fetch('/api/auth/refresh', { method: 'POST' })
       } catch {
-        // Network error — don't redirect, just skip this cycle
-        console.warn('Token refresh failed — will retry')
+        console.warn('Token refresh failed — will retry next cycle')
       }
     }
 
     intervalRef.current = setInterval(refresh, REFRESH_INTERVAL)
 
-    // Also refresh on window focus after being idle
-    const handleFocus = () => {
-      refresh()
-    }
-    window.addEventListener('focus', handleFocus)
-
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current)
-      window.removeEventListener('focus', handleFocus)
     }
-  }, [router, t])
+  }, [])
 }

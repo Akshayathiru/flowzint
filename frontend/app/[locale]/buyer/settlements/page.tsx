@@ -28,7 +28,7 @@ interface SettlementRow {
 
 export default function BuyerSettlementsPage() {
   const router = useRouter();
-  const { isLoggedIn, currentBuyer } = useBuyerSessionStore();
+  const { isLoggedIn, currentBuyer, hasHydrated } = useBuyerSessionStore();
 
   const [settlements, setSettlements] = useState<SettlementRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -36,10 +36,10 @@ export default function BuyerSettlementsPage() {
 
   // Auth guard
   useEffect(() => {
-    if (!isLoggedIn) {
+    if (hasHydrated && !isLoggedIn) {
       router.push("/login?role=buyer");
     }
-  }, [isLoggedIn, router]);
+  }, [hasHydrated, isLoggedIn, router]);
 
   const fetchSettlements = async () => {
     if (!currentBuyer) return;

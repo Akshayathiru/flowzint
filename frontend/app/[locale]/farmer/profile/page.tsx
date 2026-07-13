@@ -9,7 +9,7 @@ import LanguageBadge from "@/components/shared/LanguageBadge";
 
 export default function FarmerProfilePage() {
   const router = useRouter();
-  const { phone, isLoggedIn } = useFarmerSessionStore();
+  const { phone, isLoggedIn, hasHydrated } = useFarmerSessionStore();
 
   const [profile, setProfile] = useState<{
     phone: string;
@@ -53,10 +53,10 @@ export default function FarmerProfilePage() {
 
   // Auth guard
   useEffect(() => {
-    if (!isLoggedIn) {
+    if (hasHydrated && !isLoggedIn) {
       router.push("/login?role=farmer");
     }
-  }, [isLoggedIn, router]);
+  }, [hasHydrated, isLoggedIn, router]);
 
   const fetchProfileData = () => {
     if (!phone) return;

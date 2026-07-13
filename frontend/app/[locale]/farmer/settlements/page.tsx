@@ -12,7 +12,7 @@ import { toast } from "sonner";
 
 export default function FarmerSettlementsPage() {
   const router = useRouter();
-  const { phone, isLoggedIn } = useFarmerSessionStore();
+  const { phone, isLoggedIn, hasHydrated } = useFarmerSessionStore();
 
   const [settlements, setSettlements] = useState<Array<{
     pool_id: number;
@@ -68,10 +68,10 @@ export default function FarmerSettlementsPage() {
 
   // Auth guard
   useEffect(() => {
-    if (!isLoggedIn) {
+    if (hasHydrated && !isLoggedIn) {
       router.push("/login?role=farmer");
     }
-  }, [isLoggedIn, router]);
+  }, [hasHydrated, isLoggedIn, router]);
 
   const fetchSettlements = () => {
     if (!phone) return;

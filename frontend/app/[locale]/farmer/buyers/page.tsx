@@ -9,7 +9,7 @@ import { Store, MapPin, Package, Phone, Loader2, AlertCircle } from "lucide-reac
 
 export default function FarmerBuyersPage() {
   const router = useRouter();
-  const { isLoggedIn } = useFarmerSessionStore();
+  const { isLoggedIn, hasHydrated } = useFarmerSessionStore();
 
   const [buyers, setBuyers] = useState<BuyerProfile[]>([]);
   const [loading, setLoading] = useState(true);
@@ -17,10 +17,10 @@ export default function FarmerBuyersPage() {
 
   // Auth guard
   useEffect(() => {
-    if (!isLoggedIn) {
+    if (hasHydrated && !isLoggedIn) {
       router.push("/login?role=farmer");
     }
-  }, [isLoggedIn, router]);
+  }, [hasHydrated, isLoggedIn, router]);
 
   const fetchBuyers = () => {
     setLoading(true);

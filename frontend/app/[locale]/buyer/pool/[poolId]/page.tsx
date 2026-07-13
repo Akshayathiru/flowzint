@@ -20,7 +20,7 @@ interface PageProps {
 export default function BuyerPoolDetailPage({ params }: PageProps) {
   const router = useRouter();
   const poolId = parseInt(params.poolId);
-  const { isLoggedIn, currentBuyer, addBid, bidHistory } = useBuyerSessionStore();
+  const { isLoggedIn, currentBuyer, addBid, bidHistory, hasHydrated } = useBuyerSessionStore();
 
   const [pool, setPool] = useState<any | null>(null);
   const [poolLoading, setPoolLoading] = useState(true);
@@ -37,10 +37,10 @@ export default function BuyerPoolDetailPage({ params }: PageProps) {
 
   // Auth guard
   useEffect(() => {
-    if (!isLoggedIn) {
+    if (hasHydrated && !isLoggedIn) {
       router.push("/login?role=buyer");
     }
-  }, [isLoggedIn, router]);
+  }, [hasHydrated, isLoggedIn, router]);
 
   // Load pool data
   const fetchPoolData = () => {

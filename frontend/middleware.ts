@@ -34,7 +34,9 @@ export async function middleware(request: NextRequest) {
     }
     const payload = await verifyToken(token);
     if (!payload) {
-      const response = NextResponse.redirect(new URL(loginPath, request.url));
+      const expiredLoginUrl = new URL(loginPath, request.url);
+      expiredLoginUrl.searchParams.set("expired", "true");
+      const response = NextResponse.redirect(expiredLoginUrl);
       response.cookies.delete("mm_auth");
       response.cookies.delete("mm_user");
       return response;

@@ -11,15 +11,15 @@ interface BuyerCallRecord {
 
 export default function BuyerProfilePage() {
   const router = useRouter();
-  const { currentBuyer, isLoggedIn, bidHistory } = useBuyerSessionStore();
+  const { currentBuyer, isLoggedIn, bidHistory, hasHydrated } = useBuyerSessionStore();
 
   const [auctionsWon, setAuctionsWon] = useState<number | null>(null);
 
   useEffect(() => {
-    if (!isLoggedIn) {
+    if (hasHydrated && !isLoggedIn) {
       router.push("/login?role=buyer");
     }
-  }, [isLoggedIn, router]);
+  }, [hasHydrated, isLoggedIn, router]);
 
   useEffect(() => {
     if (!currentBuyer) return;
