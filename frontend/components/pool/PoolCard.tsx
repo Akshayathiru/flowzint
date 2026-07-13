@@ -60,7 +60,7 @@ export default function PoolCard({
       {/* Top Row */}
       <div className="flex justify-between items-start">
         <div>
-          <h3 className="font-display font-semibold text-base text-charcoal">
+          <h3 className="font-display font-semibold text-sm sm:text-base text-charcoal">
             {crop}
           </h3>
           <p className="font-sans text-xs text-gray-500">{location}</p>

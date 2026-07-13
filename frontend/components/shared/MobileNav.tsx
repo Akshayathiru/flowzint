@@ -13,6 +13,7 @@ import {
   FileText,
   User,
   Play,
+  Store,
 } from "lucide-react";
 
 export default function MobileNav() {
@@ -42,6 +43,8 @@ export default function MobileNav() {
   const farmerItems = [
     { label: "Dashboard", key: "dashboard", href: "/farmer/dashboard", icon: LayoutDashboard },
     { label: "Profile", key: "profile", href: "/farmer/profile", icon: User },
+    { label: "Settlements", key: "settlements", href: "/farmer/settlements", icon: CheckCircle },
+    { label: "Buyers", key: "buyers", href: "/farmer/buyers", icon: Store },
     { label: "Demo", key: "demo", href: "/demo", icon: Play },
   ];
 
