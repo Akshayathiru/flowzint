@@ -15,6 +15,14 @@ import { BuyerProfile } from "@/types";
 import { toast } from "sonner";
 import OfflineBanner from "@/components/shared/OfflineBanner";
 
+const normalizePhone = (phone: string): string => {
+  const digits = phone.replace(/\D/g, '')
+  if (digits.length === 10) return `+91${digits}`
+  if (digits.length === 12 && digits.startsWith('91')) return `+${digits}`
+  if (digits.length === 13 && digits.startsWith('+91')) return digits
+  return digits // fallback
+}
+
 const LoginSchema = z.object({
   email: z.string().email("Enter a valid email"),
   password: z.string().min(6, "Password must be at least 6 characters"),
@@ -134,8 +142,9 @@ export default function LoginPage() {
       toast.error("Please enter a valid 10-digit phone number");
       return;
     }
-    setFarmerPhone(phoneInput);
-    toast.success(`Logged in as Farmer (${phoneInput})`);
+    const normalized = normalizePhone(phoneInput);
+    setFarmerPhone(normalized);
+    toast.success(`Logged in as Farmer (${normalized})`);
     router.push("/farmer/dashboard");
   };
 
@@ -270,6 +279,9 @@ export default function LoginPage() {
                   onChange={(e) => setPhoneInput(e.target.value)}
                   className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-field-green/20 focus:border-field-green bg-white text-charcoal font-mono"
                 />
+                <p className="text-[11px] text-gray-400 mt-1">
+                  Enter your 10-digit phone number (the one you call from)
+                </p>
               </div>
 
               <button

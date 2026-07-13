@@ -147,6 +147,7 @@ No Sarvam call = no pool = no auction. Sarvam is the foundational entry point of
 ---
 
 ## Demo Video
+<!-- TODO: Replace with actual demo video URL after recording -->
 [Link to Hackathon Submission Video](https://youtube.com/demo-link-here)
 
 ---

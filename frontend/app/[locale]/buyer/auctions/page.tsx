@@ -11,7 +11,7 @@ import OfflineBanner from "@/components/shared/OfflineBanner";
 
 export default function BuyerAuctionsPage() {
   const router = useRouter();
-  const { currentBuyer, isLoggedIn, setCurrentBuyer } = useBuyerSessionStore();
+  const { currentBuyer, isLoggedIn, clearSession } = useBuyerSessionStore();
   
   const { data, isLoading, refetch } = useBuyerAuctions();
   const pools = data?.data || [];
@@ -29,7 +29,7 @@ export default function BuyerAuctionsPage() {
   }
 
   const handleLogout = () => {
-    setCurrentBuyer(null);
+    clearSession();
     router.push("/buyer");
   };
 

@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 import { BuyerProfile } from '@/types'
 
 export interface LocalBid {
@@ -16,12 +17,26 @@ interface BuyerSessionStore {
   isLoggedIn: boolean
   bidHistory: LocalBid[]
   addBid: (bid: LocalBid) => void
+  clearSession: () => void
 }
 
-export const useBuyerSessionStore = create<BuyerSessionStore>((set) => ({
-  currentBuyer: null,
-  isLoggedIn: false,
-  bidHistory: [],
-  setCurrentBuyer: (buyer) => set({ currentBuyer: buyer, isLoggedIn: !!buyer }),
-  addBid: (bid) => set((state) => ({ bidHistory: [bid, ...state.bidHistory] }))
-}))
+export const useBuyerSessionStore = create<BuyerSessionStore>()(
+  persist(
+    (set) => ({
+      currentBuyer: null,
+      isLoggedIn: false,
+      bidHistory: [],
+      setCurrentBuyer: (buyer) => set({ currentBuyer: buyer, isLoggedIn: !!buyer }),
+      addBid: (bid) => set((state) => ({ bidHistory: [bid, ...state.bidHistory] })),
+      clearSession: () => {
+        set({ currentBuyer: null, isLoggedIn: false, bidHistory: [] })
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('mandi-buyer-session')
+        }
+      },
+    }),
+    {
+      name: 'mandi-buyer-session',
+    }
+  )
+)

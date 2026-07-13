@@ -1,36 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Mandi Mitra — Frontend
 
-## Getting Started
+## What is this?
+The web dashboard for Mandi Mitra, an AI-powered crop pooling and auction platform for Indian smallholder farmers. Three role-based portals:
 
-First, run the development server:
+- **Farmer Portal** — View active pools, track contributions, see settlement earnings
+- **Buyer Portal** — Browse live auctions, place bids with real-time countdown timers, view settlements  
+- **Admin Dashboard** — Monitor system health, manage farmers and buyers, view pool activity
 
+## Tech Stack
+- Next.js 14 (App Router)
+- TypeScript
+- Tailwind CSS
+- Zustand (state management with localStorage persistence)
+- React Query (server state, 5s polling for live auctions)
+- next-intl (6 languages: English, Hindi, Tamil, Telugu, Kannada, Marathi)
+- Leaflet (catchment area maps)
+- Recharts (data visualization)
+
+## Sarvam AI Integration
+The frontend connects to a FastAPI backend that uses:
+- **Saaras v2.5** — Speech-to-text for farmer IVR calls (Tamil, Hindi, Telugu, Kannada, Marathi)
+- **Bulbul v3** — Text-to-speech for outbound callbacks to farmers and buyers
+- **Sarvam-2 LLM** — Structured data extraction from voice transcripts
+
+## Running Locally
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Requires the backend running on port 8000:
+```bash
+cd ../backend
+python -m uvicorn app:app --port 8000
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment Variables
+Copy `.env.local.example` to `.env.local`:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
+NEXT_PUBLIC_WS_URL=ws://localhost:8000
+NEXT_PUBLIC_DEMO_MODE=true

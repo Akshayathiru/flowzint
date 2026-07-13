@@ -1,19 +1,26 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link, usePathname, useRouter } from "@/lib/navigation";
 import { LayoutDashboard, User, CheckCircle, Store, Play } from "lucide-react";
-import { usePoolStore } from "@/store/poolStore";
 import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
 import { useFarmerSessionStore } from "@/store/farmerSessionStore";
 
 export default function FarmerSidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  const { pools } = usePoolStore();
   const { phone, clearSession } = useFarmerSessionStore();
 
-  const activePoolsCount = pools.length || 3;
+  const [poolCount, setPoolCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000"}/active`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setPoolCount(data.length);
+      })
+      .catch(() => {}); // silently fail, show nothing
+  }, []);
 
   const farmerNavItems = [
     { label: "My Dashboard", href: "/farmer/dashboard", icon: LayoutDashboard },
@@ -112,7 +119,9 @@ export default function FarmerSidebar() {
           </span>
         </div>
         <p className="font-sans text-[10px] text-gray-500 mt-1 font-semibold">
-          {activePoolsCount} active pools
+          {poolCount !== null
+            ? `${poolCount} active pool${poolCount !== 1 ? "s" : ""}`
+            : "System Live"}
         </p>
       </div>
     </aside>

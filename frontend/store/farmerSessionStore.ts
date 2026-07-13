@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 
 interface FarmerSession {
   phone: string | null
@@ -7,9 +8,21 @@ interface FarmerSession {
   clearSession: () => void
 }
 
-export const useFarmerSessionStore = create<FarmerSession>((set) => ({
-  phone: null,
-  isLoggedIn: false,
-  setPhone: (phone) => set({ phone, isLoggedIn: true }),
-  clearSession: () => set({ phone: null, isLoggedIn: false }),
-}))
+export const useFarmerSessionStore = create<FarmerSession>()(
+  persist(
+    (set) => ({
+      phone: null,
+      isLoggedIn: false,
+      setPhone: (phone) => set({ phone, isLoggedIn: true }),
+      clearSession: () => {
+        set({ phone: null, isLoggedIn: false })
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('mandi-farmer-session')
+        }
+      },
+    }),
+    {
+      name: 'mandi-farmer-session',
+    }
+  )
+)

@@ -1,0 +1,43 @@
+
+> flowzint-frontend@0.1.0 dev
+> next dev
+
+  ▲ Next.js 14.2.35
+  - Local:        http://localhost:3000
+  - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 3.5s
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Parsing of D:\samiksha-work\namespace\flowzint\frontend\node_modules\next-intl\dist\esm\production\extractor\format\index.js for build dependencies failed at 'import(t)'.
+<w> Build dependencies behind this expression are ignored and might cause incorrect cache invalidation.
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 826ms (143 modules)
+ ○ Compiling /[locale]/login ...
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Parsing of D:\samiksha-work\namespace\flowzint\frontend\node_modules\next-intl\dist\esm\production\extractor\format\index.js for build dependencies failed at 'import(t)'.
+<w> Build dependencies behind this expression are ignored and might cause incorrect cache invalidation.
+ ✓ Compiled /[locale]/login in 7.1s (1197 modules)
+ ✓ Compiled in 485ms (524 modules)
+ ✓ Compiled in 166ms (508 modules)
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Parsing of D:\samiksha-work\namespace\flowzint\frontend\node_modules\next-intl\dist\esm\production\extractor\format\index.js for build dependencies failed at 'import(t)'.
+<w> Build dependencies behind this expression are ignored and might cause incorrect cache invalidation.
+ GET /ta/login 200 in 8419ms
+ GET /hi/login 200 in 79ms
+ GET /login 200 in 65ms
+ ○ Compiling /[locale]/farmer/dashboard ...
+ ✓ Compiled /[locale]/farmer/dashboard in 741ms (1164 modules)
+ GET /farmer/dashboard 200 in 1614ms
+ ✓ Compiled /[locale]/buyer/auctions in 470ms (1178 modules)
+ GET /buyer/auctions 200 in 1155ms
+ GET /login 200 in 93ms
+ GET /farmer/dashboard 200 in 81ms
+ GET /buyer/auctions 200 in 63ms
+ GET /login 200 in 75ms
+ GET /login 200 in 63ms
+ GET /login 200 in 88ms
+ GET /farmer/dashboard 200 in 73ms
+ GET /login 200 in 74ms
+ GET /buyer/auctions 200 in 80ms
+ GET /ta/login 200 in 61ms
+ GET /hi/login 200 in 52ms
+ GET /farmer/dashboard 200 in 94ms
+[?25h

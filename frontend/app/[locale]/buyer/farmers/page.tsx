@@ -12,87 +12,27 @@ import { useTranslations } from "next-intl";
 import TableSkeleton from "@/components/shared/TableSkeleton";
 import { useBuyerSessionStore } from "@/store/buyerSessionStore";
 
-export const initialFarmers: FarmerCallRecord[] = [
-  {
-    phone: "+91 98XXX 10001",
-    crop: "Tomatoes",
-    lastCall: "Today 09:47",
-    lastQty: 80,
-    trust: 4.2,
-    totalCalls: 12,
-    district: "Kanchipuram",
-  },
-  {
-    phone: "+91 97XXX 10002",
-    crop: "Tomatoes",
-    lastCall: "Today 09:44",
-    lastQty: 350,
-    trust: 3.8,
-    totalCalls: 9,
-    district: "Kanchipuram",
-  },
-  {
-    phone: "+91 96XXX 10003",
-    crop: "Onions",
-    lastCall: "Yesterday",
-    lastQty: 120,
-    trust: 4.5,
-    totalCalls: 21,
-    district: "Vellore",
-  },
-  {
-    phone: "+91 95XXX 10004",
-    crop: "Tomatoes",
-    lastCall: "Today 08:30",
-    lastQty: 220,
-    trust: 2.9,
-    totalCalls: 6,
-    district: "Kanchipuram",
-  },
-  {
-    phone: "+91 94XXX 10005",
-    crop: "Chillies",
-    lastCall: "2 days ago",
-    lastQty: 60,
-    trust: 1.8,
-    totalCalls: 3,
-    district: "Salem",
-    isFirstCall: true,
-  },
-  {
-    phone: "+91 93XXX 10006",
-    crop: "Onions",
-    lastCall: "Today 10:01",
-    lastQty: 140,
-    trust: 3.1,
-    totalCalls: 7,
-    district: "Vellore",
-  },
-  {
-    phone: "+91 92XXX 10007",
-    crop: "Potatoes",
-    lastCall: "3 days ago",
-    lastQty: 300,
-    trust: 4.8,
-    totalCalls: 31,
-    district: "Chengalpattu",
-  },
-  {
-    phone: "+91 91XXX 10008",
-    crop: "Brinjal",
-    lastCall: "Yesterday",
-    lastQty: 90,
-    trust: 2.3,
-    totalCalls: 4,
-    district: "Tiruvannamalai",
-    isFirstCall: true,
-  },
-];
+interface BackendFarmerPool {
+  poolId: string;
+  crop: string;
+  quantity: number;
+  status: string;
+}
+
+interface BackendFarmer {
+  phone: string;
+  name: string;
+  trustScore: number;
+  successCount: number;
+  noShowCount: number;
+  pools: BackendFarmerPool[];
+}
 
 export default function BuyerFarmerRegistryPage() {
   const router = useRouter();
   const t = useTranslations("farmer");
   const { isLoggedIn } = useBuyerSessionStore();
+  const [farmers, setFarmers] = useState<FarmerCallRecord[]>([]);
   const [search, setSearch] = useState("");
   const [trustFilter, setTrustFilter] = useState<
     "all" | "high" | "medium" | "low"
@@ -100,6 +40,7 @@ export default function BuyerFarmerRegistryPage() {
   const [cropFilter, setCropFilter] = useState("all");
   const [sortBy, setSortBy] = useState("recent");
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const tableRef = useRef<HTMLDivElement>(null);
 
@@ -110,18 +51,54 @@ export default function BuyerFarmerRegistryPage() {
     }
   }, [isLoggedIn, router]);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
+  const fetchFarmers = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000"}/farmers`
+      );
+      if (!res.ok) throw new Error(`Backend error: ${res.status}`);
+      const data: BackendFarmer[] = await res.json();
+      setFarmers(
+        data.map((f) => {
+          const lastPool = f.pools[f.pools.length - 1];
+          return {
+            phone: f.phone,
+            // /farmers does not return crop/location as top-level fields —
+            // derived from the farmer's most recent pool membership.
+            crop: lastPool
+              ? lastPool.crop.charAt(0).toUpperCase() + lastPool.crop.slice(1)
+              : "Unknown",
+            // Backend has no call-timestamp data on this endpoint.
+            lastCall: "Unknown",
+            lastQty: lastPool ? lastPool.quantity : 0,
+            trust: Math.round((f.trustScore / 20) * 10) / 10,
+            totalCalls: f.pools.length,
+            // Backend does not return a location/district field here.
+            district: "Unknown",
+          };
+        })
+      );
+    } catch (err) {
+      console.error("Failed to load farmers:", err);
+      setError("Could not load farmers from backend");
+    } finally {
       setIsLoading(false);
-    }, 800);
-    return () => clearTimeout(timer);
-  }, []);
+    }
+  };
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      fetchFarmers();
+    }
+  }, [isLoggedIn]);
 
   if (!isLoggedIn) {
     return null;
   }
 
-  const filteredFarmers = initialFarmers.filter((farmer) => {
+  const filteredFarmers = farmers.filter((farmer) => {
     const matchesSearch =
       farmer.phone.toLowerCase().includes(search.toLowerCase()) ||
       farmer.crop.toLowerCase().includes(search.toLowerCase());
@@ -161,7 +138,7 @@ export default function BuyerFarmerRegistryPage() {
     }
   };
 
-  const flaggedCount = initialFarmers.filter((f) => f.trust < 2 && !f.isFirstCall).length;
+  const flaggedCount = farmers.filter((f) => f.trust < 2 && !f.isFirstCall).length;
 
   return (
     <div className="min-h-screen bg-warm-cream flex flex-col font-sans pb-12">
@@ -171,10 +148,7 @@ export default function BuyerFarmerRegistryPage() {
         actions={
           <div className="flex flex-wrap gap-2.5 select-none">
             <span className="border border-gray-200 rounded-full px-3 py-1 font-sans text-xs font-semibold text-gray-500 bg-white">
-              247 total callers
-            </span>
-            <span className="bg-sky-blue/10 border border-sky-blue/20 rounded-full px-3 py-1 font-sans text-xs font-semibold text-sky-blue">
-              18 active today
+              {farmers.length} total farmers
             </span>
             <span className="bg-alert-red/10 border border-alert-red/20 rounded-full px-3 py-1 font-sans text-xs font-semibold text-alert-red">
               {flaggedCount} flagged
@@ -272,7 +246,23 @@ export default function BuyerFarmerRegistryPage() {
         )}
 
         <div ref={tableRef}>
-          {isLoading ? (
+          {error ? (
+            <div className="flex flex-col items-center justify-center p-8 bg-red-50 border border-red-200 rounded-xl max-w-md mx-auto text-center shadow-sm">
+              <AlertTriangle className="w-8 h-8 text-alert-red mb-3" />
+              <h3 className="font-sans font-semibold text-sm text-red-600">
+                Could not load farmers
+              </h3>
+              <p className="font-sans text-xs text-gray-400 mt-1">
+                Make sure the backend is running
+              </p>
+              <button
+                onClick={fetchFarmers}
+                className="border border-gray-200 rounded-lg px-4 py-2 mt-4 bg-white text-xs font-semibold text-charcoal hover:bg-gray-50 transition-colors shadow-sm cursor-pointer"
+              >
+                Retry
+              </button>
+            </div>
+          ) : isLoading ? (
             <TableSkeleton rows={8} cols={7} />
           ) : sortedFarmers.length > 0 ? (
             <FarmerCallLogTable
@@ -284,10 +274,10 @@ export default function BuyerFarmerRegistryPage() {
             <div className="bg-white rounded-xl border border-gray-200 py-16 flex flex-col items-center justify-center text-center shadow-sm">
               <Package className="w-8 h-8 text-gray-350" />
               <h3 className="font-display font-semibold text-sm text-gray-500 mt-3">
-                No farmers match your filters
+                {farmers.length === 0 ? "No farmers registered yet" : "No farmers match your filters"}
               </h3>
               <p className="font-sans text-xs text-gray-500 mt-1">
-                Try adjusting the trust or crop filter
+                {farmers.length === 0 ? "Farmers will appear here once they join a pool" : "Try adjusting the trust or crop filter"}
               </p>
             </div>
           )}
@@ -295,7 +285,7 @@ export default function BuyerFarmerRegistryPage() {
 
         <div className="flex justify-between items-center bg-white rounded-xl border border-gray-200 px-4 py-3 shadow-sm">
           <span className="font-sans text-xs text-gray-500">
-            Showing {sortedFarmers.length} of 247 farmers
+            Showing {sortedFarmers.length} of {farmers.length} farmers
           </span>
           <div className="flex items-center gap-2">
             <button

@@ -1,19 +1,26 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link, usePathname, useRouter } from "@/lib/navigation";
 import { Gavel, FileText, User, Users, CheckCircle, Play } from "lucide-react";
-import { usePoolStore } from "@/store/poolStore";
 import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
 import { useBuyerSessionStore } from "@/store/buyerSessionStore";
 
 export default function BuyerSidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  const { pools } = usePoolStore();
-  const { currentBuyer, setCurrentBuyer } = useBuyerSessionStore();
+  const { currentBuyer, clearSession } = useBuyerSessionStore();
 
-  const activePoolsCount = pools.length || 3;
+  const [poolCount, setPoolCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000"}/active`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setPoolCount(data.length);
+      })
+      .catch(() => {}); // silently fail, show nothing
+  }, []);
 
   const buyerNavItems = [
     { label: "Live Auctions", href: "/buyer/auctions", icon: Gavel },
@@ -25,7 +32,7 @@ export default function BuyerSidebar() {
   ];
 
   const handleSignOut = () => {
-    setCurrentBuyer(null);
+    clearSession();
     router.push("/login");
   };
 
@@ -116,7 +123,9 @@ export default function BuyerSidebar() {
           </span>
         </div>
         <p className="font-sans text-[10px] text-gray-500 mt-1 font-semibold">
-          {activePoolsCount} active pools
+          {poolCount !== null
+            ? `${poolCount} active pool${poolCount !== 1 ? "s" : ""}`
+            : "System Live"}
         </p>
       </div>
     </aside>

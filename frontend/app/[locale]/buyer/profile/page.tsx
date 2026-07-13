@@ -1,13 +1,19 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "@/lib/navigation";
 import { useBuyerSessionStore } from "@/store/buyerSessionStore";
 import { Gavel, CheckCircle, Percent } from "lucide-react";
 
+interface BuyerCallRecord {
+  result: "won" | "lost" | "no_answer" | "pending";
+}
+
 export default function BuyerProfilePage() {
   const router = useRouter();
   const { currentBuyer, isLoggedIn, bidHistory } = useBuyerSessionStore();
+
+  const [auctionsWon, setAuctionsWon] = useState<number | null>(null);
 
   useEffect(() => {
     if (!isLoggedIn) {
@@ -15,13 +21,30 @@ export default function BuyerProfilePage() {
     }
   }, [isLoggedIn, router]);
 
+  useEffect(() => {
+    if (!currentBuyer) return;
+    fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000"}/buyers/${currentBuyer.buyer_id}/calls`
+    )
+      .then((res) => {
+        if (!res.ok) throw new Error(`Backend error: ${res.status}`);
+        return res.json();
+      })
+      .then((data: BuyerCallRecord[]) => {
+        setAuctionsWon(data.filter((c) => c.result === "won").length);
+      })
+      .catch((err) => {
+        console.error("Failed to load auctions won:", err);
+        setAuctionsWon(null);
+      });
+  }, [currentBuyer]);
+
   if (!isLoggedIn || !currentBuyer) {
     return null;
   }
 
   // Calculate statistics from bidHistory
   const totalBids = bidHistory.length;
-  const auctionsWon = totalBids > 0 ? 1 : 0; // Mock winning stat
   const avgBidPrice =
     totalBids > 0
       ? bidHistory.reduce((sum, b) => sum + b.price, 0) / totalBids
@@ -115,7 +138,7 @@ export default function BuyerProfilePage() {
                 Auctions Won
               </span>
               <span className="font-display font-bold text-xl text-charcoal mt-1 block">
-                {auctionsWon}
+                {auctionsWon === null ? "—" : auctionsWon}
               </span>
             </div>
 

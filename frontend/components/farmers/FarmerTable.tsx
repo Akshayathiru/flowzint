@@ -2,116 +2,22 @@
 
 import React from "react";
 import Link from "next/link";
-import {
-  CheckCircle,
-  Clock,
-  XCircle,
-  AlertTriangle,
-  PhoneMissed,
-} from "lucide-react";
-import TrustBadge from "@/components/shared/TrustBadge";
 import LanguageBadge from "@/components/shared/LanguageBadge";
 
-interface FarmerRow {
+export interface PoolFarmerRow {
   phone: string;
-  name?: string;
-  qty: number;
-  lang: string;
-  trust: number;
-  confidence: number;
-  farmerResponse: "yes" | "no" | "no_answer" | "pending";
-  isFirstCall?: boolean;
-  totalCalls: number;
+  quantity_kg: number;
+  trust_score: number;
+  call_time: string;
+  language: string;
 }
 
-const demoFarmers: FarmerRow[] = [
-  {
-    phone: "+91 98XXX 10001",
-    name: "Ravi Kumar",
-    qty: 200,
-    lang: "ta",
-    trust: 4.35, // 4.35 * 20 = 87
-    confidence: 0.95,
-    farmerResponse: "yes",
-    totalCalls: 23, // 23 transactions
-  },
-  {
-    phone: "+91 97XXX 10002",
-    name: "Anil Kumar",
-    qty: 150,
-    lang: "te",
-    trust: 3.8,
-    confidence: 0.72,
-    farmerResponse: "pending",
-    totalCalls: 9,
-  },
-  {
-    phone: "+91 96XXX 10003",
-    name: "Suresh Pillai",
-    qty: 180,
-    lang: "hi",
-    trust: 4.5,
-    confidence: 0.88,
-    farmerResponse: "yes",
-    totalCalls: 21,
-  },
-  {
-    phone: "+91 95XXX 10004",
-    name: "M. K. Stalin",
-    qty: 220,
-    lang: "ta",
-    trust: 2.9,
-    confidence: 0.61,
-    farmerResponse: "no",
-    totalCalls: 6,
-  },
-  {
-    phone: "+91 94XXX 10005",
-    name: "Venkatesh Prasad",
-    qty: 130,
-    lang: "kn",
-    trust: 3.1,
-    confidence: 0.91,
-    farmerResponse: "no_answer",
-    isFirstCall: true,
-    totalCalls: 1,
-  },
-  {
-    phone: "+91 93XXX 10006",
-    name: "Vijay Raghavan",
-    qty: 140,
-    lang: "te",
-    trust: 4.0,
-    confidence: 0.83,
-    farmerResponse: "yes",
-    totalCalls: 7,
-  },
-  {
-    phone: "+91 92XXX 10007",
-    name: "Rajesh Sharma",
-    qty: 110,
-    lang: "hi",
-    trust: 3.5,
-    confidence: 0.97,
-    farmerResponse: "yes",
-    totalCalls: 31,
-  },
-  {
-    phone: "+91 91XXX 10008",
-    name: "K. R. Narayanan",
-    qty: 90,
-    lang: "ta",
-    trust: 4.1,
-    confidence: 0.78,
-    farmerResponse: "pending",
-    isFirstCall: true,
-    totalCalls: 1,
-  },
-];
+interface FarmerTableProps {
+  farmers: PoolFarmerRow[];
+}
 
-export default function FarmerTable() {
-  const activeFarmers = demoFarmers.filter((f) => f.farmerResponse !== "no");
-  const totalQtyKg = activeFarmers.reduce((sum, f) => sum + f.qty, 0);
+export default function FarmerTable({ farmers }: FarmerTableProps) {
+  const totalQtyKg = farmers.reduce((sum, f) => sum + f.quantity_kg, 0);
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:border-gray-300 transition-colors">
@@ -121,170 +27,69 @@ export default function FarmerTable() {
           Farmers in This Pool
         </span>
         <span className="font-sans text-xs text-gray-500 font-semibold">
-          {demoFarmers.length} farmers &middot; {totalQtyKg} kg total
+          {farmers.length} farmers &middot; {totalQtyKg.toLocaleString()} kg total
         </span>
       </div>
 
-      {/* Warning Banner if any farmer declined */}
-      {demoFarmers.some((f) => f.farmerResponse === "no") && (
-        <div className="bg-alert-red/5 border border-alert-red/20 rounded-xl px-4 py-3 mb-4 flex items-center gap-2">
-          <XCircle className="w-3.5 h-3.5 text-alert-red shrink-0" />
-          <span className="font-sans text-xs text-alert-red font-medium">
-            1 farmer declined the offer. Their quantity (220kg) has been removed from the settlement total.
-          </span>
+      {farmers.length === 0 ? (
+        <div className="text-center py-8 text-xs text-gray-400 font-semibold">
+          No farmers in this pool yet
         </div>
-      )}
-
-      {/* Table Container */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse text-xs font-sans">
-          <caption className="sr-only">Farmers pooled in the current auction lot</caption>
-          <thead>
-            <tr className="border-b border-gray-100">
-              <th scope="col" className="pb-3 text-gray-500 uppercase tracking-wider text-[10px] font-bold">
-                Phone
-              </th>
-              <th scope="col" className="pb-3 text-gray-500 uppercase tracking-wider text-[10px] font-bold">
-                STT Confidence
-              </th>
-              <th scope="col" className="pb-3 text-gray-500 uppercase tracking-wider text-[10px] font-bold">
-                Quantity
-              </th>
-              <th scope="col" className="pb-3 text-gray-500 uppercase tracking-wider text-[10px] font-bold">
-                Language
-              </th>
-              <th scope="col" className="pb-3 text-gray-500 uppercase tracking-wider text-[10px] font-bold">
-                Trust Score
-              </th>
-              <th scope="col" className="pb-3 text-gray-500 uppercase tracking-wider text-[10px] font-bold">
-                Total Calls
-              </th>
-              <th scope="col" className="pb-3 text-gray-500 uppercase tracking-wider text-[10px] font-bold">
-                Callback Status
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {demoFarmers.map((farmer, index) => {
-              const isDeclined = farmer.farmerResponse === "no";
-              return (
-                <tr
-                  key={index}
-                  className={`transition-colors ${
-                    isDeclined
-                      ? "bg-red-50/70 hover:bg-red-100/50"
-                      : "hover:bg-gray-50/50"
-                  }`}
-                >
-                  {/* Phone */}
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse text-xs font-sans">
+            <caption className="sr-only">Farmers pooled in the current auction lot</caption>
+            <thead>
+              <tr className="border-b border-gray-100">
+                <th scope="col" className="pb-3 text-gray-500 uppercase tracking-wider text-[10px] font-bold">
+                  Phone
+                </th>
+                <th scope="col" className="pb-3 text-gray-500 uppercase tracking-wider text-[10px] font-bold">
+                  Quantity
+                </th>
+                <th scope="col" className="pb-3 text-gray-500 uppercase tracking-wider text-[10px] font-bold">
+                  Language
+                </th>
+                <th scope="col" className="pb-3 text-gray-500 uppercase tracking-wider text-[10px] font-bold">
+                  Trust Score
+                </th>
+                <th scope="col" className="pb-3 text-gray-500 uppercase tracking-wider text-[10px] font-bold">
+                  Call Time
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {farmers.map((farmer, index) => (
+                <tr key={index} className="hover:bg-gray-50/50 transition-colors">
                   <td className="py-3 font-sans text-xs text-charcoal font-medium">
-                    <div className="flex flex-col">
-                      <Link
-                        href={`/farmers/${encodeURIComponent(farmer.phone)}`}
-                        className="text-sky-blue hover:underline font-semibold"
-                      >
-                        {farmer.name || farmer.phone}
-                      </Link>
-                      {farmer.name && <span className="text-[10px] text-gray-400 font-mono">{farmer.phone}</span>}
-                    </div>
+                    <Link
+                      href={`/farmers/${encodeURIComponent(farmer.phone)}`}
+                      className="text-sky-blue hover:underline font-semibold"
+                    >
+                      {farmer.phone}
+                    </Link>
                   </td>
-
-                  {/* STT Confidence */}
-                  <td className="py-3">
-                    {farmer.confidence >= 0.8 ? (
-                      <span className="font-sans text-xs text-gray-500">
-                        {(farmer.confidence * 100).toFixed(0)}%
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center bg-amber-50 border border-amber-200 rounded px-2 py-0.5 text-[10px] text-amber-700 font-semibold select-none">
-                        <AlertTriangle className="w-2.5 h-2.5 inline mr-1 shrink-0" />
-                        {(farmer.confidence * 100).toFixed(0)}% &mdash; Verify
-                      </span>
-                    )}
-                  </td>
-
-                  {/* Quantity */}
                   <td className="py-3 text-charcoal">
                     <span className="font-display font-semibold text-xs text-charcoal">
-                      {farmer.qty}
+                      {farmer.quantity_kg}
                     </span>{" "}
                     <span className="text-gray-500">kg</span>
                   </td>
-
-                  {/* Language */}
                   <td className="py-3">
-                    <LanguageBadge code={farmer.lang} />
+                    <LanguageBadge code={farmer.language} />
                   </td>
-
-                  {/* Trust Score */}
-                  <td className="py-3">
-                    {farmer.isFirstCall ? (
-                      <span
-                        style={{
-                          background: "var(--bg-accent)",
-                          color: "var(--text-accent)",
-                        }}
-                        className="rounded px-2 py-0.5 text-[10px] font-medium font-sans"
-                      >
-                        New caller
-                      </span>
-                    ) : (
-                      <div className="flex flex-col font-sans text-xs text-charcoal">
-                        <span className="font-semibold text-charcoal">Score: {Math.round(farmer.trust * 20)}</span>
-                        <span className="text-[10px] text-gray-450">({farmer.totalCalls} transactions)</span>
-                      </div>
-                    )}
+                  <td className="py-3 font-sans text-xs text-charcoal font-semibold">
+                    {farmer.trust_score.toFixed(1)}
                   </td>
-
-                  {/* Total Calls */}
-                  <td className="py-3 text-gray-500 font-medium">
-                    {farmer.isFirstCall ? (
-                      <span className="font-sans text-xs text-gray-500">
-                        1st call
-                      </span>
-                    ) : (
-                      farmer.totalCalls
-                    )}
-                  </td>
-
-                  {/* Callback Status */}
-                  <td className="py-3">
-                    {farmer.farmerResponse === "yes" && (
-                      <div className="flex items-center gap-1.5 text-field-green">
-                        <CheckCircle className="w-3.5 h-3.5 shrink-0" />
-                        <span className="text-[10px] font-bold">Confirmed</span>
-                      </div>
-                    )}
-                    {farmer.farmerResponse === "no" && (
-                      <div className="flex items-center gap-1.5 text-alert-red">
-                        <XCircle className="w-3.5 h-3.5 shrink-0" />
-                        <span className="text-[10px] font-bold">Declined</span>
-                      </div>
-                    )}
-                    {farmer.farmerResponse === "no_answer" && (
-                      <div className="flex flex-col">
-                        <div className="flex items-center gap-1.5 text-amber-600">
-                          <PhoneMissed className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                          <span className="text-[10px] font-bold">No Answer</span>
-                        </div>
-                        <div className="font-sans text-[10px] text-gray-500 mt-0.5">
-                          Bulbul will retry in 10 min
-                        </div>
-                      </div>
-                    )}
-                    {farmer.farmerResponse === "pending" && (
-                      <div className="flex items-center gap-1.5 text-gray-500">
-                        <Clock className="w-3.5 h-3.5 shrink-0" />
-                        <span className="text-[10px] font-bold">Awaiting</span>
-                      </div>
-                    )}
+                  <td className="py-3 text-gray-500 font-mono text-[11px]">
+                    {new Date(farmer.call_time).toLocaleString()}
                   </td>
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
