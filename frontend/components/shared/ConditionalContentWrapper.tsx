@@ -8,8 +8,9 @@ import { ErrorBoundary } from "./ErrorBoundary";
 import { useTokenRefresh } from "@/hooks/useTokenRefresh";
 
 function stripLocale(pathname: string): string {
-  const match = pathname.match(/^\/[a-z]{2}(\/.*)$/)
-  return match ? match[1] : pathname
+  const match = pathname.match(/^\/[a-z]{2}(\/.*)?$/)
+  if (!match) return pathname
+  return match[1] || "/"
 }
 
 function isLandingOrLoginPage(pathname: string): boolean {

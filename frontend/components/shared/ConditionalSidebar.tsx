@@ -7,10 +7,11 @@ import BuyerSidebar from "./BuyerSidebar";
 import FarmerSidebar from "./FarmerSidebar";
 import MobileNav from "./MobileNav";
 
-// Strip locale prefix (e.g. /en/farmer/dashboard → /farmer/dashboard)
+// Strip locale prefix (e.g. /en/farmer/dashboard → /farmer/dashboard, /hi → /)
 function stripLocale(pathname: string): string {
-  const match = pathname.match(/^\/[a-z]{2}(\/.*)$/)
-  return match ? match[1] : pathname
+  const match = pathname.match(/^\/[a-z]{2}(\/.*)?$/)
+  if (!match) return pathname
+  return match[1] || "/"
 }
 
 export function ConditionalSidebar() {
