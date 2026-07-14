@@ -171,8 +171,7 @@ NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
 
 ## Demo
 
-[Demo Video](https://youtube.com/demo-link-here)
-<!-- TODO: Replace with actual demo video URL after recording -->
+[Demo Video](https://youtu.be/7IdrgZnNTSE?si=u5f-Xh8RoBJlLfbQ)
 
 ---
 
