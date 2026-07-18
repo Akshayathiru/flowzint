@@ -86,9 +86,9 @@ def ensure_pool_schema():
             if "payment_status" not in alloc_cols:
                 connection.execute(text("ALTER TABLE allocations ADD COLUMN payment_status TEXT DEFAULT 'pending'"))
             if "payment_sent_at" not in alloc_cols:
-                connection.execute(text("ALTER TABLE allocations ADD COLUMN payment_sent_at DATETIME"))
+                connection.execute(text("ALTER TABLE allocations ADD COLUMN payment_sent_at TIMESTAMP"))
             if "payment_received_at" not in alloc_cols:
-                connection.execute(text("ALTER TABLE allocations ADD COLUMN payment_received_at DATETIME"))
+                connection.execute(text("ALTER TABLE allocations ADD COLUMN payment_received_at TIMESTAMP"))
 
 
 
