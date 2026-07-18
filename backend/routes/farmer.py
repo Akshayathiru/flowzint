@@ -137,7 +137,7 @@ def get_farmer_profile_v2(phone: str, db: Session = Depends(get_db)):
             if first_pool.created_at:
                 member_since = first_pool.created_at.isoformat() + "Z"
 
-    db_trust = farmer.trust_score if farmer else 100
+    db_trust = float(farmer.trust_score) if (farmer and farmer.trust_score is not None) else 100.0
     trust_score = round(db_trust / 20.0, 1)
 
     return {
@@ -149,7 +149,7 @@ def get_farmer_profile_v2(phone: str, db: Session = Depends(get_db)):
         "total_calls": len(members),
         "total_pools": len(members),
         "total_quantity_kg": total_quantity_kg,
-        "total_earnings": round(total_earnings, 2),
+        "total_earnings": round(float(total_earnings), 2),
         "member_since": member_since
     }
 
@@ -176,7 +176,7 @@ def get_farmer_pools_v2(phone: str, db: Session = Depends(get_db)):
         elif pool.status == "SETTLED":
             status_mapped = "settled"
             
-        wp = pool.winning_price
+        wp = float(pool.winning_price) if pool.winning_price else None
         mandi_rate = wp * 0.8 if wp else None
         
         result.append({
@@ -203,10 +203,10 @@ def get_farmer_settlements_v2(phone: str, db: Session = Depends(get_db)):
         if not pool:
             continue
         
-        wp = pool.winning_price if pool.winning_price else 0.0
-        mandi_rate = wp * 0.8
-        premium_pct = round(((wp - mandi_rate) / mandi_rate * 100)) if mandi_rate else 0
-        qty = m.quantity if m.quantity else 0.0
+        wp = float(pool.winning_price) if pool.winning_price else 0.0
+        mandi_rate = float(wp * 0.8)
+        premium_pct = round(float((wp - mandi_rate) / mandi_rate * 100)) if mandi_rate else 0
+        qty = float(m.quantity) if m.quantity else 0.0
         
         # Find winning buyers
         winning_offers = db.query(Offer).filter(
@@ -214,11 +214,11 @@ def get_farmer_settlements_v2(phone: str, db: Session = Depends(get_db)):
             Offer.status.in_(["WON", "DELIVERED", "NO_SHOW"])
         ).all()
         
-        buyers_info = []
+        buyers_info: list[str] = []
         for offer in winning_offers:
             buyer = db.query(Buyer).filter(Buyer.id == offer.buyer_id).first()
-            if buyer:
-                buyers_info.append(buyer.name)
+            if buyer and buyer.name:
+                buyers_info.append(str(buyer.name))
         
         buyers_str = ", ".join(buyers_info) if buyers_info else "Unknown Buyer"
         settled_at_str = pool.closed_at.isoformat() + "Z" if pool.closed_at else ""
@@ -230,7 +230,7 @@ def get_farmer_settlements_v2(phone: str, db: Session = Depends(get_db)):
             "your_quantity_kg": qty,
             "price_per_kg": wp,
             "mandi_rate_per_kg": mandi_rate,
-            "total_amount": round(qty * wp, 2),
+            "total_amount": round(float(qty * wp), 2),
             "premium_percent": premium_pct,
             "buyers": buyers_str,
             "settled_at": settled_at_str
@@ -260,4 +260,37 @@ def get_farmer_calls_v2(phone: str, db: Session = Depends(get_db)):
             "status": "connected"
         })
     return result
+
+
+@router.get("/farmer/{phone}/status")
+@router.get("/farmers/{phone}/status")
+def get_farmer_status(phone: str, db: Session = Depends(get_db)):
+    farmer = db.query(Farmer).filter(Farmer.phone == phone).first()
+    member = db.query(PoolMember).filter(PoolMember.farmer_phone == phone).order_by(PoolMember.id.desc()).first()
+    if not member:
+        return {
+            "farmer_name": farmer.name if (farmer and farmer.name) else "Farmer",
+            "phone": phone,
+            "status": "NO_POOL",
+            "crop": "None",
+            "quantity_kg": 0,
+            "total_pool_qty_kg": 0,
+            "target_qty_kg": 250.0,
+            "winning_price": None,
+            "location": "Market"
+        }
+    
+    pool = db.query(Pool).filter(Pool.id == member.pool_id).first()
+    return {
+        "farmer_name": farmer.name if (farmer and farmer.name) else "Farmer",
+        "phone": phone,
+        "pool_id": pool.id if pool else member.pool_id,
+        "status": pool.status if pool else "OPEN",
+        "crop": pool.crop.capitalize() if (pool and pool.crop) else "Crop",
+        "quantity_kg": member.quantity,
+        "total_pool_qty_kg": pool.total_quantity if pool else member.quantity,
+        "target_qty_kg": 250.0,
+        "winning_price": pool.winning_price if (pool and pool.winning_price) else None,
+        "location": pool.location if pool else "Market"
+    }
 

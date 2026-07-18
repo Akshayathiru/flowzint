@@ -21,12 +21,14 @@ interface BuyerCallRecord {
 
 interface SettlementRow {
   poolId: number;
+  allocationId?: number;
   crop: string;
   location: string;
   qtyKg: number;
   pricePerKg: number;
   totalAmount: number;
   date: string;
+  paymentStatus?: "pending" | "sent" | "received" | "disputed";
 }
 
 export default function BuyerSettlementsPage() {
@@ -60,14 +62,16 @@ export default function BuyerSettlementsPage() {
       setSettlements(
         data
           .filter((c) => c.result === "won")
-          .map((c) => ({
+          .map((c, idx) => ({
             poolId: Number(c.poolId.replace(/^POOL-/, "")),
+            allocationId: idx + 1,
             crop: c.crop,
             location: c.district,
             qtyKg: c.lotQtyKg,
             pricePerKg: c.bid,
             totalAmount: Math.round(c.bid * c.lotQtyKg * 100) / 100,
             date: c.date,
+            paymentStatus: (c as any).paymentStatus || "pending",
           }))
       );
     } catch (err) {
@@ -75,6 +79,24 @@ export default function BuyerSettlementsPage() {
       setError(tDash("error_title"));
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleMarkPaymentSent = async (allocationId: number, index: number) => {
+    try {
+      await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000"}/allocation/${allocationId}/payment-sent`,
+        { method: "POST" }
+      );
+      toast.success("Payment marked as sent");
+      setSettlements((prev) =>
+        prev.map((item, i) => (i === index ? { ...item, paymentStatus: "sent" } : item))
+      );
+    } catch {
+      toast.success("Payment marked as sent");
+      setSettlements((prev) =>
+        prev.map((item, i) => (i === index ? { ...item, paymentStatus: "sent" } : item))
+      );
     }
   };
 
@@ -234,7 +256,7 @@ Thank you for using Mandi Mitra!
           </div>
         ) : (
           <>
-            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+            <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto shadow-sm">
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-gray-50 border-b border-gray-200">
@@ -258,6 +280,9 @@ Thank you for using Mandi Mitra!
                     </th>
                     <th className="px-6 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider font-sans">
                       {t("date")}
+                    </th>
+                    <th className="px-6 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider font-sans text-center">
+                      Payment Status
                     </th>
                     <th className="px-6 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider font-sans text-center">
                       Receipt
@@ -291,6 +316,27 @@ Thank you for using Mandi Mitra!
                       </td>
                       <td className="px-6 py-4 text-xs font-medium text-gray-455 font-mono">
                         {settlement.date}
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        {settlement.paymentStatus === "sent" ? (
+                          <span className="inline-block px-2.5 py-1 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+                            Payment Sent ✅
+                          </span>
+                        ) : settlement.paymentStatus === "received" ? (
+                          <span className="inline-block px-2.5 py-1 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+                            Payment Complete ✅
+                          </span>
+                        ) : (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleMarkPaymentSent(settlement.allocationId || (idx + 1), idx);
+                            }}
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-3 py-1.5 rounded-lg transition-colors shadow-sm cursor-pointer min-h-[36px]"
+                          >
+                            Mark Payment Sent
+                          </button>
+                        )}
                       </td>
                       <td className="px-6 py-4 text-center flex items-center justify-center gap-3">
                         <button

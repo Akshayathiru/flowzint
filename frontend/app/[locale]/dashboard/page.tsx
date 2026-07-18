@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "@/lib/navigation";
 import dynamic from "next/dynamic";
-import { Layers, Phone, CheckCircle } from "lucide-react";
+import { Layers, Phone, CheckCircle, AlertCircle } from "lucide-react";
 import StatCard from "@/components/shared/StatCard";
 import PoolCard from "@/components/pool/PoolCard";
 import LiveEventFeed from "@/components/feed/LiveEventFeed";
@@ -26,16 +26,17 @@ export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
-  const { data: stats } = useQuery({
+  const { data: stats, isError: isStatsError } = useQuery({
     queryKey: ['stats'],
     queryFn: async () => {
       const res = await fetch('/api/stats');
+      if (!res.ok) throw new Error("Failed to fetch stats");
       return res.json();
     },
     refetchInterval: 3000
   });
 
-  const { data: activePools, isLoading: isLoadingPools } = usePools();
+  const { data: activePools, isLoading: isLoadingPools, isError: isPoolsError } = usePools();
 
   useEffect(() => {
     if (stats || activePools) {
@@ -71,6 +72,17 @@ export default function Dashboard() {
           </div>
         }
       />
+
+      {/* INLINE WARNING BANNER */}
+      {(isStatsError || isPoolsError) && (
+        <div className="mx-6 mt-3 px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-semibold flex items-center justify-between shadow-sm">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-alert-red shrink-0" />
+            <span>Could not load live data</span>
+          </div>
+          <span className="text-[10px] text-gray-500 font-normal">Retrying automatically...</span>
+        </div>
+      )}
 
       {/* STAT CARDS ROW */}
       <section className="px-6 pt-5 pb-4 shrink-0">

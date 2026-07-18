@@ -433,11 +433,12 @@ export default function BuyerPoolDetailPage({ params }: PageProps) {
               <table className="min-w-[600px] w-full text-left border-collapse text-xs font-sans">
                 <thead>
                   <tr className="bg-gray-50/50 text-gray-400 font-medium uppercase tracking-widest text-[10px]">
-                    <th scope="col" className="px-4 py-3">{t("phone")}</th>
+                    <th scope="col" className="px-4 py-3">Farmer</th>
                     <th scope="col" className="px-4 py-3">{t("quantity")} (kg)</th>
                     <th scope="col" className="px-4 py-3">{t("call_time")}</th>
                     <th scope="col" className="px-4 py-3">{t("language")}</th>
                     <th scope="col" className="px-4 py-3">{t("trust_score")}</th>
+                    <th scope="col" className="px-4 py-3">Call Status</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 text-gray-655">
@@ -453,15 +454,42 @@ export default function BuyerPoolDetailPage({ params }: PageProps) {
                     const isToday = dateObj.toDateString() === new Date().toDateString();
                     const callTimeDisplay = isToday ? `Today ${formattedTime}` : dateObj.toLocaleDateString([], { month: "short", day: "numeric" });
 
+                    const displayName = farmer.name ? `${farmer.name} (${farmer.phone})` : farmer.phone;
+
                     return (
                       <tr key={idx} className="hover:bg-gray-50/50">
-                        <td className="px-4 py-3 font-mono text-sky-blue">{farmer.phone}</td>
+                        <td className="px-4 py-3 font-mono text-sky-blue font-semibold">{displayName}</td>
                         <td className="px-4 py-3 font-semibold text-charcoal">{farmer.quantity_kg} kg</td>
                         <td className="px-4 py-3 font-mono text-gray-400">{callTimeDisplay}</td>
                         <td className="px-4 py-3">
                           <LanguageBadge code={farmer.language} />
                         </td>
-                        <td className={`px-4 py-3 font-semibold font-display ${scoreColor}`}>★ {farmer.trust_score.toFixed(1)}</td>
+                        <td className="px-4 py-3 font-semibold">
+                          <span className={`${scoreColor}`}>★ {farmer.trust_score.toFixed(1)}</span>
+                          {farmer.crop_quality_grade === "A" && (
+                            <span className="ml-1.5 px-1.5 py-0.5 text-[10px] font-bold rounded bg-emerald-100 text-emerald-800 border border-emerald-300">A</span>
+                          )}
+                          {farmer.crop_quality_grade === "B" && (
+                            <span className="ml-1.5 px-1.5 py-0.5 text-[10px] font-bold rounded bg-amber-100 text-amber-800 border border-amber-300">B</span>
+                          )}
+                          {farmer.crop_quality_grade === "C" && (
+                            <span className="ml-1.5 px-1.5 py-0.5 text-[10px] font-bold rounded bg-red-100 text-red-800 border border-red-300">C</span>
+                          )}
+                          {!farmer.crop_quality_grade && farmer.delivered === "PENDING" && (
+                            <span className="ml-1.5 px-1.5 py-0.5 text-[10px] font-medium rounded bg-gray-100 text-gray-500 border border-gray-200">New</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
+                          {farmer.confirmation_status === "accepted" ? (
+                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">Confirmed</span>
+                          ) : farmer.confirmation_status === "rejected" ? (
+                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-red-100 text-red-800 border border-red-200">Declined</span>
+                          ) : farmer.confirmation_status === "no_answer" ? (
+                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-orange-100 text-orange-800 border border-orange-200">No Answer</span>
+                          ) : (
+                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-800 border border-amber-200">Call Pending</span>
+                          )}
+                        </td>
                       </tr>
                     );
                   })}

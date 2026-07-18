@@ -91,7 +91,13 @@ export default function Home() {
         <span className="font-display font-bold text-lg md:text-xl tracking-widest uppercase text-soil-brown">
           {tBrand("name")}
         </span>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
+          <Link
+            href="/sarvam"
+            className="font-sans text-xs font-semibold text-soil-brown hover:underline"
+          >
+            See our Sarvam AI integration
+          </Link>
           <LanguageSwitcher />
         </div>
       </nav>
@@ -148,11 +154,11 @@ export default function Home() {
               {t("cta_demo")}
             </Link>
             <Link
-              href="/sarvam-showcase"
-              className="font-sans text-xs text-gray-400 hover:text-charcoal underline transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-blue"
+              href="/sarvam"
+              className="font-sans text-xs text-soil-brown hover:text-charcoal underline transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-blue font-semibold"
               style={{ fontFamily: "Inter" }}
             >
-              {t("sarvam_link") || "See how Sarvam AI powers Mandi Mitra →"}
+              See our Sarvam AI integration &rarr;
             </Link>
           </div>
         </div>

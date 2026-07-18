@@ -24,12 +24,241 @@ import pooling_engine
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+PENDING_CONFIRMATIONS = {}
+
 app = FastAPI(title="Voice & Language Layer API")
 router = APIRouter()
 
 @app.get("/healthz")
 def health():
     return {"status": "ok"}
+
+
+@app.get("/audio/{filename}")
+@router.get("/audio/{filename}")
+async def get_audio_file(filename: str):
+    path = f"/tmp/{filename}"
+    if os.path.exists(path):
+        return FileResponse(path, media_type="audio/wav")
+    return Response(status_code=404)
+
+
+async def send_farmer_sms(phone: str, name: str, crop: str, quantity: float):
+    try:
+        from twilio.rest import Client
+        client = Client(
+            os.getenv("TWILIO_ACCOUNT_SID"),
+            os.getenv("TWILIO_AUTH_TOKEN")
+        )
+        frontend_url = os.getenv("NEXT_PUBLIC_FRONTEND_URL") or "http://localhost:3000"
+        status_url = f"{frontend_url}/farmer-status/{phone}"
+        client.messages.create(
+            body=(
+                f"Namaste {name} ji! Aapka "
+                f"{quantity}kg {crop} Mandi Mitra "
+                f"mein register ho gaya. "
+                f"Status dekhne ke liye: {status_url}"
+            ),
+            from_=os.getenv("TWILIO_PHONE_NUMBER"),
+            to=phone
+        )
+        logger.info(f"SMS sent to {phone}")
+    except Exception as e:
+        logger.error(f"SMS failed: {e}")
+
+
+async def make_outbound_call(
+    farmer_phone: str,
+    farmer_name: str,
+    buyer_name: str,
+    crop: str,
+    quantity: float,
+    price: float,
+    allocation_id: int
+):
+    try:
+        from twilio.rest import Client
+
+        TWILIO_SID = os.getenv("TWILIO_ACCOUNT_SID")
+        TWILIO_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
+        TWILIO_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")
+        BASE_URL = os.getenv("PUBLIC_URL") or os.getenv("NEXT_PUBLIC_BACKEND_URL") or "http://localhost:8000"
+
+        PENDING_CONFIRMATIONS[farmer_phone] = {
+            "farmer_name": farmer_name,
+            "buyer_name": buyer_name,
+            "crop": crop,
+            "quantity": quantity,
+            "price_per_kg": price,
+            "allocation_id": allocation_id
+        }
+
+        message = (
+            f"Namaste {farmer_name} ji! "
+            f"Mandi Mitra se call aa rahi hai. "
+            f"{buyer_name} ne aapke "
+            f"{quantity} kilo {crop} ke liye "
+            f"Rs{price} per kg offer kiya hai. "
+            f"Accept karne ke liye 1 dabayein. "
+            f"Reject karne ke liye 2 dabayein."
+        )
+
+        audio_bytes = await sarvam_client.text_to_speech(
+            message, "hi-IN"
+        )
+        os.makedirs("/tmp", exist_ok=True)
+        audio_path = f"/tmp/{farmer_phone}_offer.wav"
+        with open(audio_path, "wb") as f:
+            f.write(audio_bytes)
+
+        client = Client(TWILIO_SID, TWILIO_TOKEN)
+        client.calls.create(
+            to=farmer_phone,
+            from_=TWILIO_NUMBER or "+15005550006",
+            url=f"{BASE_URL}/outbound-twiml?phone={farmer_phone}"
+        )
+        logger.info(f"Outbound call initiated to {farmer_phone}")
+
+    except Exception as e:
+        logger.error(f"Outbound call failed: {e}")
+
+
+@app.get("/outbound-twiml")
+@router.get("/outbound-twiml")
+async def outbound_twiml(phone: str):
+    BASE_URL = os.getenv("PUBLIC_URL") or os.getenv("NEXT_PUBLIC_BACKEND_URL") or "http://localhost:8000"
+    twiml = VoiceResponse()
+    twiml.play(f"{BASE_URL}/audio/{phone}_offer.wav")
+    twiml.gather(
+        action="/outbound-confirmation",
+        method="POST",
+        num_digits=1,
+        timeout=10
+    )
+    return Response(
+        content=str(twiml),
+        media_type="application/xml"
+    )
+
+
+@app.post("/outbound-confirmation")
+@router.post("/outbound-confirmation")
+async def outbound_confirmation(request: Request):
+    try:
+        BASE_URL = os.getenv("PUBLIC_URL") or os.getenv("NEXT_PUBLIC_BACKEND_URL") or "http://localhost:8000"
+        form = await request.form()
+        raw_phone = form.get("To") or form.get("Called") or ""
+        phone = str(raw_phone)
+        raw_digit = form.get("Digits")
+        digit = str(raw_digit) if raw_digit else ""
+        confirmation = PENDING_CONFIRMATIONS.get(phone)
+        twiml = VoiceResponse()
+
+        if not confirmation:
+            twiml.say("Thank you. Goodbye.")
+            return Response(
+                content=str(twiml),
+                media_type="application/xml"
+            )
+
+        if digit == "1":
+            try:
+                # pyrefly: ignore [missing-import]
+                from database import SessionLocal
+                # pyrefly: ignore [missing-import]
+                from models import Allocation
+                db = SessionLocal()
+                allocation = db.query(Allocation).filter(
+                    Allocation.id == confirmation["allocation_id"]
+                ).first()
+                if allocation:
+                    allocation.confirmation_status = "accepted"
+                    db.commit()
+                db.close()
+            except Exception as dberr:
+                logger.error(f"DB update error: {dberr}")
+
+            reply = (
+                f"Shukriya {confirmation['farmer_name']} ji! "
+                f"Aapka {confirmation['quantity']} kilo "
+                f"{confirmation['crop']} confirm ho gaya. "
+                f"Receipt aapko bhej di gayi hai. Dhanyavaad!"
+            )
+            PENDING_CONFIRMATIONS.pop(phone, None)
+
+        elif digit == "2":
+            try:
+                # pyrefly: ignore [missing-import]
+                from database import SessionLocal
+                # pyrefly: ignore [missing-import]
+                from models import Allocation
+                db = SessionLocal()
+                allocation = db.query(Allocation).filter(
+                    Allocation.id == confirmation["allocation_id"]
+                ).first()
+                if allocation:
+                    allocation.confirmation_status = "rejected"
+                    db.commit()
+                db.close()
+            except Exception as dberr:
+                logger.error(f"DB update error: {dberr}")
+
+            reply = (
+                "Theek hai. Aapka produce release kar "
+                "diya gaya hai. Aap dobara register "
+                "kar sakte hain. Dhanyavaad!"
+            )
+            PENDING_CONFIRMATIONS.pop(phone, None)
+
+        else:
+            reply = (
+                "Accept karne ke liye 1 dabayein. "
+                "Reject karne ke liye 2 dabayein."
+            )
+            audio_bytes = await sarvam_client.text_to_speech(
+                reply, "hi-IN"
+            )
+            os.makedirs("/tmp", exist_ok=True)
+            audio_path = f"/tmp/{phone}_retry.wav"
+            with open(audio_path, "wb") as f:
+                f.write(audio_bytes)
+            twiml.play(
+                f"{BASE_URL}/audio/{phone}_retry.wav"
+            )
+            twiml.gather(
+                action="/outbound-confirmation",
+                method="POST",
+                num_digits=1,
+                timeout=10
+            )
+            return Response(
+                content=str(twiml),
+                media_type="application/xml"
+            )
+
+        audio_bytes = await sarvam_client.text_to_speech(
+            reply, "hi-IN"
+        )
+        os.makedirs("/tmp", exist_ok=True)
+        audio_path = f"/tmp/{phone}_confirm_reply.wav"
+        with open(audio_path, "wb") as f:
+            f.write(audio_bytes)
+        twiml.play(
+            f"{BASE_URL}/audio/{phone}_confirm_reply.wav"
+        )
+        return Response(
+            content=str(twiml),
+            media_type="application/xml"
+        )
+
+    except Exception as e:
+        logger.error(f"Outbound confirmation error: {e}")
+        twiml = VoiceResponse()
+        twiml.say("Technical issue. We will call you back.")
+        return Response(
+            content=str(twiml),
+            media_type="application/xml"
+        )
 
 
 @router.get("/api/pools/active")

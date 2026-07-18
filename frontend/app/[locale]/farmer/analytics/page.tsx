@@ -15,6 +15,9 @@ import {
   Tooltip,
   Legend,
   Area,
+  BarChart,
+  Bar,
+  Cell,
   ResponsiveContainer,
 } from "recharts";
 import { TrendingUp, AlertCircle, Loader2 } from "lucide-react";
@@ -89,6 +92,18 @@ export default function FarmerAnalyticsPage() {
     mandiRate: s.mandi_rate_per_kg,
     premium: s.premium_percent,
     crop: localizeValue("crops", s.crop, locale),
+  }));
+
+  // Group earnings by crop for breakdown chart
+  const cropBreakdownMap = settlements.reduce((acc: Record<string, number>, s) => {
+    const cropName = localizeValue("crops", s.crop, locale);
+    acc[cropName] = (acc[cropName] || 0) + s.total_amount;
+    return acc;
+  }, {});
+
+  const cropChartData = Object.entries(cropBreakdownMap).map(([crop, total]) => ({
+    crop,
+    total,
   }));
 
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -183,44 +198,77 @@ export default function FarmerAnalyticsPage() {
             </div>
           ) : (
             <>
-              {/* LINE / AREA CHART */}
-              <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6 shadow-sm">
-                <h3
-                  className="text-base font-semibold text-charcoal mb-4 font-display"
-                  style={{ fontFamily: "Mukta, sans-serif" }}
-                >
-                  {t("earnings_chart")}
-                </h3>
-                <div className="h-[250px] sm:h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <ComposedChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                      <XAxis dataKey="date" tick={{ fontSize: 11, fontFamily: "Inter" }} />
-                      <YAxis tick={{ fontSize: 11, fontFamily: "Inter" }} tickFormatter={(v) => `₹${v}`} />
-                      <Tooltip content={<CustomTooltip />} />
-                      <Legend wrapperStyle={{ fontSize: 12, fontFamily: "Inter" }} />
-                      <Area type="monotone" dataKey="yourPrice" fill="#2D6A4F" fillOpacity={0.1} stroke="none" />
-                      <Line
-                        type="monotone"
-                        dataKey="yourPrice"
-                        stroke="#2D6A4F"
-                        strokeWidth={2}
-                        name={t("your_price")}
-                        dot={{ r: 4 }}
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="mandiRate"
-                        stroke="#9CA3AF"
-                        strokeWidth={1}
-                        strokeDasharray="5 5"
-                        name={t("mandi_rate")}
-                        dot={false}
-                      />
-                    </ComposedChart>
-                  </ResponsiveContainer>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                  {/* LINE / AREA CHART */}
+                  <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                    <h3
+                      className="text-base font-semibold text-charcoal mb-4 font-display"
+                      style={{ fontFamily: "Mukta, sans-serif" }}
+                    >
+                      {t("earnings_chart")}
+                    </h3>
+                    <div className="h-[250px] sm:h-[300px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <ComposedChart data={chartData}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                          <XAxis dataKey="date" tick={{ fontSize: 11, fontFamily: "Inter" }} />
+                          <YAxis tick={{ fontSize: 11, fontFamily: "Inter" }} tickFormatter={(v) => `₹${v}`} />
+                          <Tooltip content={<CustomTooltip />} />
+                          <Legend wrapperStyle={{ fontSize: 12, fontFamily: "Inter" }} />
+                          <Area type="monotone" dataKey="yourPrice" fill="#2D6A4F" fillOpacity={0.1} stroke="none" />
+                          <Line
+                            type="monotone"
+                            dataKey="yourPrice"
+                            stroke="#2D6A4F"
+                            strokeWidth={2}
+                            name={t("your_price")}
+                            dot={{ r: 4 }}
+                          />
+                          <Line
+                            type="monotone"
+                            dataKey="mandiRate"
+                            stroke="#9CA3AF"
+                            strokeWidth={1}
+                            strokeDasharray="5 5"
+                            name={t("mandi_rate")}
+                            dot={false}
+                          />
+                        </ComposedChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+
+                  {/* CROP BREAKDOWN CHART */}
+                  <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                    <h3
+                      className="text-base font-semibold text-charcoal mb-4 font-display"
+                      style={{ fontFamily: "Mukta, sans-serif" }}
+                    >
+                      Crop Breakdown (Earnings)
+                    </h3>
+                    <div className="h-[250px] sm:h-[300px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={cropChartData}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                          <XAxis dataKey="crop" tick={{ fontSize: 11, fontFamily: "Inter" }} />
+                          <YAxis tick={{ fontSize: 11, fontFamily: "Inter" }} tickFormatter={(v) => `₹${v}`} />
+                          <Tooltip
+                            contentStyle={{ fontSize: 12, borderRadius: 8 }}
+                            formatter={(value: any) => [`₹${Number(value).toLocaleString()}`, "Earnings"]}
+                          />
+                          <Bar dataKey="total" fill="#2D6A4F" radius={[4, 4, 0, 0]}>
+                            {cropChartData.map((_, index) => (
+                              <Cell
+                                key={`cell-${index}`}
+                                fill={["#2D6A4F", "#E6A817", "#3B82F6", "#6B4226", "#10B981"][index % 5]}
+                              />
+                            ))}
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
                 </div>
-              </div>
 
               {/* TABLE */}
               <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">

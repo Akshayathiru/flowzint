@@ -1,4 +1,4 @@
-from models import FarmerConfirmation, Farmer, PoolMember, Pool
+from models import FarmerConfirmation, Farmer, PoolMember, Pool, Allocation
 from services.pooling_engine import close_pool
 
 def confirm_farmer(db, data):
@@ -9,6 +9,15 @@ def confirm_farmer(db, data):
         accepted="YES" if data.accepted else "NO"
     )
     db.add(confirmation)
+
+    # Update Allocation confirmation_status
+    allocations = db.query(Allocation).filter(
+        Allocation.pool_id == data.pool_id,
+        Allocation.farmer_phone == data.phone
+    ).all()
+    status_str = "accepted" if data.accepted else "rejected"
+    for alloc in allocations:
+        alloc.confirmation_status = status_str
     
     # Update Trust Score
     farmer = db.query(Farmer).filter(Farmer.phone == data.phone).first()

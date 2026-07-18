@@ -9,6 +9,8 @@ import { useTranslations, useLocale } from "next-intl";
 import {
   BarChart,
   Bar,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -95,6 +97,30 @@ export default function BuyerAnalyticsPage() {
       : 0;
 
   const totalVolume = wonAuctions.reduce((sum, item) => sum + item.lotQtyKg, 0);
+
+  // Spend by Crop (won auctions only)
+  const spendByCropMap = wonAuctions.reduce((acc: Record<string, number>, call) => {
+    const cropName = localizeValue("crops", call.crop, locale);
+    acc[cropName] = (acc[cropName] || 0) + (call.bid * call.lotQtyKg);
+    return acc;
+  }, {});
+
+  const spendByCropData = Object.entries(spendByCropMap).map(([crop, spend]) => ({
+    crop,
+    spend,
+  }));
+
+  // Spend over Time (won auctions only)
+  const spendOverTimeMap = wonAuctions.reduce((acc: Record<string, number>, call) => {
+    const dateStr = call.date ? new Date(call.date).toLocaleDateString(locale, { month: "short", day: "numeric" }) : "Recent";
+    acc[dateStr] = (acc[dateStr] || 0) + (call.bid * call.lotQtyKg);
+    return acc;
+  }, {});
+
+  const spendOverTimeData = Object.entries(spendOverTimeMap).map(([date, spend]) => ({
+    date,
+    spend,
+  }));
 
   // Chart data mapping
   const chartData = bidHistory.map((bid) => {
@@ -231,34 +257,54 @@ export default function BuyerAnalyticsPage() {
             </div>
           ) : (
             <>
-              {/* BAR CHART */}
-              <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6 shadow-sm">
-                <h3
-                  className="text-base font-semibold text-charcoal mb-4 font-display"
-                  style={{ fontFamily: "Mukta, sans-serif" }}
-                >
-                  {t("bid_chart")}
-                </h3>
-                <div className="h-[250px] sm:h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                      <XAxis dataKey="name" tick={{ fontSize: 11, fontFamily: "Inter" }} />
-                      <YAxis tick={{ fontSize: 11, fontFamily: "Inter" }} tickFormatter={(v) => `₹${v}`} />
-                      <Tooltip
-                        contentStyle={{ fontSize: 12, fontFamily: "Inter", borderRadius: 8 }}
-                        formatter={(value: any, name: any, props: any) => [
-                          `₹${value}/kg`,
-                          `${props.payload.crop} (${props.payload.quantity}kg)`,
-                        ]}
-                      />
-                      <Bar dataKey="price" radius={[4, 4, 0, 0]}>
-                        {chartData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={getBarColor(entry.status)} />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
+              {/* CHARTS GRID */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                {/* SPEND BY CROP CHART */}
+                <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                  <h3
+                    className="text-base font-semibold text-charcoal mb-4 font-display"
+                    style={{ fontFamily: "Mukta, sans-serif" }}
+                  >
+                    Spend by Crop (Won Auctions)
+                  </h3>
+                  <div className="h-[250px] sm:h-[300px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={spendByCropData.length > 0 ? spendByCropData : chartData}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                        <XAxis dataKey={spendByCropData.length > 0 ? "crop" : "name"} tick={{ fontSize: 11, fontFamily: "Inter" }} />
+                        <YAxis tick={{ fontSize: 11, fontFamily: "Inter" }} tickFormatter={(v) => `₹${v}`} />
+                        <Tooltip
+                          contentStyle={{ fontSize: 12, fontFamily: "Inter", borderRadius: 8 }}
+                          formatter={(value: any) => [`₹${Number(value).toLocaleString()}`, "Spend"]}
+                        />
+                        <Bar dataKey={spendByCropData.length > 0 ? "spend" : "price"} fill="#2D6A4F" radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                {/* SPEND OVER TIME CHART */}
+                <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                  <h3
+                    className="text-base font-semibold text-charcoal mb-4 font-display"
+                    style={{ fontFamily: "Mukta, sans-serif" }}
+                  >
+                    Spend Over Time (Won Auctions)
+                  </h3>
+                  <div className="h-[250px] sm:h-[300px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={spendOverTimeData.length > 0 ? spendOverTimeData : chartData.map((d, i) => ({ date: d.name, spend: d.price * d.quantity }))}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                        <XAxis dataKey="date" tick={{ fontSize: 11, fontFamily: "Inter" }} />
+                        <YAxis tick={{ fontSize: 11, fontFamily: "Inter" }} tickFormatter={(v) => `₹${v}`} />
+                        <Tooltip
+                          contentStyle={{ fontSize: 12, fontFamily: "Inter", borderRadius: 8 }}
+                          formatter={(value: any) => [`₹${Number(value).toLocaleString()}`, "Spend"]}
+                        />
+                        <Line type="monotone" dataKey="spend" stroke="#3B82F6" strokeWidth={2} dot={{ r: 4 }} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
                 </div>
               </div>
 

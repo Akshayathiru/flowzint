@@ -105,6 +105,7 @@ def get_receipt(db, pool_id, phone):
             "total_amount": round(total_amount, 2),
             "buyers": ", ".join(buyers) if buyers else "Unknown",
             "status": pool.status,
+            "confirmation_status": "pending",
             "receipts": [],
             "summary_receipt": None
         }
@@ -114,6 +115,7 @@ def get_receipt(db, pool_id, phone):
     total_amount = sum(a.quantity * a.price_per_kg for a in allocations)
     avg_price = total_amount / total_qty if total_qty > 0 else 0.0
     buyers = ", ".join(list(set(a.buyer_name for a in allocations)))
+    conf_status = allocations[0].confirmation_status if allocations and hasattr(allocations[0], "confirmation_status") and allocations[0].confirmation_status else "pending"
     
     # Build list of individual receipts
     individual_receipts = []
@@ -156,6 +158,7 @@ def get_receipt(db, pool_id, phone):
         "total_amount": round(total_amount, 2),
         "buyers": buyers,
         "status": pool.status,
+        "confirmation_status": conf_status,
         "receipts": individual_receipts,
         "summary_receipt": summary_receipt
     }

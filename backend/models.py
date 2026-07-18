@@ -118,4 +118,8 @@ class Allocation(Base):
     buyer_name = Column(String)
     quantity = Column(Float)
     price_per_kg = Column(Float)
+    confirmation_status = Column(String, default="pending")
+    payment_sent_at = Column(DateTime, nullable=True)
+    payment_received_at = Column(DateTime, nullable=True)
+    payment_status = Column(String, default="pending")
 

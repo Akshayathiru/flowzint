@@ -524,6 +524,17 @@ def allocate_pool(db, pool_id: int):
         "message": f"Pool #{pool_id} for {pool.crop.capitalize()} in {pool.location.capitalize()} settled at ₹{pool.winning_price}/kg!"
     })
 
+    # Trigger outbound Bulbul confirmation calls asynchronously
+    try:
+        import asyncio
+        loop = asyncio.get_event_loop()
+        if loop.is_running():
+            loop.create_task(notify_all_farmers(allocations, pool.crop))
+        else:
+            asyncio.run(notify_all_farmers(allocations, pool.crop))
+    except Exception as e:
+        logger.error(f"Error starting notify_all_farmers task: {e}")
+
     return {
         "pool_id": pool_id,
         "status": "SETTLED",
@@ -537,4 +548,27 @@ def allocate_pool(db, pool_id: int):
             for alloc in allocations
         ]
     }
+
+
+async def notify_all_farmers(allocations: list, crop: str):
+    try:
+        import sys
+        import os
+        root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+        if root_path not in sys.path:
+            sys.path.append(root_path)
+        # pyrefly: ignore [missing-import]
+        from main import make_outbound_call
+        for allocation in allocations:
+            await make_outbound_call(
+                farmer_phone=allocation["farmer_phone"],
+                farmer_name=allocation.get("farmer_name") or "Farmer",
+                buyer_name=allocation["buyer_name"],
+                crop=crop,
+                quantity=allocation["quantity"],
+                price=allocation["price_per_kg"],
+                allocation_id=allocation.get("id", 1)
+            )
+    except Exception as e:
+        logger.error(f"Failed to notify farmers: {e}")
 

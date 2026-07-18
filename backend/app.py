@@ -15,6 +15,8 @@ from routes import confirmation
 from routes import receipt
 from routes import mandi
 from routes import stats
+from routes import settlements
+# pyrefly: ignore [missing-import]
 from main import router as voice_router
 
 
@@ -75,6 +77,19 @@ def ensure_pool_schema():
             if "binding_bid" not in offers_cols:
                 connection.execute(text("ALTER TABLE offers ADD COLUMN binding_bid BOOLEAN DEFAULT 1"))
 
+    # Check allocations table
+    if "allocations" in inspector.get_table_names():
+        alloc_cols = {column["name"] for column in inspector.get_columns("allocations")}
+        with engine.begin() as connection:
+            if "confirmation_status" not in alloc_cols:
+                connection.execute(text("ALTER TABLE allocations ADD COLUMN confirmation_status TEXT DEFAULT 'pending'"))
+            if "payment_status" not in alloc_cols:
+                connection.execute(text("ALTER TABLE allocations ADD COLUMN payment_status TEXT DEFAULT 'pending'"))
+            if "payment_sent_at" not in alloc_cols:
+                connection.execute(text("ALTER TABLE allocations ADD COLUMN payment_sent_at DATETIME"))
+            if "payment_received_at" not in alloc_cols:
+                connection.execute(text("ALTER TABLE allocations ADD COLUMN payment_received_at DATETIME"))
+
 
 
 from contextlib import asynccontextmanager
@@ -114,6 +129,7 @@ app.include_router(confirmation.router)
 app.include_router(receipt.router)
 app.include_router(mandi.router)
 app.include_router(stats.router)
+app.include_router(settlements.router)
 app.include_router(voice_router)
 
 @app.get("/")

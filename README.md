@@ -1,39 +1,46 @@
-# Mandi Mitra — मंडी मित्र
-### AI-Orchestrated Crop Pooling & Live Auction Platform
+# Mandi Mitra
+FPO-level bargaining power for every farmer through a phone call.
 
-> _"An FPO takes six months. We do it in ninety minutes — with one phone call."_
+## Problem
+100M+ small farmers in India sell 30-50% below market price because they lack bargaining power and depend on middlemen. Existing solutions need smartphones — excluding those who need help most.
 
----
+## Solution
+Farmers call a number, speak naturally in Tamil/Hindi/Telugu, and get pooled with nearby farmers selling the same crop. Live auction opens for registered buyers. Highest bidder wins. AI calls farmer back to confirm. Zero manual steps.
 
-## The Problem
+## Sarvam AI Integration
+Three Sarvam APIs power the entire farmer experience:
+- Sarvam Saaras STT: converts speech to text in any Indian language
+- Sarvam LLM (sarvam-m): conversational NLP extracts crop/quantity/location/name naturally
+- Sarvam TTS (bulbul:v1): speaks confirmation back to farmer in their own language
+No Sarvam call = no pool = no auction = no deal.
+Sarvam is the foundation, not a feature.
 
-120 million smallholder farmers in India have zero bargaining power. They sell at whatever price the local trader offers. Forming a Farmer Producer Organization (FPO) takes months of paperwork most will never complete. Most farmers can't read. Most don't have smartphones.
+## Tech Stack
+| Layer | Technology |
+|---|---|
+| **Frontend** | Next.js 14, App Router, TypeScript, Tailwind CSS, Shadcn UI, Zustand, TanStack Query, Recharts, Leaflet, next-intl |
+| **Backend** | FastAPI, Python 3.11, SQLAlchemy, SQLite/PostgreSQL, Socket.io |
+| **AI / Voice** | Sarvam AI (Saaras STT, Sarvam-2 LLM, Bulbul TTS), Twilio Voice API |
 
-## The Solution
+## Complete Workflow
+1. Farmer calls → Sarvam STT → Sarvam LLM conversation
+2. Sarvam TTS confirms back → farmer confirms
+3. Pool fills → threshold hit → auction opens
+4. Buyers bid live on WebSocket dashboard
+5. Anti-snipe timer → cascade allocation → receipts
+6. Bulbul calls farmer → farmer accepts/rejects
+7. Payment confirmation → trust score updates
 
-A voice-first platform where farmers call a number, speak their crop and quantity in their language, and get pooled with nearby farmers for collective bargaining power. A live auction finds the best buyer. Everyone gets called back with a verified price.
-
-**No app. No literacy. No smartphone. Just a phone call.**
-
----
-
-## How It Works
-
-```
-Farmer calls → Saaras STT → Sarvam-2 LLM → Pooling Engine → Live Auction → Bulbul TTS Callback
-```
-
-### Architecture
-
+## Architecture
 ```
 ┌──────────────────────────────────────────────────────────┐
-│  FARMER CALLS (Twilio + Sarvam Saaras v2.5)             │
+│  FARMER CALLS (Twilio + Sarvam Saaras STT)               │
 │  "80 kilo tomato, Kanchipuram"                          │
 └──────────────────────┬───────────────────────────────────┘
                        │
                        ▼
 ┌──────────────────────────────────────────────────────────┐
-│  SARVAM-2 LLM — Structured Data Extraction              │
+│  SARVAM LLM — Conversational Entity Extraction          │
 │  → crop: "tomato", qty: 80, location: "kanchipuram"     │
 └──────────────────────┬───────────────────────────────────┘
                        │
@@ -46,143 +53,39 @@ Farmer calls → Saaras STT → Sarvam-2 LLM → Pooling Engine → Live Auction
                        │
                        ▼
 ┌──────────────────────────────────────────────────────────┐
-│  LIVE AUCTION ENGINE                                     │
-│  → Notifies registered buyers                            │
+│  LIVE AUCTION ENGINE (WebSocket Dashboard)               │
 │  → Accepts bids with atomic locking + anti-sniping       │
 │  → Highest bid wins                                      │
 └──────────────────────┬───────────────────────────────────┘
                        │
                        ▼
 ┌──────────────────────────────────────────────────────────┐
-│  SETTLEMENT CALLBACK (Sarvam Bulbul v3 TTS)             │
-│  → Calls every farmer in their language                  │
-│  → "Your tomatoes sold at ₹17/kg — 25% above market"   │
+│  BULBUL OUTBOUND CONFIRMATION CALL                       │
+│  → Calls farmer via Twilio + Sarvam TTS (Bulbul)         │
+│  → Farmer presses 1 to accept / 2 to decline             │
+│  → Payment acknowledgment → Trust score updates          │
 └──────────────────────────────────────────────────────────┘
 ```
 
----
+## How To Run Locally
+1. Clone repo
+2. `pip install -r requirements.txt`
+3. `npm install` (in `frontend/`)
+4. Copy `.env.example` to `.env` and fill:
+   `SARVAM_API_KEY`, `DATABASE_URL`, `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER`, `PUBLIC_URL`, `NEXT_PUBLIC_BACKEND_URL`
+5. `alembic upgrade head`
+6. `uvicorn app:app --reload` (in `backend/`)
+7. `npm run dev` (in `frontend/`)
+8. Set Twilio webhook to `PUBLIC_URL/inbound-call`
 
-## Sarvam AI Integration
+## Deployment
+- Frontend: Vercel (auto-deploy on push)
+- Backend: Render (auto-deploy on push)
+- Database: Render PostgreSQL
+- Keep-alive: Backend kept alive via UptimeRobot health check pings every 5 minutes to prevent cold starts on Render free tier.
 
-Sarvam is not optional — it IS the product. Without Sarvam, this requires an app, literacy, and a smartphone.
-
-| Component | Role | Model |
-|-----------|------|-------|
-| **Saaras v2.5** | Speech-to-text for farmer IVR calls | `saaras:v2.5` |
-| **Sarvam-2 LLM** | Structured data extraction from voice | `sarvam-2` |
-| **Bulbul v3** | Text-to-speech settlement callbacks | `bulbul:v3` |
-
-Languages supported: Tamil, Hindi, Telugu, Kannada, Marathi, English
-
----
-
-## Tech Stack
-
-| Layer | Technology |
-|-------|-----------|
-| **Frontend** | Next.js 14, TypeScript, Tailwind CSS, Zustand, React Query, Recharts, Leaflet, next-intl (6 languages) |
-| **Core Backend** | FastAPI, SQLAlchemy, SQLite, APScheduler, Socket.IO |
-| **Voice Layer** | FastAPI, Twilio, Sarvam AI (Saaras + Sarvam-2 + Bulbul) |
-| **Database** | SQLite (dev) / PostgreSQL (prod) |
-
----
-
-## Three Role-Based Portals
-
-### Farmer Portal
-- Dashboard with active pools, earnings, trust score
-- Earnings analytics with price vs mandi rate charts
-- Settlement receipts (downloadable)
-- 6-language support (switch mid-session)
-
-### Buyer Portal
-- Live auctions with real-time countdown timers
-- Bid submission with atomic locking
-- Portfolio analytics
-- Pool detail with farmer transparency
-
-### Admin Dashboard
-- Real-time pool monitoring (3-second polling)
-- Farmer and buyer registries
-- Settlement archive
-- Catchment area maps
-
----
-
-## Trust Score System
-
-- Farmers start at 100 points (5.0 stars)
-- Successful delivery: +5 points (capped at +2 for < 50kg to prevent gaming)
-- No-show penalty: up to -20 points, proportional to undelivered quantity
-- Buyers: 3 no-shows = auto-suspension
-
----
-
-## Running Locally
-
-```bash
-# 1. Voice & Language Layer
-cd flowzint
-python -m uvicorn main:app --port 8000
-
-# 2. Core Backend Engine
-cd flowzint/backend
-python -m uvicorn app:app --port 8001
-
-# 3. Frontend
-cd flowzint/frontend
-npm install && npm run dev
-```
-
-### Environment Variables
-
-```bash
-# flowzint/.env
-SARVAM_API_KEY=<your key>
-MOCK_MODE=false
-DATABASE_URL=sqlite:///path/to/mandi.db
-TWILIO_ACCOUNT_SID=<your sid>
-TWILIO_AUTH_TOKEN=<your token>
-TWILIO_PHONE_NUMBER=<your number>
-PUBLIC_URL=<ngrok https URL>
-
-# flowzint/frontend/.env.local
-NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
-```
-
----
-
-## API Endpoints
-
-| Method | Path | Description |
-|--------|------|-------------|
-| `GET` | `/active` | Active pools |
-| `GET` | `/farmer/{phone}` | Farmer profile |
-| `GET` | `/farmer/{phone}/pools` | Farmer's pools |
-| `GET` | `/farmer/{phone}/settlements` | Farmer settlements |
-| `GET` | `/farmer/{phone}/calls` | Call history |
-| `GET` | `/pool/{pool_id}/farmers` | Farmers in pool |
-| `POST` | `/add_buyer` | Register buyer |
-| `GET` | `/buyers` | All buyers |
-| `POST` | `/buyer_offer` | Submit bid |
-| `GET` | `/receipt/{pool_id}/{phone}` | Settlement receipt |
-
----
-
-## Demo
-
+## Demo Video
 [Demo Video](https://youtu.be/7IdrgZnNTSE?si=u5f-Xh8RoBJlLfbQ)
 
----
-
-## Built for HACKHAZARDS '26
-
-Theme: 🌍 Climate & Sustainability Systems
-Track: Sarvam AI — Best use of Sarvam AI
-
----
-
 ## Team
-- Samiksha — Frontend
-- Akshaya — Backend
-- Samfrancis — Sarvam AI and calls
+- Mandi Mitra Team

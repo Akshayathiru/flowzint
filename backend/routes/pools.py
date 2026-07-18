@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from datetime import datetime, timezone
 
 from database import SessionLocal
-from models import Pool, PoolMember, Buyer, Offer, Farmer
+from models import Pool, PoolMember, Buyer, Offer, Farmer, Allocation
 from services.pooling_engine import close_pool
 from services.pools_service import get_pool_summary
 
@@ -67,6 +67,9 @@ def get_settlements(db: Session = Depends(get_db)):
                         buyer_phone = buyer.phone
                     
         total_qty = sum(m.quantity for m in members)
+        alloc = db.query(Allocation).filter(Allocation.pool_id == pool.id).first()
+        conf_status = alloc.confirmation_status if (alloc and hasattr(alloc, "confirmation_status") and alloc.confirmation_status) else "pending"
+
         result.append({
             "poolId": str(pool.id),
             "crop": pool.crop.capitalize() if pool.crop else "",
@@ -77,6 +80,7 @@ def get_settlements(db: Session = Depends(get_db)):
             "buyerName": ", ".join(buyers_info) if buyers_info else "Unknown",
             "buyerPhone": buyer_phone,
             "buyerStatus": buyer_status,
+            "confirmation_status": conf_status,
             "settledAt": pool.closed_at.isoformat() if pool.closed_at else None,
             "status": "settled"
         })
@@ -133,13 +137,20 @@ def get_pool_farmers_v2(pool_id: int, db: Session = Depends(get_db)):
         
         pool = db.query(Pool).filter(Pool.id == pool_id).first()
         call_time = pool.created_at.isoformat() + "Z" if (pool and pool.created_at) else datetime.now().isoformat() + "Z"
+
+        alloc = db.query(Allocation).filter(Allocation.pool_id == pool_id, Allocation.farmer_phone == m.farmer_phone).first()
+        confirmation_status = alloc.confirmation_status if (alloc and hasattr(alloc, "confirmation_status") and alloc.confirmation_status) else "pending"
         
         result.append({
             "phone": m.farmer_phone,
+            "name": farmer.name if (farmer and farmer.name) else None,
             "quantity_kg": m.quantity,
             "trust_score": trust_score,
             "call_time": call_time,
-            "language": "tamil"
+            "language": "tamil",
+            "crop_quality_grade": m.crop_quality_grade if hasattr(m, "crop_quality_grade") else None,
+            "delivered": m.delivered if hasattr(m, "delivered") else "PENDING",
+            "confirmation_status": confirmation_status
         })
     return result
 

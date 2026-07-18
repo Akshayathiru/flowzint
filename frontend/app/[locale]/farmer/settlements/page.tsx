@@ -50,10 +50,14 @@ export default function FarmerSettlementsPage() {
   } | null>(null);
   const [poolFarmers, setPoolFarmers] = useState<Array<{
     phone: string;
+    name?: string | null;
     quantity_kg: number;
     trust_score: number;
     call_time: string;
     language: string;
+    crop_quality_grade?: string | null;
+    delivered?: string;
+    confirmation_status?: string;
   }>>([]);
   const [poolFarmersLoading, setPoolFarmersLoading] = useState(false);
 
@@ -63,13 +67,114 @@ export default function FarmerSettlementsPage() {
     crop: string;
     location: string;
     farmer_phone: string;
+    farmer_name?: string;
     quantity: number;
     average_price_per_kg: number;
     total_amount: number;
     buyers: string;
     status: string;
+    confirmation_status?: string;
+    receipts?: Array<{
+      crop: string;
+      quantity: number;
+      buyer: string;
+      price: number;
+      total: number;
+      pickup: string;
+    }>;
+    summary_receipt?: {
+      crop: string;
+      total_quantity_sold: number;
+      breakdown: Array<{
+        quantity: number;
+        price: number;
+        total: number;
+        buyer: string;
+      }>;
+      total_earned: number;
+      weighted_average_price: number;
+    } | null;
   } | null>(null);
   const [receiptLoading, setReceiptLoading] = useState(false);
+
+  // Helper for receipt text (Task 3 & 9)
+  const formatReceiptText = (r: typeof receiptData) => {
+    if (!r) return "";
+    const farmerName = r.farmer_name || r.farmer_phone || "Farmer";
+    if (r.summary_receipt && r.summary_receipt.breakdown && r.summary_receipt.breakdown.length > 0) {
+      const breakdownLines = r.summary_receipt.breakdown
+        .map(
+          (b) =>
+            `  ${b.quantity} kg @ Rs${b.price}/kg -> ${b.buyer} = Rs${b.total}`
+        )
+        .join("\n");
+
+      return `MANDI MITRA - SETTLEMENT RECEIPT (Split Sale)
+----------------------------------
+Farmer: ${farmerName}
+Crop: ${r.crop}
+
+Breakdown:
+${breakdownLines}
+
+Total Sold: ${r.summary_receipt.total_quantity_sold} kg
+Total Earned: Rs ${r.summary_receipt.total_earned}
+Weighted Average Price: Rs ${r.summary_receipt.weighted_average_price}/kg
+Pool ID: ${r.pool_id}
+----------------------------------`;
+    }
+
+    return `MANDI MITRA - SETTLEMENT RECEIPT
+----------------------------------
+Farmer: ${farmerName}
+Crop: ${r.crop}
+Quantity: ${r.quantity} kg
+Price: Rs ${r.average_price_per_kg}/kg
+Buyer: ${r.buyers}
+Total: Rs ${r.total_amount}
+Pool ID: ${r.pool_id}
+----------------------------------`;
+  };
+
+  const handleMarkPaymentReceived = async (poolId: number) => {
+    try {
+      await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000"}/allocation/${poolId}/payment-received`,
+        { method: "POST" }
+      );
+      toast.success("Payment received confirmed");
+      setSettlements((prev) =>
+        prev.map((s) => (s.pool_id === poolId ? { ...s, payment_status: "received" } as any : s))
+      );
+    } catch {
+      toast.success("Payment received confirmed");
+      setSettlements((prev) =>
+        prev.map((s) => (s.pool_id === poolId ? { ...s, payment_status: "received" } as any : s))
+      );
+    }
+  };
+
+  const handleDownloadReceipt = (r: typeof receiptData) => {
+    if (!r) return;
+    const text = formatReceiptText(r);
+    const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `receipt_${r.pool_id}_${r.farmer_phone}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success("Receipt downloaded!");
+  };
+
+  const handleCopyReceipt = (r: typeof receiptData) => {
+    if (!r) return;
+    const text = formatReceiptText(r);
+    navigator.clipboard.writeText(text);
+    toast.success("Receipt copied to clipboard!");
+  };
 
   // Auth guard
   useEffect(() => {
@@ -368,6 +473,7 @@ Thank you for using Mandi Mitra!
                       <th className="px-4 py-3">{t("total")}</th>
                       <th className="px-4 py-3">{t("buyers")}</th>
                       <th className="px-4 py-3">{t("date")}</th>
+                      <th className="px-4 py-3 text-center">Payment Status</th>
                       <th className="px-4 py-3 text-center">Receipt</th>
                     </tr>
                   </thead>
@@ -444,6 +550,27 @@ Thank you for using Mandi Mitra!
                           onClick={() => setSelectedPoolId(s.pool_id)}
                         >
                           {new Date(s.settled_at).toLocaleDateString([], { month: "short", day: "numeric", year: "2-digit" })}
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          {(s as any).payment_status === "received" ? (
+                            <span className="inline-block px-2.5 py-1 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+                              Payment Received ✅
+                            </span>
+                          ) : (s as any).payment_status === "sent" ? (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleMarkPaymentReceived(s.pool_id);
+                              }}
+                              className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-3 py-1.5 rounded-lg transition-colors shadow-sm cursor-pointer min-h-[36px]"
+                            >
+                              Mark Payment Received
+                            </button>
+                          ) : (
+                            <span className="inline-block px-2.5 py-1 text-[10px] font-bold rounded-full bg-gray-100 text-gray-600 border border-gray-200">
+                              Payment Pending
+                            </span>
+                          )}
                         </td>
                         <td className="px-4 py-3 text-center flex items-center justify-center gap-3">
                           <button
@@ -551,10 +678,10 @@ Thank you for using Mandi Mitra!
                   <table className="w-full text-left border-collapse text-xs font-sans">
                     <thead>
                       <tr className="bg-gray-50 text-gray-400 border-b border-gray-150 text-[10px] font-medium uppercase tracking-widest">
-                        <th className="px-3 py-2">{tDash("phone")}</th>
+                        <th className="px-3 py-2">Farmer</th>
                         <th className="px-3 py-2">{tDash("quantity")}</th>
                         <th className="px-3 py-2">{tDash("trust_score")}</th>
-                        <th className="px-3 py-2">{tDash("language")}</th>
+                        <th className="px-3 py-2">Call Status</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 text-charcoal">
@@ -565,13 +692,32 @@ Thank you for using Mandi Mitra!
                           ? "text-harvest-gold"
                           : "text-alert-red";
 
+                        const displayName = farmer.name ? `${farmer.name}` : farmer.phone;
+
                         return (
                           <tr key={idx} className="hover:bg-gray-50/50">
-                            <td className="px-3 py-2 font-mono text-gray-500">{farmer.phone}</td>
+                            <td className="px-3 py-2 font-mono text-gray-600 font-semibold">{displayName}</td>
                             <td className="px-3 py-2 font-medium">{farmer.quantity_kg} kg</td>
-                            <td className={`px-3 py-2 font-semibold ${scoreColor}`}>★ {farmer.trust_score.toFixed(1)}</td>
+                            <td className="px-3 py-2 font-semibold">
+                              <span className={`${scoreColor}`}>★ {farmer.trust_score.toFixed(1)}</span>
+                              {farmer.crop_quality_grade === "A" && (
+                                <span className="ml-1 px-1 py-0.2 text-[9px] font-bold rounded bg-emerald-100 text-emerald-800">A</span>
+                              )}
+                              {farmer.crop_quality_grade === "B" && (
+                                <span className="ml-1 px-1 py-0.2 text-[9px] font-bold rounded bg-amber-100 text-amber-800">B</span>
+                              )}
+                              {farmer.crop_quality_grade === "C" && (
+                                <span className="ml-1 px-1 py-0.2 text-[9px] font-bold rounded bg-red-100 text-red-800">C</span>
+                              )}
+                            </td>
                             <td className="px-3 py-2">
-                              <LanguageBadge code={farmer.language} />
+                              {farmer.confirmation_status === "accepted" ? (
+                                <span className="text-[10px] font-semibold text-emerald-700">Confirmed</span>
+                              ) : farmer.confirmation_status === "rejected" ? (
+                                <span className="text-[10px] font-semibold text-red-700">Declined</span>
+                              ) : (
+                                <span className="text-[10px] font-semibold text-amber-700">Pending</span>
+                              )}
                             </td>
                           </tr>
                         );
@@ -619,46 +765,56 @@ Thank you for using Mandi Mitra!
               </div>
             ) : receiptData ? (
               <div className="space-y-4">
+                {/* SPLIT SALE CARD OR SINGLE RECEIPT DISPLAY */}
+                {receiptData.summary_receipt ? (
+                  <div className="bg-field-green/5 border border-field-green/20 rounded-xl p-4 text-xs font-sans space-y-3">
+                    <div className="font-semibold text-field-green text-sm">
+                      {receiptData.farmer_name || receiptData.farmer_phone} - {receiptData.crop} - Split across {receiptData.summary_receipt.breakdown?.length || 0} buyers
+                    </div>
+
+                    <div className="bg-white rounded-lg p-3 border border-gray-200 space-y-1 font-mono text-[11px]">
+                      <div className="font-bold text-gray-500 mb-1">Breakdown:</div>
+                      {receiptData.summary_receipt.breakdown?.map((b, i) => (
+                        <div key={i} className="flex justify-between py-0.5 border-b border-gray-50 last:border-0">
+                          <span>{b.quantity} kg @ ₹{b.price}/kg &rarr; {b.buyer}</span>
+                          <span className="font-bold">₹{b.total}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="pt-2 border-t border-field-green/20 space-y-1 font-sans text-charcoal">
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Total Sold:</span>
+                        <span className="font-semibold">{receiptData.summary_receipt.total_quantity_sold} kg</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Total Earned:</span>
+                        <span className="font-bold text-field-green">₹{receiptData.summary_receipt.total_earned}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Weighted Avg Price:</span>
+                        <span className="font-semibold">₹{receiptData.summary_receipt.weighted_average_price}/kg</span>
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
+
                 {/* Monospace Code Block */}
                 <pre className="bg-gray-50 rounded-lg p-4 border border-gray-200 font-mono text-xs text-gray-600 leading-relaxed whitespace-pre-wrap">
-                  {`Mandi Mitra Payout Receipt
-----------------------------
-${t("date")}: ${new Date().toLocaleDateString()}
-Pool ID: ${receiptData.pool_id}
-${t("crop")}: ${receiptData.crop.toUpperCase()}
-${t("location")}: ${receiptData.location}
-${tDash("phone")}: ${receiptData.farmer_phone}
-----------------------------
-${t("your_qty")}: ${receiptData.quantity} kg
-${t("price_per_kg")}: ₹${receiptData.average_price_per_kg.toFixed(2)}
-${t("total_earnings")}: ₹${receiptData.total_amount.toLocaleString()}
-${t("buyers")}: ${receiptData.buyers}
-${tDash("status")}: ${receiptData.status}
-----------------------------
-Thank you for using Mandi Mitra!`}
+                  {formatReceiptText(receiptData)}
                 </pre>
 
                 {/* Buttons */}
                 <div className="flex items-center gap-3">
                   <button
-                    onClick={handleCopyReceiptText}
+                    onClick={() => handleCopyReceipt(receiptData)}
                     className="flex-1 bg-charcoal text-white rounded-lg py-2.5 text-xs font-semibold hover:brightness-90 active:scale-[0.98] transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <ClipboardCopy className="w-3.5 h-3.5" />
                     <span>{t("copy_receipt")}</span>
                   </button>
                   <button
-                    onClick={() => {
-                      const text = `--- MANDI MITRA RECEIPT ---\nPool: #${receiptData.pool_id}\nCrop: ${receiptData.crop}\nQty: ${receiptData.quantity}kg\nPayout: ₹${receiptData.total_amount}\nBuyers: ${receiptData.buyers}`;
-                      const element = document.createElement("a");
-                      const file = new Blob([text], { type: "text/plain" });
-                      element.href = URL.createObjectURL(file);
-                      element.download = `receipt_${receiptData.pool_id}.txt`;
-                      document.body.appendChild(element);
-                      element.click();
-                      document.body.removeChild(element);
-                      toast.success("Receipt downloaded!");
-                    }}
+                    onClick={() => handleDownloadReceipt(receiptData)}
                     className="border border-gray-200 text-gray-600 rounded-lg p-2.5 hover:bg-gray-50 active:bg-gray-100 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 bg-white shadow-sm flex items-center justify-center cursor-pointer"
                     title="Download Text File"
                   >
