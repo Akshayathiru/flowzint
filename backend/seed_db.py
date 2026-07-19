@@ -118,6 +118,34 @@ def seed_database():
 
         # 6. Settled Allocations
         allocs_data = [
+            # Buyer 1 (Ramesh Traders) - Pool 1 (Tomato)
+            {
+                "pool_id": p1.id,
+                "farmer_phone": "+919876543210",
+                "farmer_name": "Ramesh Kumar",
+                "buyer_id": buyers[0].id,
+                "buyer_name": "Ramesh Traders",
+                "quantity": 150.0,
+                "price_per_kg": 18.5,
+                "confirmation_status": "accepted",
+                "payment_status": "sent",
+                "payment_sent_at": now - timedelta(minutes=30),
+            },
+            # Buyer 2 (Sri Lakshmi Wholesale) - Pool 2 (Onion)
+            {
+                "pool_id": p2.id,
+                "farmer_phone": "+919712345678",
+                "farmer_name": "Selvam Pitchai",
+                "buyer_id": buyers[1].id,
+                "buyer_name": "Sri Lakshmi Wholesale",
+                "quantity": 140.0,
+                "price_per_kg": 22.0,
+                "confirmation_status": "accepted",
+                "payment_status": "received",
+                "payment_sent_at": now - timedelta(hours=1),
+                "payment_received_at": now - timedelta(minutes=45),
+            },
+            # Buyer 4 (Nilgiri Organics) - Pool 4 (Chilli)
             {
                 "pool_id": p4.id,
                 "farmer_phone": "+919876543210",
@@ -143,6 +171,7 @@ def seed_database():
                 "payment_status": "sent",
                 "payment_sent_at": now - timedelta(hours=2),
             },
+            # Buyer 5 (Kovai Fresh) - Pool 5 (Brinjal)
             {
                 "pool_id": p5.id,
                 "farmer_phone": "+919712345678",
@@ -177,6 +206,8 @@ def seed_database():
 
         # 7. Pickup Manifests
         manifests_data = [
+            {"pool_id": p1.id, "buyer_id": buyers[0].id, "buyer_name": "Ramesh Traders", "allocated_quantity": 150.0, "farmer_contacts": "+919876543210", "pickup_location": "Kanchipuram"},
+            {"pool_id": p2.id, "buyer_id": buyers[1].id, "buyer_name": "Sri Lakshmi Wholesale", "allocated_quantity": 140.0, "farmer_contacts": "+919712345678", "pickup_location": "Vellore"},
             {"pool_id": p4.id, "buyer_id": buyers[3].id, "buyer_name": "Nilgiri Organics", "allocated_quantity": 420.0, "farmer_contacts": "+919876543210, +919600570633", "pickup_location": "Salem"},
             {"pool_id": p5.id, "buyer_id": buyers[4].id, "buyer_name": "Kovai Fresh Produce", "allocated_quantity": 310.0, "farmer_contacts": "+919712345678, +919443322110", "pickup_location": "Tiruvannamalai"},
         ]
